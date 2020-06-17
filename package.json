@@ -1,5 +1,5 @@
 {
-  "name": "pokemon-showdown",
+  "name": "pokemonshowdown.js",
   "version": "1.0.0",
   "description": "Package for connecting to Pokemon Showdown servers.",
   "main": "index.js",
