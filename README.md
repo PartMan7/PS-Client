@@ -1,7 +1,32 @@
 # pokemonshowdown.js
 As the name suggests, this is a module that handles connection to Pokemon Showdown servers. Apart from a _very_ minimalistic configuration requirement, it also boasts multiple utility features, like promise-based messages, synchronized room and user data, alt tracking, and a lot of other stuff - go through the documentation for a complete summary.
 
-## Setup
+## Table of Contents
+
+- [Example](#example-setup)
+- [Configuration](#configuration)
+- [Structure](#structrue)
+    - [Client](#client-structure)
+    - [Message](#message-structure)
+    - [User](#user-structure)
+    - [Room](#room-structure)
+- [Credits](#credits)
+
+
+## Example Setup
+
+```javascript
+const Client = require('pokemonshowdown.js').Client;
+let Bot = new Client({username: 'PartMan', password: 'REDACTED', debug: true, avatar: 'supernerd', autoJoin: ['botdevelopment']});
+
+Bot.connect();
+
+Bot.on('message', message => {
+    if (message.content === 'Ping!') return message.reply('Pong!')
+});
+```
+
+## Configuration
 
 Creating a Bot is fairly simple - all you have to do is create a new instance of the Client and pass the configuration options.
 
@@ -32,6 +57,7 @@ There are multiple configuration options that can be specified - here's a comple
 }
 ```
 
+## Structure
 
 ### Client Structure
 Client is an instance of an EventEmitter, and is the primary class. You can generate multiple Clients in the same script and execute them in parallel.
@@ -39,8 +65,8 @@ Client is an instance of an EventEmitter, and is the primary class. You can gene
 Client has the following properties:
 * `opts`: An object containing most of the configuration options. Note that Client.opts.password is a function that returns the password instead of a string.
 * `isTrusted`: A boolean that indicates whether the Bot is running on a trusted account. Until this is received, this value is null.
-* `rooms`: An object containing all the rooms the Bot is in. The keys are the room IDs, while the values are Room instances.
-* `users`: An object containing all the users the Bot is aware of. The keys are the user IDs, while the values are User instances.
+* `rooms`: An object containing all the rooms the Bot is in. The keys are the room IDs, while the values are [Room](#room-structure) instances.
+* `users`: An object containing all the users the Bot is aware of. The keys are the user IDs, while the values are [User](#user-structure) instances.
 * `status`: An object containing three keys regarding the status of the connection. These are: ``connected``, which is a Boolean that indicates whether the Bot is currently connected, ``loggedIn``: a boolean that indicates whether the Bot has logged in successfully, and ``username``, which is the username the Bot has connected under.
 * `closed`: A boolean that indicates whether the connection is currently closed.
 * `queue`: An array that contains the messages that are currently in an outbound queue. Each element is of the form ``{content: string, sent: function, fail: function}``, where content is the message string, and sent / fail are the functions that handle the message promise.
@@ -65,7 +91,7 @@ Client has the following events:
 
 (`isIntro` indicates whether the event occurred prior to the connection.)
 
-Apart from these, Client emits all events in LINK not specified here with the following syntax:
+Apart from these, Client emits all events from [this](https://github.com/smogon/pokemon-showdown/blob/master/PROTOCOL.md) not specified here with the following syntax:
  ``(event) (room: string, line: string, isIntro: boolean)``
 
 
@@ -79,11 +105,11 @@ Message has the following properties:
 * `type`: The type of the message being received. Can be either `'pm'` or `'chat'`.
 * `isIntro`: A boolean that indicates whether the message was received as a past message on connection.
 * `time`: The Unix datestamp that indicates when the message was created. This is normally received from PS! wherever possible, but uses `Date.now()` if the data is unavailable.
-* `target`: This can be either a Room or a User, depending on whether the type is chat or pm. If the type is chat, this is the Room in which the message was sent. If the type is pm, this is the User with which the PM is with - note that this is not always the target of the PM, such as in cases where the Bot receives a PM from another user.
+* `target`: This can be either a [Room](#room-structure) or a [User](#user-structure), depending on whether the type is chat or pm. If the type is chat, this is the Room in which the message was sent. If the type is pm, this is the User with which the PM is with - note that this is not always the target of the PM, such as in cases where the Bot receives a PM from another user.
 * `original`: The original received message (ie, a message of the form `|c|+PartMan|Hi!` would have that as the original and `Hi!` as the content).
 
 Message only has one method:
-* `reply (text: string): Promise<Message>` sends a message to the target and returns a Promise that is resolved with the sent message, or is rejected with the message content. This is a shortcut for `Message#target#send`.
+* `reply (text: string): Promise<Message>` sends a message to the target and returns a Promise that is resolved with the sent Message, or is rejected with the message content. This is a shortcut for `Message#target#send`.
 
 
 ### User Structure
@@ -106,12 +132,12 @@ User has the following properties:
 * `rooms`: An object containing the rooms of the user, structured as `(rank)(roomid): {}` or `(rank)(roomid): {isPrivate: true}`.
 
 User has the following methods:
-* `send (text: string): Promise<Message>` sends a message to the User and returns a Promise that is resolved with the sent message, or is rejected with the message content.
+* `send (text: string): Promise<Message>` sends a message to the User and returns a Promise that is resolved with the sent [Message](#message-structure), or is rejected with the message content.
 * `waitFor (condition: (message: Message): boolean, time: number): Promise<Message>` waits for a message from the User. This is resolved when the Client receives a message from the User for which `condition` returns true, and is rejected if (time) milliseconds pass without being resolved. By default, time corresponds to 1 minute - you can set it to 0 to disable the time limit.
 
 
 ### Room Structure
-Room is the class that represents a chatroom on the server. By default, the Client only spawns User instances for rooms that the Bot is in.
+Room is the class that represents a chatroom on the server. By default, the Client only spawns Room instances for rooms that the Bot is in.
 
 Room has the following properties:
 * `parent`: This is the Client that holds the Room object.
@@ -126,8 +152,10 @@ Room has the following properties:
 * `users`: An array that contains the display names, as well as ranks, of the users in the room.
 
 Room has the following methods:
-* `send (text: string): Promise<Message>` sends a message to the Room and returns a Promise that is resolved with the sent message, or is rejected with the message content.
+* `send (text: string): Promise<Message>` sends a message to the Room and returns a Promise that is resolved with the sent [Message](#room-structure), or is rejected with the message content.
 * `waitFor (condition: (message: Message): boolean, time: number): Promise<Message>` waits for a message in the Room. This is resolved when the Client receives a message from the Room for which `condition` returns true, and is rejected if (time) milliseconds pass without being resolved. By default, time corresponds to 1 minute - you can set it to 0 to disable the time limit.
+
+
 
 ## Credits
 Written by @PartMan7. Many thanks to @Ecuacion for the base connection logic, and many others (@Morfent, @NotBlizzard, and @LegoFigure11, to name a few) for earlier assistance.
