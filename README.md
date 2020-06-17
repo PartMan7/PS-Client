@@ -1,4 +1,4 @@
-# pokemon-showdown
+# pokemonshowdown.js
 As the name suggests, this is a module that handles connection to Pokemon Showdown servers. Apart from a _very_ minimalistic configuration requirement, it also boasts multiple utility features, like promise-based messages, synchronized room and user data, alt tracking, and a lot of other stuff - go through the documentation for a complete summary.
 
 ## Setup
@@ -6,7 +6,7 @@ As the name suggests, this is a module that handles connection to Pokemon Showdo
 Creating a Bot is fairly simple - all you have to do is create a new instance of the Client and pass the configuration options.
 
 ```javascript
-const Client = require('pokemon-showdown').Client;
+const Client = require('pokemonshowdown.js').Client;
 let Bot = new Client({username: name, password: password});
 
 Bot.connect();
@@ -45,7 +45,7 @@ Client has the following properties:
 * `closed`: A boolean that indicates whether the connection is currently closed.
 * `queue`: An array that contains the messages that are currently in an outbound queue. Each element is of the form ``{content: string, sent: function, fail: function}``, where content is the message string, and sent / fail are the functions that handle the message promise.
 * `queued`: An array that contains messages that have been sent but not resolved. Elements are of the same structure as above.
-* `debug`, handle: These are where the debug and handler functions are stored.
+* `debug`, `handle`: These are where the debug and handler functions are stored.
 
 Client also has the following methods:
 * `connect (reconnect: boolean): void` - Creates the websocket to connect to the server, then logs in. ``reconnect`` has no significance besides logging the attempt as a reconnection attempt.
@@ -130,4 +130,4 @@ Room has the following methods:
 * `waitFor (condition: (message: Message): boolean, time: number): Promise<Message>` waits for a message in the Room. This is resolved when the Client receives a message from the Room for which `condition` returns true, and is rejected if (time) milliseconds pass without being resolved. By default, time corresponds to 1 minute - you can set it to 0 to disable the time limit.
 
 ## Credits
-Written by @PartMan7. Many thanks to @Ecuacion for the base connection logic, and many others (@Morfent, @NotBlizzard, and @LegoFigure11)
+Written by @PartMan7. Many thanks to @Ecuacion for the base connection logic, and many others (@Morfent, @NotBlizzard, and @LegoFigure11, to name a few) for earlier assistance.
