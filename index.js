@@ -1,9 +1,9 @@
 'use strict';
-let wsClient = require('websocket').client;
-let EventEmitter = require('events');
-let util = require('util');
-let https = require('https');
-let url = require('url');
+const wsClient = require('websocket').client;
+const EventEmitter = require('events');
+const util = require('util');
+const https = require('https');
+const url = require('url');
 
 function toID (text) {
 	return String(text).toLowerCase().replace(/[^a-z0-9]/g, '');
@@ -89,7 +89,6 @@ class Client extends EventEmitter {
 			});
 			connection.on('message', function (message) {
 				if (message.type === 'utf8') {
-					client.emit('message', message.utf8Data);
 					client.receive(message.utf8Data);
 				}
 			});
@@ -417,6 +416,7 @@ class Client extends EventEmitter {
 				this.send(`|/cmd userdetails ${yng}`);
 				break;
 			}
+			default: this.emit(args[1], room, args.slice(2).join('|'), isIntro);
 		}
 	}
 
