@@ -1,5 +1,5 @@
 {
-  "name": "pokemon-showdown-client",
+  "name": "ps-client",
   "version": "1.0.1",
   "description": "Package for connecting to Pokemon Showdown servers.",
   "main": "index.js",

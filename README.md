@@ -1,5 +1,5 @@
-# pokemon-showdown-client
-As the name suggests, this is a module that handles connection to Pokemon Showdown servers. Apart from a _very_ minimalistic configuration requirement, it also boasts multiple utility features, like promise-based messages, synchronized room and user data, alt tracking, and a lot of other stuff - go through the documentation for a complete summary.
+# ps-client
+This is a module that handles connection to Pokemon Showdown servers. Apart from a _very_ minimalistic configuration requirement, it also boasts multiple utility features, like promise-based messages, synchronized room and user data, alt tracking, and a lot of other stuff - go through the documentation for a complete summary.
 
 ## Table of Contents
 
@@ -16,7 +16,7 @@ As the name suggests, this is a module that handles connection to Pokemon Showdo
 ## Example Setup
 
 ```javascript
-const Client = require('pokemon-showdown-client').Client;
+const Client = require('ps-client').Client;
 let Bot = new Client({username: 'PartMan', password: 'REDACTED', debug: true, avatar: 'supernerd', autoJoin: ['botdevelopment']});
 
 Bot.connect();
@@ -32,7 +32,7 @@ Bot.on('message', message => {
 Creating a Bot is fairly simple - all you have to do is create a new instance of the Client and pass the configuration options.
 
 ```javascript
-const Client = require('pokemon-showdown-client').Client;
+const Client = require('ps-client').Client;
 let Bot = new Client({username: name, password: password});
 
 Bot.connect();
@@ -124,7 +124,7 @@ User has the following properties:
 * `alts`: This is an array of the userids of known alts of the user.
 * `waits`: This is an array of messages that are being awaited. Ideally, leave these alone.
 * `userid`: The ID of the user.
-* `id`: Also the ID of the user, because why not?
+* `id`: (Probably don't use this.)
 * `avatar`: The string / number referring to the avatar of the user. This is _not_ the complete avatar URL.
 * `name`: The string that shows the displayed name of the user, including capital letters and other characters.
 * `group`: The global rank of the user. Is ` ` for regular users.
