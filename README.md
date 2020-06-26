@@ -1,4 +1,4 @@
-# pokemonshowdown.js
+# pokemon-showdown-client
 As the name suggests, this is a module that handles connection to Pokemon Showdown servers. Apart from a _very_ minimalistic configuration requirement, it also boasts multiple utility features, like promise-based messages, synchronized room and user data, alt tracking, and a lot of other stuff - go through the documentation for a complete summary.
 
 ## Table of Contents
@@ -16,12 +16,13 @@ As the name suggests, this is a module that handles connection to Pokemon Showdo
 ## Example Setup
 
 ```javascript
-const Client = require('pokemonshowdown.js').Client;
+const Client = require('pokemon-showdown-client').Client;
 let Bot = new Client({username: 'PartMan', password: 'REDACTED', debug: true, avatar: 'supernerd', autoJoin: ['botdevelopment']});
 
 Bot.connect();
 
 Bot.on('message', message => {
+    if (message.isIntro) return;
     if (message.content === 'Ping!') return message.reply('Pong!')
 });
 ```
@@ -31,7 +32,7 @@ Bot.on('message', message => {
 Creating a Bot is fairly simple - all you have to do is create a new instance of the Client and pass the configuration options.
 
 ```javascript
-const Client = require('pokemonshowdown.js').Client;
+const Client = require('pokemon-showdown-client').Client;
 let Bot = new Client({username: name, password: password});
 
 Bot.connect();

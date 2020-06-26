@@ -1,6 +1,6 @@
 {
-  "name": "pokemonshowdown.js",
-  "version": "1.0.0",
+  "name": "pokemon-showdown-client",
+  "version": "1.0.1",
   "description": "Package for connecting to Pokemon Showdown servers.",
   "main": "index.js",
   "scripts": {},
@@ -12,7 +12,7 @@
   "license": "ISC",
   "repository": {
     "type": "git",
-    "url": "https://github.com/PartMan7/pokemon-showdown.js.git"
+    "url": "https://github.com/PartMan7/ps-client.git"
   },
   "dependencies": {
     "events": "^3.1.0",
