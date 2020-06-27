@@ -54,7 +54,7 @@ There are multiple configuration options that can be specified - here's a comple
     autoReconnect: number, // The time, in milliseconds, that your Bot will wait before attempting to reconnect after a disconnect. If this is 0, it will not attempt to reconnect. Defaults to 30 seconds.
     autoJoin: string[], // An array with the strings of the rooms you want the Bot to join.
     debug: (details: string): any, // The function you would like to run on debugs. If this is a falsey value, debug messages will not be displayed. If a true value is given which is not a function, the Bot simply logs messages to the console.
-    handle: (error: string | Error): any // Handling for internal errors. If a function is provided, this will run it with an error / string. The default function logs them to the console. To opt out of error handling (not recommended), set this as null.
+    handle: (error: string | Error): any // Handling for internal errors. If a function is provided, this will run it with an error / string. The default function logs them to the console. To opt out of error handling (not recommended), set this to null.
 }
 ```
 
