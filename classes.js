@@ -98,7 +98,7 @@ class Room {
 }
 
 class Message {
-	constructor (by, text, type, target, original, isIntro, parent, time) {
+	constructor (by, text, type, target, raw, isIntro, parent, time) {
 		by = toID(by);
 		if (!parent.users[by]) {
 			addUser({userid: by}, parent);
@@ -106,7 +106,10 @@ class Message {
 		}
 		this.author = parent.users[by];
 		this.content = text;
-		this.original = original;
+		let match = text.match(/^[\/\!][^ ]+/);
+		if (match) this.command = match[0];
+		else this.command = false;
+		this.raw = raw;
 		this.parent = parent;
 		this.type = type;
 		this.isIntro = Boolean(isIntro);
@@ -116,6 +119,7 @@ class Message {
 		switch (this.type) {
 			case 'chat': this.target = this.parent.rooms[target]; break;
 			case 'pm': this.target = this.parent.users[target]; break;
+			default: console.error(this.type);
 		}
 	}
 	reply (text) {

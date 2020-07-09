@@ -42,14 +42,14 @@ class Client extends EventEmitter {
 		this.queue = [];
 		this.queued = [];
 
-		this.debug = opts.debug ? text => console.log(text) : () => {};
-		this.handle = opts.handle === null ? () => {} : (typeof opts.handle === 'function' ? opts.handle : err => console.error(err));
+		this.debug = opts.debug ? console.log : () => {};
+		this.handle = opts.handle === null ? () => {} : (typeof opts.handle === 'function' ? opts.handle : console.error);
 	}
 
 	// Websocket
 	connect (re) {
 		if (re) console.log('Retrying...');
-		if (this.status.connected) return this.handle('Already connected.');
+		if (this.status && this.status.connected) return this.handle('Already connected.');
 		this.closed = false;
 		let webSocket = new wsClient();
 		this.webSocket = webSocket;
@@ -206,6 +206,14 @@ class Client extends EventEmitter {
 		this.queue.push({content: text, sent: sent, fail: fail});
 		return;
 	}
+	sendUser (user, text) {
+		let userid;
+		if (user instanceof User) userid = user.userid;
+		else userid = toID(user);
+		if (!userid) this.handle('Invalid ID in Client#sendUser');
+		addUser({userid: userid}, this);
+		return this.users[userid].send(text);
+	}
 
 	// Receiving data
 	receive (message) {
@@ -259,6 +267,8 @@ class Client extends EventEmitter {
 				if (!args[2].startsWith(' Guest')) {
 					this.debug(`Successfully logged in as ${args[2].substr(1)}.`);
 					this.status.loggedIn = true;
+					this.emit('loggedin', args[2]);
+					if (!this.activatedQueue) this.activateQueue();
 				}
 				this.status.username = args[2].substr(1);
 				this.opts.autoJoin.forEach(room => this.send(`|/join ${room}`));
@@ -290,7 +300,6 @@ class Client extends EventEmitter {
 				if (this.status.loggedIn && typeof this.opts.isTrusted !== 'boolean') {
 					if (message.includes('<small style="color:gray">(trusted)</small>')) this.opts.isTrusted = true;
 					else this.opts.isTrusted = false;
-					if (!this.activatedQueue) this.activateQueue();
 				}
 				this.emit('html', room, args.slice(2).join('|'), isIntro);
 				break;
@@ -305,7 +314,7 @@ class Client extends EventEmitter {
 							this.handle(`Error in parsing roominfo: ${e.message}`);
 						}
 						if (!this.rooms[roominfo.roomid]) break;
-						Object.keys(roominfo).forEach(key => this.rooms[roominfo.roomid].key = roominfo[key]);
+						Object.keys(roominfo).forEach(key => this.rooms[roominfo.roomid][key] = roominfo[key]);
 						roominfo.users.forEach(user => this.send(`|/cmd userdetails ${user.substr(1)}`));
 						break;
 					}
@@ -374,24 +383,33 @@ class Client extends EventEmitter {
 				if (by.substr(1) === this.status.username) chatWith = to;
 				else chatWith = by;
 				let mssg = new Message(by, value, 'pm', toID(chatWith), message, isIntro, this, Date.now()), comp = `|/pm ${toID(to)},${value}`;
-				mssg.target.waits.forEach(wait => {
-					if (wait.condition(mssg)) {
-						wait.resolve(mssg);
-						resolved.push(wait.id);
-					}
-				});
-				mssg.target.waits = mssg.target.waits.filter(wait => !resolved.includes(wait.id));
-				if (!isIntro && by.substr(1) === this.status.username && this.queued.map(msg => msg.content).includes(comp)) {
-					while (this.queued.length) {
-						let msg = this.queued.shift();
-						if (msg.content === comp) {
-							msg.sent(mssg);
-							break;
+				if (mssg.command && mssg.command === 'error') mssg.target.waits.shift().fail(mssg.content.substr(7));
+				if (mssg.target) {
+					mssg.target.waits.forEach(wait => {
+						if (wait.condition(mssg)) {
+							wait.resolve(mssg);
+							resolved.push(wait.id);
 						}
-						msg.fail(msg.content);
+					});
+					mssg.target.waits = mssg.target.waits.filter(wait => !resolved.includes(wait.id));
+					if (!isIntro && by.substr(1) === this.status.username && this.queued.map(msg => msg.content).includes(comp)) {
+						while (this.queued.length) {
+							let msg = this.queued.shift();
+							if (msg.content === comp) {
+								msg.sent(mssg);
+								break;
+							}
+							msg.fail(msg.content);
+							if (/^\/error (?:User .*? is offline\.|User .*? not found\. Did you misspell their name\?)$/.test(value)) break;
+						}
+					}
+				} else {
+					if (message.startsWith('/raw ') && this.status.loggedIn && typeof this.opts.isTrusted !== 'boolean') {
+						if (message.includes('<small style="color:gray">(trusted)</small>')) this.opts.isTrusted = true;
+						else this.opts.isTrusted = false;
 					}
 				}
-				this.emit('message', mssg);
+				if (mssg.target) this.emit('message', mssg);
 				break;
 			}
 			case 'j': case 'J': case 'join': {
@@ -416,12 +434,17 @@ class Client extends EventEmitter {
 				this.send(`|/cmd userdetails ${yng}`);
 				break;
 			}
+			case 'error': {
+				this.emit('chaterror', room, args.slice(2).join('|'), isIntro);
+				break;
+			}
 			default: this.emit(args[1], room, args.slice(2).join('|'), isIntro);
 		}
 	}
 
 	// Utility
 	getUser (str) {
+		if (str instanceof User) str = str.userid;
 		if (typeof str !== 'string') return null;
 		str = toID(str);
 		if (this.users[str]) return this.users[str];
