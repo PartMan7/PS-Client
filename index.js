@@ -15,13 +15,13 @@ const Tools = require('./tools.js');
 class Client extends EventEmitter {
 	constructor (opts) {
 		super();
-		if (!opts) return console.error('Umm, you missed the configuration options...');
+		if (!opts) return console.error("Umm, you missed the configuration options...");
 		this.opts = {
 			server: opts.server || 'sim.smogon.com',
 			serverid: 'showdown',
 			port: opts.port || 8000,
 			connectionTimeout: opts.connectionTimeout || (2 * 60 * 1000),
-			loginServer: opts.loginServer || 'https://play.pokemonshowdown.com/~~showdown/action.php',
+			loginServer: opts.loginServer || "https://play.pokemonshowdown.com/~~showdown/action.php",
 			username: opts.username,
 			password: () => opts.password,
 			avatar: opts.avatar,
@@ -51,7 +51,7 @@ class Client extends EventEmitter {
 	// Websocket
 	connect (re) {
 		if (re) console.log('Retrying...');
-		if (this.status && this.status.connected) return this.handle('Already connected.');
+		if (this.status && this.status.connected) return this.handle("Already connected.");
 		this.closed = false;
 		let webSocket = new wsClient();
 		this.webSocket = webSocket;
@@ -59,33 +59,33 @@ class Client extends EventEmitter {
 		client.rooms = {}; //reset
 		webSocket.on('connectFailed', function (err) {
 				client.emit('disconnect', err);
-				client.handle("Unable to connect to " + client.opts.server + ": " + util.inspect(err));
+				client.handle(`Unable to connect to ${client.opts.server}: ${util.inspect(err)}`);
 				if (client.opts.autoReconnect) {
-					client.debug("Retrying connection in " + client.opts.autoReconnect / 1000 + "s.");
+					client.debug(`Retrying connection in ${client.opts.autoReconnect / 1000}s.`);
 					setTimeout(client.connect, client.opts.autoReconnect, true);
 				}
 		});
 		webSocket.on('connect', function (connection) {
-			client.debug("Connected to " + client.opts.server + ".");
+			client.debug(`Connected to ${client.opts.server}.`);
 			client.status.connected = true;
 			client.connection = connection;
 			connection.on('error', function (err) {
 				client.emit('disconnect', err);
-				client.handle("Connection error: " + util.inspect(err));
+				client.handle(`Connection error: ${util.inspect(err)}`);
 				client.connection = null;
 				client.status.connected = false;
 				if (client.opts.autoReconnect) {
-					client.debug("Retrying connection in " + client.opts.autoReconnect / 1000 + "s.");
+					client.debug(`Retrying connection in ${client.opts.autoReconnect / 1000}s.`);
 					setTimeout(client.connect, client.opts.autoReconnect, true);
 				}
 			});
 			connection.on('close', function () {
 				client.emit('disconnect', null);
-				client.debug("Connection closed: " + util.inspect(arguments));
+				client.debug(`Connection closed: ${util.inspect(arguments)}`);
 				client.connection = null;
 				client.status.connected = false;
 				if (!client.closed && client.opts.autoReconnect) {
-					client.debug("Retrying connection in " + client.opts.autoReconnect / 1000 + "s.");
+					client.debug(`Retrying connection in ${client.opts.autoReconnect / 1000}s.`);
 					setTimeout(client.connect, client.opts.autoReconnect, true);
 				}
 			});
@@ -95,7 +95,7 @@ class Client extends EventEmitter {
 				}
 			});
 		});
-		let link = "ws://" + client.opts.server + ":" + client.opts.port + "/showdown/" + (100 + ~~(Math.random() * 900)) + "/" + Array.from({ length: 8 }).map(() => 'abcdefghijklmnopqrstuvwxyz0123456789_'[~~(Math.random() * 37)]).join('') + "/websocket";
+		let link = `ws://${client.opts.server}:${client.opts.port}/showdown/${100 + ~~(Math.random() * 900)}/${Array.from({ length: 8 }).map(() => 'abcdefghijklmnopqrstuvwxyz0123456789_'[~~(Math.random() * 37)]).join('')}/websocket`;
 		webSocket.connect(link);
 	}
 	disconnect () {
@@ -117,12 +117,12 @@ class Client extends EventEmitter {
 		}
 		else {
 			reqOptions.method = 'POST';
-			data = "act=login&name=" + Tools.toID(name) + "&pass=" + pass + "&challengekeyid=" + this.challstr.id + "&challenge=" + this.challstr.str;
+			data = `act=login&name=${Tools.toID(name)}&pass=${pass}&challengekeyid=${this.challstr.id}&challenge=${this.challstr.str}`;
 			reqOptions.headers = {
-				'Content-Type': 'application/x-www-form-urlencoded',
-				'Content-Length': data.length
+				"Content-Type": "application/x-www-form-urlencoded",
+				"Content-Length": data.length
 			}
-			this.debug("Shooting login request to " + reqOptions.path + " with " + data);
+			this.debug(`Shooting login request to ${reqOptions.path} with ${data}`);
 		}
 		let client = this;
 		let req = https.request(reqOptions, function (res) {
@@ -131,24 +131,24 @@ class Client extends EventEmitter {
 			res.on('data', chunk => data += chunk);
 			res.on('end', function () {
 				if (data === ';') {
-					client.handle('Failed to login - incorrect credentials.');
+					client.handle("Failed to login - incorrect credentials.");
 					client.emit('loginFailure', -1);
 					return;
 				}
 				if (data.length < 50) {
 					client.handle("Failed to login: " + data);
 					if (client.opts.retryLogin) {
-						client.debug("Retrying login in " + client.opts.retryLogin / 1000 + "s.");
+						client.debug(`Retrying login in ${client.opts.retryLogin / 1000}s.`);
 						setTimeout(client.login, client.opts.retryLogin, name, pass);
 					}
 					client.emit('loginFailure', -2);
 					return;
 				}
 				if (data.includes('heavy load')) {
-					client.handle('The login server is under heavy load.');
+					client.handle("The login server is under heavy load.");
 					client.emit('loginFailure', -3);
 					if (client.opts.retryLogin) {
-						client.debug("Retrying login in " + client.opts.retryLogin / 1000 + "s.");
+						client.debug(`Retrying login in ${client.opts.retryLogin / 1000}s.`);
 						setTimeout(client.login, client.opts.retryLogin, name, pass);
 					}
 					return;
@@ -157,24 +157,24 @@ class Client extends EventEmitter {
 					data = JSON.parse(data.substr(1));
 					if (data.actionsuccess) data = data.assertion;
 					else {
-						client.handle("Unable to login: " + JSON.stringify(data));
+						client.handle(`Unable to login: ${JSON.stringify(data)}`);
 						client.emit('loginFailure', -4);
 						if (client.opts.retryLogin) {
-							client.debug("Retrying login in " + client.opts.retryLogin / 1000 + "s.");
+							client.debug(`Retrying login in ${client.opts.retryLogin / 1000}s.`);
 							setTimeout(client.login, client.opts.retryLogin, name, pass);
 						}
 						return;
 					}
 				} catch (e) {}
-				client.debug('Sending login trn...');
-				client.send("|/trn " + name + ",0," + data);
+				client.debug("Sending login trn...");
+				client.send(`|/trn ${name},0,${data}`);
 			});
 		});
 		req.on('error', function (err) {
-			client.handle("Login error: " + util.inspect(err));
+			client.handle(`Login error: ${util.inspect(err)}`);
 			client.emit('loginFailure', err);
 			if (client.opts.retryLogin) {
-				client.debug("Retrying login in " + client.opts.retryLogin / 1000 + "s.");
+				client.debug(`Retrying login in ${client.opts.retryLogin / 1000}s.`);
 				setTimeout(client.login, client.opts.retryLogin, name, pass);
 			}
 			return;
@@ -198,7 +198,7 @@ class Client extends EventEmitter {
 		if (!text.length) return;
 		if (!this.connection) return this.handle('Not connected!');
 		if (!Array.isArray(text)) text = [text];
-		if (text.length > 3) this.handle('The message limit is 3 at a time! Please use Client#sendQueue instead.');
+		if (text.length > 3) this.handle("The message limit is 3 at a time! Please use Client#sendQueue instead.");
 		text = JSON.stringify(text);
 		this.connection.send(text);
 		return;
@@ -212,7 +212,7 @@ class Client extends EventEmitter {
 		let userid;
 		if (user instanceof User) userid = user.userid;
 		else userid = Tools.toID(user);
-		if (!userid) this.handle('Invalid ID in Client#sendUser');
+		if (!userid) this.handle("Invalid ID in Client#sendUser");
 		this.addUser({userid: userid});
 		return this.users[userid].send(text);
 	}
@@ -299,7 +299,7 @@ class Client extends EventEmitter {
 			}
 			case 'html': {
 				if (this.status.loggedIn && typeof this.opts.isTrusted !== 'boolean') {
-					if (message.includes('<small style="color:gray">(trusted)</small>')) this.opts.isTrusted = true;
+					if (message.includes("<small style=\"color:gray\">(trusted)</small>")) this.opts.isTrusted = true;
 					else this.opts.isTrusted = false;
 					if (!this.activatedQueue) this.activateQueue();
 				}
@@ -416,7 +416,7 @@ class Client extends EventEmitter {
 					}
 				} else {
 					if (value.startsWith('/raw ') && this.status.loggedIn && typeof this.opts.isTrusted !== 'boolean') {
-						if (value.includes('<small style="color:gray">(trusted)</small>')) this.opts.isTrusted = true;
+						if (value.includes("<small style=\"color:gray\">(trusted)</small>")) this.opts.isTrusted = true;
 						else this.opts.isTrusted = false;
 						if (!this.activatedQueue) this.activateQueue();
 					}
@@ -456,7 +456,7 @@ class Client extends EventEmitter {
 
 	// Utility
 	addUser (input) {
-		if (typeof input !== 'object' || !input.userid) throw new Error ('Input must be an object with userid for new User');
+		if (typeof input !== 'object' || !input.userid) throw new Error ("Input must be an object with userid for new User");
 		let user = this.users[input.userid];
 		if (!user) {
 			this.users[input.userid] = new User (input, this);
@@ -479,7 +479,7 @@ class Client extends EventEmitter {
 	getUserDetails (userid) {
 		userid = Tools.toID(userid);
 		let client = this;
-		return new Promise ((resolve, reject) => {
+		return new Promise (resolve => {
 			this.send(`|/cmd userdetails ${userid}`);
 			client.userdetailsQueue.push({id: userid, resolve: resolve});
 		});

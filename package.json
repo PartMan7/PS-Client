@@ -3,7 +3,9 @@
   "version": "1.0.3",
   "description": "Package for connecting to Pokemon Showdown servers.",
   "main": "index.js",
-  "scripts": {},
+  "scripts": {
+    "lint": "eslint . --config .eslintrc.json --cache --ext .js,.ts"
+  },
   "keywords": [
     "pokemon",
     "showdown"
