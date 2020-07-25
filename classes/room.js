@@ -1,3 +1,5 @@
+"use strict";
+
 class Room {
 	constructor (name, parent) {
 		this.roomid = name.toLowerCase().replace(/[^a-z0-9-]/g, '');
@@ -24,7 +26,7 @@ class Room {
 		return new Promise ((resolve, reject) => {
 			let id = Date.now();
 			if (time) setTimeout(() => {
-				reject('Timed out.');
+				reject(new Error('Timed out.'));
 				room.waits = room.waits.filter(wait => wait.id !== id);
 			}, time);
 			room.waits.push({

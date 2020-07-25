@@ -1,3 +1,5 @@
+"use strict";
+
 class User {
 	constructor (init, parent) {
 		Object.keys(init).forEach(key => this[key] = init[key]);
@@ -25,7 +27,7 @@ class User {
 		return new Promise ((resolve, reject) => {
 			let id = Date.now();
 			if (time) setTimeout(() => {
-				reject('Timed out.');
+				reject(new Error('Timed out.'));
 				user.waits = user.waits.filter(wait => wait.id !== id);
 			}, time);
 			user.waits.push({

@@ -1,4 +1,5 @@
-'use strict';
+"use strict";
+
 const wsClient = require('websocket').client;
 const EventEmitter = require('events');
 const util = require('util');
@@ -342,7 +343,8 @@ class Client extends EventEmitter {
 				break;
 			}
 			case 'chat': case 'c': {
-				let by = args[2], value = args.slice(3).join('|'), mssg = new Message(by, value, 'chat', room, message, isIntro, this), resolved = [];
+				// by, text, type, target, raw, isIntro, parent, time
+				let by = args[2], value = args.slice(3).join('|'), mssg = new Message({by: by, text: value, type: 'chat', target: room, raw: message, isIntro: isIntro, parent: this}), resolved = [];
 				mssg.target.waits.forEach(wait => {
 					if (wait.condition(mssg)) {
 						wait.resolve(mssg);
@@ -366,7 +368,7 @@ class Client extends EventEmitter {
 				break;
 			}
 			case 'c:': {
-				let by = args[3], value = args.slice(4).join('|'), mssg = new Message(by, value, 'chat', room, message, isIntro, this, parseInt(args[2])), comp = room + '|' + value, resolved = [];
+				let by = args[3], value = args.slice(4).join('|'), mssg = new Message({by: by, text: value, type: 'chat', target: room, raw: message, isIntro: isIntro, parent: this, time: parseInt(args[2])}), comp = room + '|' + value, resolved = [];
 				mssg.target.waits.forEach(wait => {
 					if (wait.condition(mssg)) {
 						wait.resolve(mssg);
@@ -391,7 +393,7 @@ class Client extends EventEmitter {
 				let by = args[2], to = args[3], value = args.slice(4).join('|'), chatWith, resolved = [];
 				if (by.substr(1) === this.status.username) chatWith = to;
 				else chatWith = by;
-				let mssg = new Message(by, value, 'pm', Tools.toID(chatWith), message, isIntro, this, Date.now()), comp = `|/pm ${Tools.toID(to)},${value}`;
+				let mssg = new Message({by: by, text: value, type: 'pm', target: Tools.toID(chatWith), raw: message, isIntro: isIntro, parent: this, time: Date.now()}), comp = `|/pm ${Tools.toID(to)},${value}`;
 				if (mssg.command && mssg.command === 'error') mssg.target.waits.shift().fail(mssg.content.substr(7));
 				if (mssg.target) {
 					mssg.target.waits.forEach(wait => {
@@ -480,7 +482,6 @@ class Client extends EventEmitter {
 		return new Promise ((resolve, reject) => {
 			this.send(`|/cmd userdetails ${userid}`);
 			client.userdetailsQueue.push({id: userid, resolve: resolve});
-			setTimeout(reject, 10 * 60 * 1000, 'Timed out.');
 		});
 	}
 }
