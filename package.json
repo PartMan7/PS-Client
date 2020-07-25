@@ -16,5 +16,8 @@
   },
   "dependencies": {
     "websocket": "^1.0.31"
+  },
+  "devDependencies": {
+    "eslint": "^7.4.0"
   }
 }

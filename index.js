@@ -5,11 +5,11 @@ const util = require('util');
 const https = require('https');
 const url = require('url');
 
-function toID (text) {
-	return String(text).toLowerCase().replace(/[^a-z0-9]/g, '');
-}
+const User = require('./classes/user.js');
+const Room = require('./classes/room.js');
+const Message = require('./classes/message.js');
+const Tools = require('./tools.js');
 
-const { User, Room, Message, addUser } = require('./classes.js');
 
 class Client extends EventEmitter {
 	constructor (opts) {
@@ -41,6 +41,7 @@ class Client extends EventEmitter {
 		this.closed = true;
 		this.queue = [];
 		this.queued = [];
+		this.userdetailsQueue = []; // {id: string, resolve: resolve, reject: reject}
 
 		this.debug = opts.debug ? console.log : () => {};
 		this.handle = opts.handle === null ? () => {} : (typeof opts.handle === 'function' ? opts.handle : console.error);
@@ -93,7 +94,7 @@ class Client extends EventEmitter {
 				}
 			});
 		});
-		let link = "ws://" + client.opts.server + ":" + client.opts.port + "/showdown/" + (100 + ~~(Math.random() * 900)) + "/" + Array.from({ length: 8 }).map(char => 'abcdefghijklmnopqrstuvwxyz0123456789_'[~~(Math.random() * 37)]).join('') + "/websocket";
+		let link = "ws://" + client.opts.server + ":" + client.opts.port + "/showdown/" + (100 + ~~(Math.random() * 900)) + "/" + Array.from({ length: 8 }).map(() => 'abcdefghijklmnopqrstuvwxyz0123456789_'[~~(Math.random() * 37)]).join('') + "/websocket";
 		webSocket.connect(link);
 	}
 	disconnect () {
@@ -110,12 +111,12 @@ class Client extends EventEmitter {
 		let data = '';
 		if (!pass) {
 			reqOptions.method = 'GET';
-			reqOptions.path += "?act=getassertion&userid=" + toID(name) + "&challengekeyid=" + this.challstr.id + "&challenge=" + this.challstr.str;
+			reqOptions.path += "?act=getassertion&userid=" + Tools.toID(name) + "&challengekeyid=" + this.challstr.id + "&challenge=" + this.challstr.str;
 			this.debug("Sending login request to " + reqOptions.path);
 		}
 		else {
 			reqOptions.method = 'POST';
-			data = "act=login&name=" + toID(name) + "&pass=" + pass + "&challengekeyid=" + this.challstr.id + "&challenge=" + this.challstr.str;
+			data = "act=login&name=" + Tools.toID(name) + "&pass=" + pass + "&challengekeyid=" + this.challstr.id + "&challenge=" + this.challstr.str;
 			reqOptions.headers = {
 				'Content-Type': 'application/x-www-form-urlencoded',
 				'Content-Length': data.length
@@ -163,7 +164,7 @@ class Client extends EventEmitter {
 						}
 						return;
 					}
-				} catch (e) {};
+				} catch (e) {}
 				client.debug('Sending login trn...');
 				client.send("|/trn " + name + ",0," + data);
 			});
@@ -187,7 +188,7 @@ class Client extends EventEmitter {
 		client.activatedQueue = true;
 		this.queueTimer = setInterval(() => {
 			let messages = client.queue.splice(0, 3);
-			this.queued.push(...messages.filter(msg => /^(?:[a-z0-9-]+\|[^\/]|\|\/pm [^,]+,[^\/])/.test(msg.content)));
+			this.queued.push(...messages.filter(msg => /^(?:[a-z0-9-]+\|[^/]|\|\/pm [^,]+,[^/])/.test(msg.content)));
 			this.send(Object.values(messages).map(message => message.content));
 		}, throttle);
 		return;
@@ -209,9 +210,9 @@ class Client extends EventEmitter {
 	sendUser (user, text) {
 		let userid;
 		if (user instanceof User) userid = user.userid;
-		else userid = toID(user);
+		else userid = Tools.toID(user);
 		if (!userid) this.handle('Invalid ID in Client#sendUser');
-		addUser({userid: userid}, this);
+		this.addUser({userid: userid});
 		return this.users[userid].send(text);
 	}
 
@@ -268,12 +269,11 @@ class Client extends EventEmitter {
 					this.debug(`Successfully logged in as ${args[2].substr(1)}.`);
 					this.status.loggedIn = true;
 					this.emit('loggedin', args[2]);
-					if (!this.activatedQueue) this.activateQueue();
+					this.send('|/ip');
+					this.opts.autoJoin.forEach(room => this.send(`|/join ${room}`));
+					if (this.opts.avatar) this.send(`|/avatar ${this.opts.avatar}`);
 				}
 				this.status.username = args[2].substr(1);
-				this.opts.autoJoin.forEach(room => this.send(`|/join ${room}`));
-				if (this.opts.avatar) this.send(`|/avatar ${this.opts.avatar}`);
-				this.send('|/ip');
 				this.emit('updateuser', room, args.slice(2).join('|'), isIntro);
 				break;
 			}
@@ -300,6 +300,7 @@ class Client extends EventEmitter {
 				if (this.status.loggedIn && typeof this.opts.isTrusted !== 'boolean') {
 					if (message.includes('<small style="color:gray">(trusted)</small>')) this.opts.isTrusted = true;
 					else this.opts.isTrusted = false;
+					if (!this.activatedQueue) this.activateQueue();
 				}
 				this.emit('html', room, args.slice(2).join('|'), isIntro);
 				break;
@@ -315,7 +316,7 @@ class Client extends EventEmitter {
 						}
 						if (!this.rooms[roominfo.roomid]) break;
 						Object.keys(roominfo).forEach(key => this.rooms[roominfo.roomid][key] = roominfo[key]);
-						roominfo.users.forEach(user => this.send(`|/cmd userdetails ${user.substr(1)}`));
+						roominfo.users.forEach(user => this.getUserDetails(user).catch(this.handle));
 						break;
 					}
 					case 'userdetails': {
@@ -325,7 +326,15 @@ class Client extends EventEmitter {
 						} catch (e) {
 							this.handle(`Error in parsing userdetails: ${e.message}`);
 						}
-						this.users[userdetails.userid] = addUser(userdetails, this);
+						this.addUser(userdetails);
+						let user;
+						for (let u of this.userdetailsQueue) {
+							if (u.id === userdetails.id) {
+								user = u;
+								break;
+							}
+						}
+						if (user) user.resolve(userdetails);
 						break;
 					}
 				}
@@ -382,7 +391,7 @@ class Client extends EventEmitter {
 				let by = args[2], to = args[3], value = args.slice(4).join('|'), chatWith, resolved = [];
 				if (by.substr(1) === this.status.username) chatWith = to;
 				else chatWith = by;
-				let mssg = new Message(by, value, 'pm', toID(chatWith), message, isIntro, this, Date.now()), comp = `|/pm ${toID(to)},${value}`;
+				let mssg = new Message(by, value, 'pm', Tools.toID(chatWith), message, isIntro, this, Date.now()), comp = `|/pm ${Tools.toID(to)},${value}`;
 				if (mssg.command && mssg.command === 'error') mssg.target.waits.shift().fail(mssg.content.substr(7));
 				if (mssg.target) {
 					mssg.target.waits.forEach(wait => {
@@ -404,9 +413,10 @@ class Client extends EventEmitter {
 						}
 					}
 				} else {
-					if (message.startsWith('/raw ') && this.status.loggedIn && typeof this.opts.isTrusted !== 'boolean') {
-						if (message.includes('<small style="color:gray">(trusted)</small>')) this.opts.isTrusted = true;
+					if (value.startsWith('/raw ') && this.status.loggedIn && typeof this.opts.isTrusted !== 'boolean') {
+						if (value.includes('<small style="color:gray">(trusted)</small>')) this.opts.isTrusted = true;
 						else this.opts.isTrusted = false;
+						if (!this.activatedQueue) this.activateQueue();
 					}
 				}
 				if (mssg.target) this.emit('message', mssg);
@@ -414,7 +424,7 @@ class Client extends EventEmitter {
 			}
 			case 'j': case 'J': case 'join': {
 				this.send(`|/cmd roominfo ${room}`);
-				addUser({userid: toID(args.slice(2).join('|'))}, this);
+				this.addUser({userid: Tools.toID(args.slice(2).join('|'))});
 				this.emit('join', room, args.slice(2).join('|'), isIntro);
 				break;
 			}
@@ -426,12 +436,12 @@ class Client extends EventEmitter {
 			case 'n': case 'N': case 'name': {
 				this.send(`|/cmd roominfo ${room}`);
 				this.emit('name', room, args[2], args[3]);
-				let old = toID(args[3]), yng = toID(args[2]);
+				let old = Tools.toID(args[3]), yng = Tools.toID(args[2]);
 				if (!this.users[old]) break;
 				this.users[old].alts.push(yng);
 				this.users[yng] = this.users[old];
 				delete this.users[old];
-				this.send(`|/cmd userdetails ${yng}`);
+				this.getUserDetails(yng);
 				break;
 			}
 			case 'error': {
@@ -443,20 +453,42 @@ class Client extends EventEmitter {
 	}
 
 	// Utility
+	addUser (input) {
+		if (typeof input !== 'object' || !input.userid) throw new Error ('Input must be an object with userid for new User');
+		let user = this.users[input.userid];
+		if (!user) {
+			this.users[input.userid] = new User (input, this);
+			user = this.users[input.userid];
+			this.getUserDetails(input.userid);
+		}
+		Object.keys(input).forEach(key => user[key] = input[key]);
+		return user;
+	}
 	getUser (str) {
 		if (str instanceof User) str = str.userid;
 		if (typeof str !== 'string') return null;
-		str = toID(str);
+		str = Tools.toID(str);
 		if (this.users[str]) return this.users[str];
 		for (let user of this.users) {
 			if (user.alts.includes(str)) return user;
 		}
 		return false;
 	}
+	getUserDetails (userid) {
+		userid = Tools.toID(userid);
+		let client = this;
+		return new Promise ((resolve, reject) => {
+			this.send(`|/cmd userdetails ${userid}`);
+			client.userdetailsQueue.push({id: userid, resolve: resolve});
+			setTimeout(reject, 10 * 60 * 1000, 'Timed out.');
+		});
+	}
 }
+
 module.exports = {
 	Client: Client,
 	User: User,
 	Room: Room,
-	Message: Message
+	Message: Message,
+	Tools: Tools
 }
