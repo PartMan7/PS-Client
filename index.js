@@ -10,6 +10,7 @@ const User = require('./classes/user.js');
 const Room = require('./classes/room.js');
 const Message = require('./classes/message.js');
 const Tools = require('./tools.js');
+const Data = {};
 
 
 class Client extends EventEmitter {
@@ -50,7 +51,7 @@ class Client extends EventEmitter {
 
 	// Websocket
 	connect (re) {
-		if (re) console.log('Retrying...');
+		if (re) console.log('Retrying...', this);
 		if (this.status && this.status.connected) return this.handle("Already connected.");
 		this.closed = false;
 		let webSocket = new wsClient();
@@ -486,10 +487,26 @@ class Client extends EventEmitter {
 	}
 }
 
+
+Data.abilities = require('./showdown/abilities.js').BattleAbilities;
+Data.aliases = require('./showdown/aliases.js').BattleAliases;
+Data.config = require('./showdown/config.js').Config;
+Data.formatsData = require('./showdown/formats-data.js').BattleFormatsData;
+Data.formats = require('./showdown/formats.js').Formats;
+Data.items = require('./showdown/items.js').BattleItems;
+Data.learnsets = require('./showdown/learnsets.js').BattleLearnsets;
+Data.moves = require('./showdown/moves.js').BatleMovedex;
+Data.pokedex = require('./showdown/pokedex.js').BattlePokedex;
+Data.typechart = require('./showdown/typechart.js').BattleTypeChart;
+
+
 module.exports = {
 	Client: Client,
-	User: User,
-	Room: Room,
-	Message: Message,
-	Tools: Tools
+	classes: {
+		Message: Message,
+		User: User,
+		Room: Room
+	},
+	Tools: Tools,
+	Data: Data
 }

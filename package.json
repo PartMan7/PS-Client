@@ -4,7 +4,7 @@
   "description": "Package for connecting to Pokemon Showdown servers.",
   "main": "index.js",
   "scripts": {
-    "lint": "eslint . --config .eslintrc.json --cache --ext .js,.ts"
+    "lint": "eslint . --config .eslintrc.json *.js"
   },
   "keywords": [
     "pokemon",
@@ -17,6 +17,7 @@
     "url": "https://github.com/PartMan7/ps-client.git"
   },
   "dependencies": {
+    "axios": "^0.19.2",
     "websocket": "^1.0.31"
   },
   "devDependencies": {

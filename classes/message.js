@@ -19,7 +19,7 @@ class Message {
 		this.parent = parent;
 		this.type = type;
 		this.isIntro = Boolean(isIntro);
-		if (time) this.time = time;
+		if (time) this.time = time * 1000;
 		else this.time = Date.now();
 		switch (this.type) {
 			case 'chat':
