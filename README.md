@@ -3,6 +3,7 @@ This is a module that handles connection to Pokemon Showdown servers. Apart from
 
 ## Table of Contents
 
+- [Installation](#installation)
 - [Example](#example-setup)
 - [Configuration](#configuration)
 - [Structure](#structrue)
@@ -10,7 +11,19 @@ This is a module that handles connection to Pokemon Showdown servers. Apart from
     - [Message](#message-structure)
     - [User](#user-structure)
     - [Room](#room-structure)
+- [Tools](#tools)
+- [Datacenters](#datacenters)
 - [Credits](#credits)
+
+
+### Installation
+To install `ps-client` using npm, open the terminal and type the following:
+```
+sudo npm install -g ps-client
+```
+
+If you have it in your package.json, simply run ``npm install``. If you have installed it and wish to update your version, run ``sudo npm update -g ps-client``.
+
 
 
 ## Example Setup
@@ -162,5 +175,41 @@ Room has the following methods:
 
 
 
+## Tools
+For common purposes and frequently useful methods, a variety of tools have been made available. Tools can be accessed from `require('ps-client').Tools`. It has the following functions: 
+* `HSL (name: string, original: boolean): {source: string, hsl: number[], original?: {source: string, hsl: number[]}}`: This function calculates the HSL values of the namecolours of the given username as calculated by PS! (S and L are in percentages). If the provided username has an associated custom colour, and `original` is not set to `true`, the function also generates an identical object keyed as original with the original colours, while hashing the custom one.
+* `toID (name: string): string`: Converts a username into their userid.
+* `update (data?: string[]): string[]`: Updates the corresponding datacenters in the module. If no parameters are passed, updates all datacenters. Valid inputs are: abilities, aliases, config, formatsdata, formats, items, learnsets, moves, pokedex, and typechart. Resolves with an array containing the names of all the updaed centers, or rejects with any errors.
+* `uploadToPastie (text: string, callback?: (url: string)): Promise<string>`: Uploads the given text to Pastie.io. Resolves with the raw link to the uploaded text. A callback may also be used.
+* `uploadToPokepaste (sets: string, output?: (url: string) => {} | 'raw' | 'html'): Promise<string>`: Uploads a string containing sets to pokepast.es. Resolves with the URL to the uploaded paste. If `output` is a callback, the callback is instead run. `output` may also be set to `'html'` to resolve with the received HTML, or `'raw'` to resolve with the link to the raw paste.
+
+Note: This module uses [axios](https://github.com/axios/axios) for POST requests.
+
+
+
+## Datacenters
+Since this module is for Pokemon Showdown, it also contains references to data from Pokemon Showdown. All of the data in this module is sourced from play.pokemonshowdown.com, and can be updated via Tools#update. This data is exported under `require('ps-client').Data`.
+
+Data has the following entries:
+* `abilities`: Contains the data for abilities.
+* `aliases`: Contains the list of aliases.
+* `config`: Contains the configuration for PS; primarily used for custom colours.
+* `formats-data`: Contains tiers and Randoms moves.
+* `formats`: Contains the clauses for various tiers.
+* `items`: Contains the data for items.
+* `learnsets`: Contains the data for Pokemon learnsets.
+* `moves`: Contains the data for moves.
+* `pokedex`: Contains the basic Pokedex info.
+* `typechart`: Contains type matchup data.
+More information on how to use these can be found [here](https://github.com/smogon/pokemon-showdown/tree/master/data).
+
+
+
 ## Credits
 Written by PartMan7. Many thanks to Ecuacion for the base connection logic, and many others (Morfent, NotBlizzard, and LegoFigure11, to name a few) for earlier assistance.
+
+### To-Do
+
+* Resolve PMs correctly when redirected to another user due to a rename.
+* Verify that all memory leaks have been closed. (In progress)
+* Create an example repository.

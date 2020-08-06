@@ -156,13 +156,14 @@ exports.update = function (...types) {
 	});
 }
 
-exports.uploadToPastie = function (text) {
+exports.uploadToPastie = function (text, callback) {
 	return new Promise((resolve, reject) => {
 		axios.post("https://pastie.io/documents", String(text), {
 			headers: {
 				'Content-Type': 'text/plain'
 			}
 		}).then(res => {
+			if (callback && typeof callback === 'function') return callback(`https://pastie.io/raw/${res.data.key}`);
 			resolve(`https://pastie.io/raw/${res.data.key}`);
 		}).catch(reject);
 	});
