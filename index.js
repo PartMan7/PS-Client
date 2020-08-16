@@ -51,7 +51,7 @@ class Client extends EventEmitter {
 
 	// Websocket
 	connect (re) {
-		if (re) console.log('Retrying...', this);
+		if (re) console.log('Retrying...');
 		if (this.status && this.status.connected) return this.handle("Already connected.");
 		this.closed = false;
 		let webSocket = new wsClient();
@@ -63,7 +63,7 @@ class Client extends EventEmitter {
 				client.handle(`Unable to connect to ${client.opts.server}: ${util.inspect(err)}`);
 				if (client.opts.autoReconnect) {
 					client.debug(`Retrying connection in ${client.opts.autoReconnect / 1000}s.`);
-					setTimeout(client.connect, client.opts.autoReconnect, true);
+					setTimeout(client.connect.bind(client), client.opts.autoReconnect, true);
 				}
 		});
 		webSocket.on('connect', function (connection) {
@@ -77,7 +77,7 @@ class Client extends EventEmitter {
 				client.status.connected = false;
 				if (client.opts.autoReconnect) {
 					client.debug(`Retrying connection in ${client.opts.autoReconnect / 1000}s.`);
-					setTimeout(client.connect, client.opts.autoReconnect, true);
+					setTimeout(client.connect.bind(client), client.opts.autoReconnect, true);
 				}
 			});
 			connection.on('close', function () {
@@ -87,7 +87,7 @@ class Client extends EventEmitter {
 				client.status.connected = false;
 				if (!client.closed && client.opts.autoReconnect) {
 					client.debug(`Retrying connection in ${client.opts.autoReconnect / 1000}s.`);
-					setTimeout(client.connect, client.opts.autoReconnect, true);
+					setTimeout(client.connect.bind(client), client.opts.autoReconnect, true);
 				}
 			});
 			connection.on('message', function (message) {
@@ -140,7 +140,7 @@ class Client extends EventEmitter {
 					client.handle("Failed to login: " + data);
 					if (client.opts.retryLogin) {
 						client.debug(`Retrying login in ${client.opts.retryLogin / 1000}s.`);
-						setTimeout(client.login, client.opts.retryLogin, name, pass);
+						setTimeout(client.login.bind(client), client.opts.retryLogin, name, pass);
 					}
 					client.emit('loginFailure', -2);
 					return;
@@ -150,7 +150,7 @@ class Client extends EventEmitter {
 					client.emit('loginFailure', -3);
 					if (client.opts.retryLogin) {
 						client.debug(`Retrying login in ${client.opts.retryLogin / 1000}s.`);
-						setTimeout(client.login, client.opts.retryLogin, name, pass);
+						setTimeout(client.login.bind(client), client.opts.retryLogin, name, pass);
 					}
 					return;
 				}
@@ -162,7 +162,7 @@ class Client extends EventEmitter {
 						client.emit('loginFailure', -4);
 						if (client.opts.retryLogin) {
 							client.debug(`Retrying login in ${client.opts.retryLogin / 1000}s.`);
-							setTimeout(client.login, client.opts.retryLogin, name, pass);
+							setTimeout(client.login.bind(client), client.opts.retryLogin, name, pass);
 						}
 						return;
 					}
@@ -176,7 +176,7 @@ class Client extends EventEmitter {
 			client.emit('loginFailure', err);
 			if (client.opts.retryLogin) {
 				client.debug(`Retrying login in ${client.opts.retryLogin / 1000}s.`);
-				setTimeout(client.login, client.opts.retryLogin, name, pass);
+				setTimeout(client.login.bind(client), client.opts.retryLogin, name, pass);
 			}
 			return;
 		});
@@ -346,22 +346,24 @@ class Client extends EventEmitter {
 			case 'chat': case 'c': {
 				// by, text, type, target, raw, isIntro, parent, time
 				let by = args[2], value = args.slice(3).join('|'), mssg = new Message({by: by, text: value, type: 'chat', target: room, raw: message, isIntro: isIntro, parent: this}), resolved = [];
-				mssg.target.waits.forEach(wait => {
-					if (wait.condition(mssg)) {
-						wait.resolve(mssg);
-						resolved.push(wait.id);
-					}
-				});
-				mssg.target.waits = mssg.target.waits.filter(wait => !resolved.includes(wait.id));
-				if (by.substr(1) === this.status.username) {
-					if (this.queued.map(msg => msg.content).includes(value)) {
-						while (this.queued.length) {
-							let msg = this.queued.shift();
-							if (msg.content === value) {
-								msg.sent(mssg);
-								break;
+					if (mssg.target) {
+					mssg.target.waits.forEach(wait => {
+						if (wait.condition(mssg)) {
+							wait.resolve(mssg);
+							resolved.push(wait.id);
+						}
+					});
+					mssg.target.waits = mssg.target.waits.filter(wait => !resolved.includes(wait.id));
+					if (by.substr(1) === this.status.username) {
+						if (this.queued.map(msg => msg.content).includes(value)) {
+							while (this.queued.length) {
+								let msg = this.queued.shift();
+								if (msg.content === value) {
+									msg.sent(mssg);
+									break;
+								}
+								msg.fail(msg.content);
 							}
-							msg.fail(msg.content);
 						}
 					}
 				}
@@ -416,7 +418,7 @@ class Client extends EventEmitter {
 						}
 					}
 				} else {
-					if (value.startsWith('/raw ') && this.status.loggedIn && typeof this.opts.isTrusted !== 'boolean') {
+					if (value.startsWith('/raw ') && this.status && this.status.loggedIn && typeof this.opts.isTrusted !== 'boolean') {
 						if (value.includes("<small style=\"color:gray\">(trusted)</small>")) this.opts.isTrusted = true;
 						else this.opts.isTrusted = false;
 						if (!this.activatedQueue) this.activateQueue();
