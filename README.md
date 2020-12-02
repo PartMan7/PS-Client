@@ -211,5 +211,4 @@ Written by PartMan7. Many thanks to Ecuacion for the base connection logic, and 
 ### To-Do
 
 * Resolve PMs correctly when redirected to another user due to a rename.
-* Verify that all memory leaks have been closed. (In progress)
 * Create an example repository.
