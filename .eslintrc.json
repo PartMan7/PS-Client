@@ -16,7 +16,9 @@
             "never"
         ],
         "array-callback-return": "error",
-        "array-element-newline": "error",
+        "array-element-newline": ["error", {
+        	"minItems": 4
+        }],
         "arrow-body-style": "error",
         "arrow-parens": [
             "error",
@@ -30,7 +32,7 @@
             }
         ],
         "block-scoped-var": "error",
-        "block-spacing": "error",
+        "block-spacing": ["error", "always"],
         "brace-style": "off",
         "callback-return": "error",
         "camelcase": "error",
@@ -59,7 +61,7 @@
         "default-case": "off",
         "default-case-last": "error",
         "default-param-last": "error",
-        "dot-location": "error",
+        "dot-location": ["error", "property"],
         "dot-notation": [
             "error",
             {
@@ -111,7 +113,7 @@
         "lines-between-class-members": "off",
         "max-classes-per-file": "error",
         "max-depth": "off",
-        "max-len": "off",
+        "max-len": ["error", 135],
         "max-lines": "off",
         "max-lines-per-function": "off",
         "max-nested-callbacks": "error",
@@ -218,7 +220,7 @@
         "no-trailing-spaces": "error",
         "no-undef-init": "error",
         "no-undefined": "error",
-        "no-underscore-dangle": "error",
+        "no-underscore-dangle": 0,
         "no-unmodified-loop-condition": "error",
         "no-unneeded-ternary": "error",
         "no-unreachable-loop": "error",

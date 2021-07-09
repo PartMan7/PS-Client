@@ -1,6 +1,6 @@
 "use strict";
 
-let toID = require('../tools.js').toID;
+const { toID } = require('../tools.js');
 
 class Message {
 	constructor (input) {
@@ -19,6 +19,7 @@ class Message {
 		this.parent = parent;
 		this.type = type;
 		this.isIntro = Boolean(isIntro);
+		this.awaited = false;
 		if (time) this.time = time * 1000;
 		else this.time = Date.now();
 		switch (this.type) {
@@ -43,6 +44,19 @@ class Message {
 			default: String(text);
 		}
 		return this.target.send(text);
+	}
+	privateReply (text) {
+		if (!text || this.target.type !== 'chat') this.reply(text);
+		else this.target.privateSend(this.author.userid, text);
+		return true;
+	}
+	sendHTML (html, opts) {
+		return this.target.sendHTML(html, opts);
+	}
+	replyHTML (html, opts) {
+		if (this.target.type === 'pm') return this.target.sendHTML(html, opts);
+		if (this.target.type === 'chat') return this.target.privateHTML(this.author.userid, html, opts);
+		return false;
 	}
 }
 

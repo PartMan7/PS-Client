@@ -38,12 +38,13 @@ class Client extends EventEmitter {
 		this.status = {
 			connected: false,
 			loggedIn: false,
-			username: null
+			username: null,
+			userid: null
 		}
 		this.closed = true;
-		this.queue = [];
-		this.queued = [];
-		this.userdetailsQueue = []; // {id: string, resolve: resolve, reject: reject}
+		this._queue = [];
+		this._queued = [];
+		this._userdetailsQueue = []; // {id: string, resolve: resolve, reject: reject}
 
 		this.debug = opts.debug ? console.log : () => {};
 		this.handle = opts.handle === null ? () => {} : (typeof opts.handle === 'function' ? opts.handle : console.error);
@@ -54,9 +55,9 @@ class Client extends EventEmitter {
 		if (re) console.log('Retrying...');
 		if (this.status && this.status.connected) return this.handle("Already connected.");
 		this.closed = false;
-		let webSocket = new wsClient();
+		const webSocket = new wsClient();
 		this.webSocket = webSocket;
-		let client = this;
+		const client = this;
 		client.rooms = {}; //reset
 		webSocket.on('connectFailed', function (err) {
 				client.emit('disconnect', err);
@@ -96,7 +97,10 @@ class Client extends EventEmitter {
 				}
 			});
 		});
-		let link = `ws://${client.opts.server}:${client.opts.port}/showdown/${100 + ~~(Math.random() * 900)}/${Array.from({ length: 8 }).map(() => 'abcdefghijklmnopqrstuvwxyz0123456789_'[~~(Math.random() * 37)]).join('')}/websocket`;
+		const charset = "abcdefghijklmnopqrstuvwxyz0123456789_";
+		const randNum = 100 + ~~(Math.random() * 900);
+		const randStr = Array.from({ length: 8 }).map(() => charset[~~(Math.random() * charset.length)]).join('');
+		const link = `ws://${client.opts.server}:${client.opts.port}/showdown/${randNum}/${randStr}/websocket`;
 		webSocket.connect(link);
 	}
 	disconnect () {
@@ -104,7 +108,7 @@ class Client extends EventEmitter {
 		if (this.connection) this.connection.close();
 	}
 	login (name, pass) {
-		let reqOptions = {
+		const reqOptions = {
 			hostname: this.actionURL.hostname,
 			port: this.actionURL.port,
 			path: this.actionURL.pathname,
@@ -113,7 +117,8 @@ class Client extends EventEmitter {
 		let data = '';
 		if (!pass) {
 			reqOptions.method = 'GET';
-			reqOptions.path += "?act=getassertion&userid=" + Tools.toID(name) + "&challengekeyid=" + this.challstr.id + "&challenge=" + this.challstr.str;
+			// eslint-disable-next-line max-len
+			reqOptions.path += `?act=getassertion&userid=${Tools.toID(name)}&challengekeyid=${this.challstr.id}&challenge=${this.challstr.str}`;
 			this.debug("Sending login request to " + reqOptions.path);
 		}
 		else {
@@ -125,8 +130,8 @@ class Client extends EventEmitter {
 			}
 			this.debug(`Shooting login request to ${reqOptions.path} with ${data}`);
 		}
-		let client = this;
-		let req = https.request(reqOptions, function (res) {
+		const client = this;
+		const req = https.request(reqOptions, function (res) {
 			res.setEncoding('utf8');
 			let data = '';
 			res.on('data', chunk => data += chunk);
@@ -186,11 +191,11 @@ class Client extends EventEmitter {
 
 	// Sending data
 	activateQueue () {
-		let client = this, throttle = client.isTrusted ? 300 : 1800;
+		const client = this, throttle = client.isTrusted ? 300 : 1800;
 		client.activatedQueue = true;
 		this.queueTimer = setInterval(() => {
-			let messages = client.queue.splice(0, 3);
-			this.queued.push(...messages.filter(msg => /^(?:[a-z0-9-]+\|[^/]|\|\/pm [^,]+,[^/])/.test(msg.content)));
+			const messages = client._queue.splice(0, 3);
+			this._queued.push(...messages.filter(msg => /^(?:[a-z0-9-]+\|[^/]|\|\/pm [^,]+,[^/])/.test(msg.content)));
 			this.send(Object.values(messages).map(message => message.content));
 		}, throttle);
 		return;
@@ -206,7 +211,7 @@ class Client extends EventEmitter {
 	}
 	sendQueue (text, sent, fail) {
 		if (!this.status.connected) return fail({cause: 'Not connected.', message: text});
-		this.queue.push({content: text, sent: sent, fail: fail});
+		this._queue.push({content: text, sent: sent, fail: fail});
 		return;
 	}
 	sendUser (user, text) {
@@ -220,7 +225,7 @@ class Client extends EventEmitter {
 
 	// Receiving data
 	receive (message) {
-		let flag = message.substr(0, 1);
+		const flag = message.substr(0, 1);
 		let data;
 		switch (flag) {
 			case 'a':
@@ -238,7 +243,7 @@ class Client extends EventEmitter {
 	receiveMsg (message) {
 		if (!message) return;
 		if (message.indexOf('\n') > -1) {
-			let spl = message.split('\n');
+			const spl = message.split('\n');
 			let room = 'lobby';
 			if (spl[0].charAt(0) === '>') {
 				room = spl[0].substr(1);
@@ -260,7 +265,7 @@ class Client extends EventEmitter {
 	}
 	receiveLine (room, message, isIntro) {
 		this.emit('line', room, message, isIntro);
-		let args = message.split('|');
+		const args = message.split('|');
 		switch (args[1]) {
 			case 'formats': {
 				this.emit('formats', room, args.slice(2).join('|'), isIntro);
@@ -276,6 +281,7 @@ class Client extends EventEmitter {
 					if (this.opts.avatar) this.send(`|/avatar ${this.opts.avatar}`);
 				}
 				this.status.username = args[2].substr(1);
+				this.status.userid = Tools.toID(this.status.username);
 				this.emit('updateuser', room, args.slice(2).join('|'), isIntro);
 				break;
 			}
@@ -330,7 +336,7 @@ class Client extends EventEmitter {
 						}
 						this.addUser(userdetails);
 						let user;
-						for (let u of this.userdetailsQueue) {
+						for (let u of this._userdetailsQueue) {
 							if (u.id === userdetails.id) {
 								user = u;
 								break;
@@ -344,20 +350,28 @@ class Client extends EventEmitter {
 				break;
 			}
 			case 'chat': case 'c': {
-				// by, text, type, target, raw, isIntro, parent, time
-				let by = args[2], value = args.slice(3).join('|'), mssg = new Message({by: by, text: value, type: 'chat', target: room, raw: message, isIntro: isIntro, parent: this}), resolved = [];
+				const by = args[2], value = args.slice(3).join('|'), mssg = new Message({
+					by: by,
+					text: value,
+					type: 'chat',
+					target: room,
+					raw: message,
+					isIntro: isIntro,
+					parent: this
+				}), resolved = [];
 					if (mssg.target) {
-					mssg.target.waits.forEach(wait => {
+					mssg.target._waits.forEach(wait => {
 						if (wait.condition(mssg)) {
+							mssg.awaited = true;
 							wait.resolve(mssg);
 							resolved.push(wait.id);
 						}
 					});
-					mssg.target.waits = mssg.target.waits.filter(wait => !resolved.includes(wait.id));
+					mssg.target._waits = mssg.target._waits.filter(wait => !resolved.includes(wait.id));
 					if (by.substr(1) === this.status.username) {
-						if (this.queued.map(msg => msg.content).includes(value)) {
-							while (this.queued.length) {
-								let msg = this.queued.shift();
+						if (this._queued.map(msg => msg.content).includes(value)) {
+							while (this._queued.length) {
+								const msg = this._queued.shift();
 								if (msg.content === value) {
 									msg.sent(mssg);
 									break;
@@ -371,17 +385,27 @@ class Client extends EventEmitter {
 				break;
 			}
 			case 'c:': {
-				let by = args[3], value = args.slice(4).join('|'), mssg = new Message({by: by, text: value, type: 'chat', target: room, raw: message, isIntro: isIntro, parent: this, time: parseInt(args[2])}), comp = room + '|' + value, resolved = [];
-				mssg.target.waits.forEach(wait => {
+				const by = args[3], value = args.slice(4).join('|'), mssg = new Message({
+					by: by,
+					text: value,
+					type: 'chat',
+					target: room,
+					raw: message,
+					isIntro: isIntro,
+					parent: this,
+					time: parseInt(args[2])
+				}), comp = room + '|' + value, resolved = [];
+				mssg.target._waits.forEach(wait => {
 					if (wait.condition(mssg)) {
+						mssg.awaited = true;
 						wait.resolve(mssg);
 						resolved.push(wait.id);
 					}
 				});
-				mssg.target.waits = mssg.target.waits.filter(wait => !resolved.includes(wait.id));
-				if (!isIntro && by.substr(1) === this.status.username && this.queued.map(msg => msg.content).includes(comp)) {
-					while (this.queued.length) {
-						let msg = this.queued.shift();
+				mssg.target._waits = mssg.target._waits.filter(wait => !resolved.includes(wait.id));
+				if (!isIntro && by.substr(1) === this.status.username && this._queued.map(msg => msg.content).includes(comp)) {
+					while (this._queued.length) {
+						const msg = this._queued.shift();
 						if (msg.content === comp) {
 							msg.sent(mssg);
 							break;
@@ -396,24 +420,35 @@ class Client extends EventEmitter {
 				let by = args[2], to = args[3], value = args.slice(4).join('|'), chatWith, resolved = [];
 				if (by.substr(1) === this.status.username) chatWith = to;
 				else chatWith = by;
-				let mssg = new Message({by: by, text: value, type: 'pm', target: Tools.toID(chatWith), raw: message, isIntro: isIntro, parent: this, time: Date.now()}), comp = `|/pm ${Tools.toID(to)},${value}`;
-				if (mssg.command && mssg.command === 'error') mssg.target.waits.shift().fail(mssg.content.substr(7));
+				const mssg = new Message({
+					by: by,
+					text: value,
+					type: 'pm',
+					target: Tools.toID(chatWith),
+					raw: message,
+					isIntro: isIntro,
+					parent: this,
+					time: Date.now()
+				}), comp = `|/pm ${Tools.toID(to)},${value}`;
+				if (mssg.command && mssg.command === 'error') mssg.target._waits.shift().fail(mssg.content.substr(7));
 				if (mssg.target) {
-					mssg.target.waits.forEach(wait => {
+					mssg.target._waits.forEach(wait => {
 						if (wait.condition(mssg)) {
+							mssg.awaited = true;
 							wait.resolve(mssg);
 							resolved.push(wait.id);
 						}
 					});
-					mssg.target.waits = mssg.target.waits.filter(wait => !resolved.includes(wait.id));
-					if (!isIntro && by.substr(1) === this.status.username && this.queued.map(msg => msg.content).includes(comp)) {
-						while (this.queued.length) {
-							let msg = this.queued.shift();
+					mssg.target._waits = mssg.target._waits.filter(wait => !resolved.includes(wait.id));
+					if (!isIntro && by.substr(1) === this.status.username && this._queued.map(msg => msg.content).includes(comp)) {
+						while (this._queued.length) {
+							const msg = this._queued.shift();
 							if (msg.content === comp) {
 								msg.sent(mssg);
 								break;
 							}
 							msg.fail(msg.content);
+							// eslint-disable-next-line max-len
 							if (/^\/error (?:User .*? is offline\.|User .*? not found\. Did you misspell their name\?)$/.test(value)) break;
 						}
 					}
@@ -441,7 +476,7 @@ class Client extends EventEmitter {
 			case 'n': case 'N': case 'name': {
 				this.send(`|/cmd roominfo ${room}`);
 				this.emit('name', room, args[2], args[3]);
-				let old = Tools.toID(args[3]), yng = Tools.toID(args[2]);
+				const old = Tools.toID(args[3]), yng = Tools.toID(args[2]);
 				if (!this.users[old]) break;
 				this.users[old].alts.push(yng);
 				this.users[yng] = this.users[old];
@@ -474,17 +509,17 @@ class Client extends EventEmitter {
 		if (typeof str !== 'string') return null;
 		str = Tools.toID(str);
 		if (this.users[str]) return this.users[str];
-		for (let user of this.users) {
-			if (user.alts.includes(str)) return user;
+		for (const user of Object.keys(this.users)) {
+			if (user.alts?.includes(str)) return user;
 		}
 		return false;
 	}
 	getUserDetails (userid) {
 		userid = Tools.toID(userid);
-		let client = this;
+		const client = this;
 		return new Promise (resolve => {
 			this.send(`|/cmd userdetails ${userid}`);
-			client.userdetailsQueue.push({id: userid, resolve: resolve});
+			client._userdetailsQueue.push({id: userid, resolve: resolve});
 		});
 	}
 }

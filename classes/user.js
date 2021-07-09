@@ -1,40 +1,80 @@
 "use strict";
 
+const inlineCss = require('inline-css');
+
 class User {
 	constructor (init, parent) {
 		Object.keys(init).forEach(key => this[key] = init[key]);
 		this.parent = parent;
-		this.waits = [];
+		this._waits = [];
 		this.alts = [];
 	}
 	send (text) {
 		let user = this;
 		return new Promise(function (resolve, reject) {
-			function sent (msg) {
-				return resolve(msg);
-			}
-			function fail (err) {
-				return reject(err);
-			}
 			text = '|/pm ' + user.userid + ',' + text;
-			user.parent.sendQueue(text, sent, fail);
+			user.parent.sendQueue(text, resolve, reject);
 		});
+	}
+	sendHTML (html, opts = {}) {
+		if (!html) throw new Error("Missing HTML argument");
+		if (typeof opts === 'string') opts = { name: opts };
+		if (!opts || typeof opts !== 'object') throw new TypeError("Options must be an object");
+		if (!opts.name) opts.name = this.parent.status.username + Date.now().toString(36);
+		const rooms = {};
+		Object.values(this.parent.rooms).forEach(room => {
+			if (rooms.public) return;
+			if (
+				rooms.auth?.['*']?.includes(this.parent.status.userid) ||
+				rooms.auth?.['#']?.includes(this.parent.status.userid)
+			) rooms[room.type] = room;
+		});
+		const room = rooms.public || rooms.hidden || rooms.private;
+		if (!room) return false;
+		inlineCss(html, {
+			url: 'filePath'
+		}).then(formatted => {
+			room.send(`/pmuhtml${opts.change ? 'change' : ''} ${this.userid}, ${opts.name}, ${formatted}`);
+		}).catch(err => {
+			throw err;
+		});
+		return true;
+	}
+	pageHTML (html, name) {
+		if (!html) throw new Error("Missing HTML argument");
+		if (!name) name = this.parent.status.username + Date.now().toString(36);
+		name = name.toString();
+		const rooms = {};
+		Object.values(this.parent.rooms).forEach(room => {
+			if (rooms.public) return;
+			if (rooms.auth?.['*']?.includes(this.parent.status.userid)) rooms[room.type] = room;
+		});
+		const room = rooms.public || rooms.hidden || rooms.private;
+		if (!room) return false;
+		inlineCss(html, {
+			url: 'filePath'
+		}).then(formatted => {
+			room.send(`/sendhtmlpage ${this.userid}, ${name}, ${formatted}`);
+		}).catch(err => {
+			throw err;
+		});
+		return true;
 	}
 	waitFor (condition, time) {
 		if (!time && typeof time !== 'number') time = 60 * 1000;
-		if (typeof condition !== 'function') throw new Error ('Condition must be a function.');
+		if (typeof condition !== 'function') throw new TypeError('Condition must be a function.');
 		let user = this;
 		return new Promise ((resolve, reject) => {
 			let id = Date.now();
 			if (time) setTimeout(() => {
 				reject(new Error('Timed out.'));
-				user.waits = user.waits.filter(wait => wait.id !== id);
+				user._waits = user._waits.filter(wait => wait.id !== id);
 			}, time);
-			user.waits.push({
+			user._waits.push({
 				condition: condition,
 				id: id,
 				resolve: msg => {
-					user.waits = user.waits.filter(wait => wait.id !== id);
+					user._waits = user._waits.filter(wait => wait.id !== id);
 					resolve(msg);
 				}
 			});

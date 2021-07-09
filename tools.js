@@ -7,7 +7,6 @@ const path = require('path');
 const querystring = require('querystring');
 
 const Config = require('./showdown/config.js').Config;
-// const Message = require('./classes/message.js');
 
 
 exports.HSL = function (name, original) {
@@ -72,11 +71,7 @@ exports.HSL = function (name, original) {
 	let Hdist = Math.min(Math.abs(180 - H), Math.abs(240 - H));
 	if (Hdist < 15) HLmod += (15 - Hdist) / 3;
 	L += HLmod;
-	out.hsl = [
-		H,
-		S,
-		L
-	]
+	out.hsl = [H, S, L];
 	return out;
 }
 
@@ -177,7 +172,7 @@ exports.uploadToPokepaste = function (text, output) {
 					title: 'Untitled',
 					author: 'Anonymous',
 					notes: '',
-					paste: text.replace(/\n(?:[^\r]|$)/g, match => match.replace(/\n/g, '\r\n'))
+					paste: text.replace(/\r?\n/g, '\r\n')
 				}
 				break;
 			}
@@ -202,4 +197,26 @@ exports.uploadToPokepaste = function (text, output) {
 			}
 		}).catch(reject);
 	});
+}
+
+exports.escapeHTML = function (str) {
+	if (!str) return '';
+	return String(str)
+		.replace(/&/g, '&amp;')
+		.replace(/</g, '&lt;')
+		.replace(/>/g, '&gt;')
+		.replace(/"/g, '&quot;')
+		.replace(/'/g, '&apos;')
+		.replace(/\//g, '&#x2f;');
+}
+
+exports.unescapeHTML = function (str) {
+	if (!str) return '';
+	return String(str)
+		.replace(/&amp;/g, '&')
+		.replace(/&lt;/g, '<')
+		.replace(/&gt;/g, '>')
+		.replace(/&quot;/g, '"')
+		.replace(/&apos;/g, "'")
+		.replace(/&#x2f;/g, '/');
 }

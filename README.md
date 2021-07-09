@@ -1,19 +1,33 @@
 # ps-client
-This is a module that handles connection to Pokemon Showdown servers. Apart from a _very_ minimalistic configuration requirement, it also boasts multiple utility features, like promise-based messages, synchronized room and user data, alt tracking, and a lot of other stuff - go through the documentation for a complete summary.
+<a href="https://www.npmjs.com/package/ps-client"><img src="https://img.shields.io/npm/v/ps-client.svg?maxAge=3600" alt="NPM version" /></a>
+<a href="https://www.npmjs.com/package/ps-client"><img src="https://img.shields.io/npm/dt/ps-client.svg?maxAge=3600" alt="NPM downloads" /></a>
+
+PS-Client is a module that handles connection to Pokemon Showdown servers. Apart from a _very_ minimalistic configuration requirement, it also boasts multiple utility features, like promise-based messages, synchronized room and user data, alt tracking, and a lot of other stuff - go through the documentation for a complete summary.
 
 ## Table of Contents
 
+- [What's New](#whats-new)
 - [Installation](#installation)
 - [Example](#example-setup)
 - [Configuration](#configuration)
-- [Structure](#structrue)
-    - [Client](#client-structure)
-    - [Message](#message-structure)
-    - [User](#user-structure)
-    - [Room](#room-structure)
+- [Documentation](#documentation)
+	- [Client](#client-structure)
+	- [Message](#message-structure)
+	- [User](#user-structure)
+	- [Room](#room-structure)
 - [Tools](#tools)
 - [Datacenters](#datacenters)
 - [Credits](#credits)
+
+
+### What's New
+
+**v1.3.0**
+* Added various HTML methods to the Message, Room, and User classes.
+* Messages that successfully resolve a waitFor promise now have the `awaited` flag set.
+* Various properties of the Client, Room, and User classes have now been privatized.
+* Additions to Tools, including escapeHTML, unescapeHTML, and parseMessage.
+* Datacenters now use JSON.
 
 
 ### Installation
@@ -22,7 +36,9 @@ To install `ps-client` using npm, open the terminal and type the following:
 sudo npm install -g ps-client
 ```
 
-If you have it in your package.json, simply run ``npm install``. If you have installed it and wish to update your version, run ``sudo npm update -g ps-client``.
+If you have it in your package.json, simply run ``npm install``. If you have installed it and wish to update your version, run ``sudo npm update ps-client``.
+
+PS-Client requires **Node.js v14.0.0 or higher**.
 
 
 
@@ -30,13 +46,13 @@ If you have it in your package.json, simply run ``npm install``. If you have ins
 
 ```javascript
 const Client = require('ps-client').Client;
-let Bot = new Client({username: 'PartMan', password: 'REDACTED', debug: true, avatar: 'supernerd', autoJoin: ['botdevelopment']});
+const Bot = new Client({username: 'PartMan', password: 'REDACTED', debug: true, avatar: 'supernerd', autoJoin: ['botdevelopment']});
 
 Bot.connect();
 
 Bot.on('message', message => {
-    if (message.isIntro || message.author.name === Bot.status.username) return;
-    if (message.content === 'Ping!') return message.reply('Pong!')
+	if (message.isIntro || message.author.name === Bot.status.username) return;
+	if (message.content === 'Ping!') return message.reply('Pong!');
 });
 ```
 
@@ -54,24 +70,24 @@ Bot.connect();
 There are multiple configuration options that can be specified - here's a complete list.
 
 ```javascript
-{
-    username: string, // The username you wish to connect to. Required parameter.
-    password: string, // The password for the username you're connecting to. Leave this blank if the account is unregistered.
-    server: string, // The server to which you wish to connect to - defaults to 'sim.smogon.com'.
-    port: number, // The port on which you're connecting to. Defaults to 8000.
-    connectionTimeout: number, // The time, in milliseconds, after which your connection times out. Defaults to 2 minutes.
-    loginServer: string, // The login server. Defaults to 'https://play.pokemonshowdown.com/~~showdown/action.php'.
-    avatar: string | number, // The avatar your Bot will have on connection. If not specified, PS will set one randomly.
-    status: string, // The status your Bot will have on connection.
-    retryLogin: number, // The time, in milliseconds, that your Bot will wait before attempting to login again after a failing. If this is 0, it will not attempt to login again. Defaults to 10 seconds.
-    autoReconnect: number, // The time, in milliseconds, that your Bot will wait before attempting to reconnect after a disconnect. If this is 0, it will not attempt to reconnect. Defaults to 30 seconds.
-    autoJoin: string[], // An array with the strings of the rooms you want the Bot to join.
-    debug: (details: string): any, // The function you would like to run on debugs. If this is a falsey value, debug messages will not be displayed. If a true value is given which is not a function, the Bot simply logs messages to the console.
-    handle: (error: string | Error): any // Handling for internal errors. If a function is provided, this will run it with an error / string. The default function logs them to the console. To opt out of error handling (not recommended), set this to null.
+const options = {
+	username: string, // The username you wish to connect to. Required parameter.
+	password: string, // The password for the username you're connecting to. Leave this blank if the account is unregistered.
+	server: string, // The server to which you wish to connect to - defaults to 'sim.smogon.com'.
+	port: number, // The port on which you're connecting to. Defaults to 8000.
+	connectionTimeout: number, // The time, in milliseconds, after which your connection times out. Defaults to 2 minutes.
+	loginServer: string, // The login server. Defaults to 'https://play.pokemonshowdown.com/~~showdown/action.php'.
+	avatar: string | number, // The avatar your Bot will have on connection. If not specified, PS will set one randomly.
+	status: string, // The status your Bot will have on connection.
+	retryLogin: number, // The time, in milliseconds, that your Bot will wait before attempting to login again after a failing. If this is 0, it will not attempt to login again. Defaults to 10 seconds.
+	autoReconnect: number, // The time, in milliseconds, that your Bot will wait before attempting to reconnect after a disconnect. If this is 0, it will not attempt to reconnect. Defaults to 30 seconds.
+	autoJoin: string[], // An array with the strings of the rooms you want the Bot to join.
+	debug: (details: string): any, // The function you would like to run on debugs. If this is a falsey value, debug messages will not be displayed. If a true value is given which is not a function, the Bot simply logs messages to the console.
+	handle: (error: string | Error): any // Handling for internal errors. If a function is provided, this will run it with an error / string. The default function logs them to the console. To opt out of error handling (not recommended), set this to null.
 }
 ```
 
-## Structure
+## Documentation
 
 ### Client Structure
 Client is an instance of an EventEmitter, and is the primary class. You can generate multiple Clients in the same script and execute them in parallel.
@@ -81,17 +97,15 @@ Client has the following properties:
 * `isTrusted`: A boolean that indicates whether the Bot is running on a trusted account. Until this is received, this value is null.
 * `rooms`: An object containing all the rooms the Bot is in. The keys are the room IDs, while the values are [Room](#room-structure) instances.
 * `users`: An object containing all the users the Bot is aware of. The keys are the user IDs, while the values are [User](#user-structure) instances.
-* `status`: An object containing three keys regarding the status of the connection. These are: ``connected``, which is a Boolean that indicates whether the Bot is currently connected, ``loggedIn``: a boolean that indicates whether the Bot has logged in successfully, and ``username``, which is the username the Bot has connected under.
+* `status`: An object containing four keys regarding the status of the connection. These are: ``connected``, which is a Boolean that indicates whether the Bot is currently connected, ``loggedIn``: a boolean that indicates whether the Bot has logged in successfully, ``username``, which is the username the Bot has connected under, and ``userid``, the corresponding user ID.
 * `closed`: A boolean that indicates whether the connection is currently closed.
-* `queue`: An array that contains the messages that are currently in an outbound queue. Each element is of the form ``{content: string, sent: function, fail: function}``, where content is the message string, and sent / fail are the functions that handle the message promise.
-* `queued`: An array that contains messages that have been sent but not resolved. Elements are of the same structure as above.
 * `debug`, `handle`: These are where the debug and handler functions are stored.
 
 Client also has the following methods:
 * `connect (reconnect: boolean): void` - Creates the websocket to connect to the server, then logs in. ``reconnect`` has no significance besides logging the attempt as a reconnection attempt.
 * `disconnect: void` - Closes the connection.
 * `login (username: string, password: string | undefined): void` - Logs in with the given credentials. Requires the websocket to have been created.
-* `getUser (username: string): User | false | null` - Finds a user among tracked users. Returns the user instance (in case the user has been tracked while renaming, the new User instance). Returns `null` for an invalid input and `false` if the user is not tracked.
+* `getUser (username: string | User): User | false | null` - Finds a user among tracked users. Returns the user instance (in case the user has been tracked while renaming, the new User instance). Returns `null` for an invalid input and `false` if the user is not tracked.
 * `sendUser (username: string | User, text: string): Promise<Message>` - Sends the provided string to the specified user.
 * `send (text: string): void` - Sends the provided string to the server. This bypasses the queue, and can cause the Bot to exceed the throttle. **Using Room#send or User#send instead is highly recommended.**
 
@@ -125,9 +139,35 @@ Message has the following properties:
 * `time`: The Unix datestamp that indicates when the message was created. This is normally received from PS! wherever possible, but uses `Date.now()` if the data is unavailable.
 * `target`: This can be either a [Room](#room-structure) or a [User](#user-structure), depending on whether the type is chat or pm. If the type is chat, this is the Room in which the message was sent. If the type is pm, this is the User with which the PM is with - note that this is not always the target of the PM, such as in cases where the Bot receives a PM from another user.
 * `raw`: The original received message (ie, a message of the form `|c|+PartMan|Hi!` would have that as the raw and `Hi!` as the content).
+* `awaited`: A Boolean value indicating whether the message was used to resolve a Room#waitFor or User#waitFor promise.
 
-Message only has one method:
+Message has the following methods:
 * `reply (text: string): Promise<Message>` sends a message to the target and returns a Promise that is resolved with the sent Message, or is rejected with the message content. This is a shortcut for `Message#target#send`.
+* `privateReply (text: string): true` sends a private response (private message in the room if possible, otherwise a direct message).
+* `sendHTML (html: string, opts?: { name?: string, rank?: string, change?: boolean }): boolean` is an alias for [Room#sendHTML](#room-structure) and [User#sendHTML](#user-structure).
+* `replyHTML (html: string, opts?: { name?: string, rank?: string, change?: boolean }): boolean` is an alias for [Room#privateHTML](#room-structure) and [User#sendHTML](#user-structure).
+
+
+### Room Structure
+Room is the class that represents a chatroom on the server. By default, the Client only spawns Room instances for rooms that the Bot is in.
+
+Room has the following properties:
+* `parent`: This is the Client that holds the Room object.
+* `roomid`: The ID of the room.
+* `id`: Also the ID of the room, because why not?
+* `title`: The display title of the room. This does not always correspond to the room ID.
+* `type`: The type of the room. Can be either `'chat'` or `'battle'`.
+* `visibility`: The display permissions of the room. Public rooms have `'public'`, for example.
+* `modchat`: The modchat level of the room.
+* `auth`: An object that contains the roomauth of the room. The structure is `(rank symbol): userid[]`.
+* `users`: An array that contains the display names, as well as ranks, of the users in the room.
+
+Room has the following methods:
+* `send (text: string): Promise<Message>` sends a message to the Room and returns a Promise that is resolved with the sent [Message](#message-structure), or is rejected with the message content.
+* `privateSend (user: string | User, text: string): boolean` sends a message in chat that is only visible to the specified user. Returns ``false`` if the client does not have permissions.
+* `sendHTML (html: string, opts?: { name?: string, rank?: string, change?: boolean }): boolean` sends a UHTML box to the room with the specified (optional) options (reusing a name will overwrite the previous box, rank will only show the HTML to the specified ranks and higher, and `change` toggles the overwriting behaviour between changing at the old location and changing at the bottom of chat). For example: `Room.sendHTML('<b>This is an example.</b>', {rank: '+', change: true})`
+* `privateHTML (user: string | User, html: string, opts?: { name?: string, rank?: string, change?: boolean }): boolean` behaves similarly to sendHTML, the difference being that privateHTML only sends the HTML to the specified user.
+* `waitFor (condition: (message: Message): boolean, time: number): Promise<Message>` waits for a message in the Room. This is resolved when the Client receives a message from the Room for which `condition` returns true, and is rejected if (time) milliseconds pass without being resolved. By default, time corresponds to 1 minute - you can set it to 0 to disable the time limit.
 
 
 ### User Structure
@@ -139,7 +179,6 @@ User is the class that represents a user on the server. By default, the Client o
 User has the following properties:
 * `parent`: This is the Client that holds the User object.
 * `alts`: This is an array of the userids of known alts of the user.
-* `waits`: This is an array of messages that are being awaited. Ideally, leave these alone.
 * `userid`: The ID of the user.
 * `id`: (Probably don't use this.)
 * `avatar`: The string / number referring to the avatar of the user. This is _not_ the complete avatar URL.
@@ -151,28 +190,9 @@ User has the following properties:
 
 User has the following methods:
 * `send (text: string): Promise<Message>` sends a message to the User and returns a Promise that is resolved with the sent [Message](#message-structure), or is rejected with the message content.
+* `sendHTML (html: string, opts?: { name?: string, change?: boolean }): boolean` sends a UHTML box to the user with the specified (optional) options (reusing a name will overwrite the previous box and `change` toggles the overwriting behaviour between changing at the old location and changing at the bottom of the DM). For example: `User.sendHTML('<b>This is an example.</b>', {change: true})`
+* `pageHTML (html: string, name?: string): boolean` sends a UHTML box to the user with the specified (optional) name (reusing a name will overwrite the previous page). For example: `User.pageHTML("<b>Let's play chess!</b>", "chess")`
 * `waitFor (condition: (message: Message): boolean, time: number): Promise<Message>` waits for a message from the User. This is resolved when the Client receives a message from the User for which `condition` returns true, and is rejected if (time) milliseconds pass without being resolved. By default, time corresponds to 1 minute - you can set it to 0 to disable the time limit.
-
-
-### Room Structure
-Room is the class that represents a chatroom on the server. By default, the Client only spawns Room instances for rooms that the Bot is in.
-
-Room has the following properties:
-* `parent`: This is the Client that holds the Room object.
-* `waits`: This is an array of messages that are being awaited. Ideally, leave these alone.
-* `roomid`: The ID of the room.
-* `id`: Also the ID of the room, because why not?
-* `title`: The display title of the room. This does not always correspond to the room ID.
-* `type`: The type of the room. Can be either `'chat'` or `'battle'`.
-* `visibility`: The display permissions of the room. Public rooms have `'public'`, for example.
-* `modchat`: The modchat level of the room.
-* `auth`: An object that contains the roomauth of the room. The structure is `(rank symbol): userid[]`.
-* `users`: An array that contains the display names, as well as ranks, of the users in the room.
-
-Room has the following methods:
-* `send (text: string): Promise<Message>` sends a message to the Room and returns a Promise that is resolved with the sent [Message](#room-structure), or is rejected with the message content.
-* `waitFor (condition: (message: Message): boolean, time: number): Promise<Message>` waits for a message in the Room. This is resolved when the Client receives a message from the Room for which `condition` returns true, and is rejected if (time) milliseconds pass without being resolved. By default, time corresponds to 1 minute - you can set it to 0 to disable the time limit.
-
 
 
 ## Tools
@@ -182,8 +202,11 @@ For common purposes and frequently useful methods, a variety of tools have been 
 * `update (data?: string[]): string[]`: Updates the corresponding datacenters in the module. If no parameters are passed, updates all datacenters. Valid inputs are: abilities, aliases, config, formatsdata, formats, items, learnsets, moves, pokedex, and typechart. Resolves with an array containing the names of all the updated centers, or rejects with any errors.
 * `uploadToPastie (text: string, callback?: (url: string)): Promise<string>`: Uploads the given text to Pastie.io. Resolves with the raw link to the uploaded text. A callback may also be used.
 * `uploadToPokepaste (sets: string, output?: (url: string) => {} | 'raw' | 'html'): Promise<string>`: Uploads a string containing sets to pokepast.es. Resolves with the URL to the uploaded paste. If `output` is a callback, the callback is instead run. `output` may also be set to `'html'` to resolve with the received HTML, or `'raw'` to resolve with the link to the raw paste.
+* `escapeHTML (input: string): string`: Escapes special characters with their HTML sequences.
+* `unescapeHTML (input: string): string`: Unescapes HTML sequences into their corresponding characters.
 
 Note: This module uses [axios](https://github.com/axios/axios) for POST requests.
+Note: The various methods that use HTML in the Message / Room / User classes all use the [inline-css](https://www.npmjs.com/package/inline-css) library for expanding `<style>` tags into inline CSS.
 
 
 
@@ -212,3 +235,4 @@ Written by PartMan7. Many thanks to Ecuacion for the base connection logic, and 
 
 * Resolve PMs correctly when redirected to another user due to a rename.
 * Create an example repository.
+* Switch datacenters to JSON.
