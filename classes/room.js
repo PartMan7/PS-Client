@@ -60,7 +60,7 @@ class Room {
 		if (!time && typeof time !== 'number') time = 60 * 1000;
 		if (typeof condition !== 'function') throw new TypeError('Condition must be a function.');
 		let room = this;
-		return new Promise ((resolve, reject) => {
+		return new Promise((resolve, reject) => {
 			let id = Date.now();
 			if (time) setTimeout(() => {
 				reject(new Error('Timed out.'));

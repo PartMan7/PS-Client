@@ -44,7 +44,7 @@ class Client extends EventEmitter {
 		this.closed = true;
 		this._queue = [];
 		this._queued = [];
-		this._userdetailsQueue = []; // {id: string, resolve: resolve, reject: reject}
+		this._userdetailsQueue = [];
 
 		this.debug = opts.debug ? console.log : () => {};
 		this.handle = opts.handle === null ? () => {} : (typeof opts.handle === 'function' ? opts.handle : console.error);
@@ -58,7 +58,7 @@ class Client extends EventEmitter {
 		const webSocket = new wsClient();
 		this.webSocket = webSocket;
 		const client = this;
-		client.rooms = {}; //reset
+		client.rooms = {}; // reset
 		webSocket.on('connectFailed', function (err) {
 				client.emit('disconnect', err);
 				client.handle(`Unable to connect to ${client.opts.server}: ${util.inspect(err)}`);
@@ -191,10 +191,10 @@ class Client extends EventEmitter {
 
 	// Sending data
 	activateQueue () {
-		const client = this, throttle = client.isTrusted ? 300 : 1800;
-		client.activatedQueue = true;
+		const throttle = this.isTrusted ? 300 : 1800;
+		this.activatedQueue = true;
 		this.queueTimer = setInterval(() => {
-			const messages = client._queue.splice(0, 3);
+			const messages = this._queue.splice(0, 3);
 			this._queued.push(...messages.filter(msg => /^(?:[a-z0-9-]+\|[^/]|\|\/pm [^,]+,[^/])/.test(msg.content)));
 			this.send(Object.values(messages).map(message => message.content));
 		}, throttle);
@@ -210,8 +210,26 @@ class Client extends EventEmitter {
 		return;
 	}
 	sendQueue (text, sent, fail) {
-		if (!this.status.connected) return fail({cause: 'Not connected.', message: text});
-		this._queue.push({content: text, sent: sent, fail: fail});
+		if (!this.status.connected) return fail({ cause: 'Not connected.', message: text });
+		const multiTest = text.match(/^([a-z0-9-]*?\|(?:\/pm [^,]*?, ?)?)[^/!].*?\n/);
+		if (multiTest) {
+			// Multi-line messages
+			Promise.all(text.split('\n').map((line, i) => {
+				if (i) line = multiTest[1] + line;
+				return line;
+			}).map(line => {
+				return new Promise((resolve, reject) => {
+					this._queue.push({ content: line, sent: resolve, fail: reject });
+				});
+			})).then(messages => {
+				const message = messages[messages.length - 1];
+				message.content = text;
+				sent(message);
+			}).catch(error => {
+				fail(error);
+			});
+		}
+		else this._queue.push({ content: text, sent: sent, fail: fail });
 		return;
 	}
 	sendUser (user, text) {
@@ -219,7 +237,7 @@ class Client extends EventEmitter {
 		if (user instanceof User) userid = user.userid;
 		else userid = Tools.toID(user);
 		if (!userid) this.handle("Invalid ID in Client#sendUser");
-		this.addUser({userid: userid});
+		this.addUser({ userid: userid });
 		return this.users[userid].send(text);
 	}
 
@@ -359,7 +377,7 @@ class Client extends EventEmitter {
 					isIntro: isIntro,
 					parent: this
 				}), resolved = [];
-					if (mssg.target) {
+				if (mssg.target) {
 					mssg.target._waits.forEach(wait => {
 						if (wait.condition(mssg)) {
 							mssg.awaited = true;
@@ -464,7 +482,7 @@ class Client extends EventEmitter {
 			}
 			case 'j': case 'J': case 'join': {
 				this.send(`|/cmd roominfo ${room}`);
-				this.addUser({userid: Tools.toID(args.slice(2).join('|'))});
+				this.addUser({ userid: Tools.toID(args.slice(2).join('|')) });
 				this.emit('join', room, args.slice(2).join('|'), isIntro);
 				break;
 			}
@@ -517,9 +535,9 @@ class Client extends EventEmitter {
 	getUserDetails (userid) {
 		userid = Tools.toID(userid);
 		const client = this;
-		return new Promise (resolve => {
+		return new Promise(resolve => {
 			this.send(`|/cmd userdetails ${userid}`);
-			client._userdetailsQueue.push({id: userid, resolve: resolve});
+			client._userdetailsQueue.push({ id: userid, resolve: resolve });
 		});
 	}
 }
@@ -532,8 +550,8 @@ Data.formatsData = require('./showdown/formats-data.js').BattleFormatsData;
 Data.formats = require('./showdown/formats.js').Formats;
 Data.items = require('./showdown/items.js').BattleItems;
 Data.learnsets = require('./showdown/learnsets.js').BattleLearnsets;
-Data.moves = require('./showdown/moves.js').BatleMovedex;
-Data.pokedex = require('./showdown/pokedex.js').BattlePokedex;
+Data.moves = require('./showdown/moves.json');
+Data.pokedex = require('./showdown/pokedex.json');
 Data.typechart = require('./showdown/typechart.js').BattleTypeChart;
 
 

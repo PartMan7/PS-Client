@@ -22,12 +22,15 @@ PS-Client is a module that handles connection to Pokemon Showdown servers. Apart
 
 ### What's New
 
+**v1.4.0**
+* Multi-line messages now resolve at the time of the final line being successfully sent, instead of never resolving.
+* Some datacenters now use JSON.
+
 **v1.3.0**
 * Added various HTML methods to the Message, Room, and User classes.
 * Messages that successfully resolve a waitFor promise now have the `awaited` flag set.
 * Various properties of the Client, Room, and User classes have now been privatized.
 * Additions to Tools, including escapeHTML, unescapeHTML, and parseMessage.
-* Datacenters now use JSON.
 
 
 ### Installation
@@ -46,7 +49,7 @@ PS-Client requires **Node.js v14.0.0 or higher**.
 
 ```javascript
 const Client = require('ps-client').Client;
-const Bot = new Client({username: 'PartMan', password: 'REDACTED', debug: true, avatar: 'supernerd', autoJoin: ['botdevelopment']});
+const Bot = new Client({ username: 'PartMan', password: 'REDACTED', debug: true, avatar: 'supernerd', autoJoin: ['botdevelopment'] });
 
 Bot.connect();
 
@@ -62,7 +65,7 @@ Creating a Bot is fairly simple - all you have to do is create a new instance of
 
 ```javascript
 const Client = require('ps-client').Client;
-let Bot = new Client({username: name, password: password});
+let Bot = new Client({ username: name, password: password });
 
 Bot.connect();
 ```
@@ -165,7 +168,7 @@ Room has the following properties:
 Room has the following methods:
 * `send (text: string): Promise<Message>` sends a message to the Room and returns a Promise that is resolved with the sent [Message](#message-structure), or is rejected with the message content.
 * `privateSend (user: string | User, text: string): boolean` sends a message in chat that is only visible to the specified user. Returns ``false`` if the client does not have permissions.
-* `sendHTML (html: string, opts?: { name?: string, rank?: string, change?: boolean }): boolean` sends a UHTML box to the room with the specified (optional) options (reusing a name will overwrite the previous box, rank will only show the HTML to the specified ranks and higher, and `change` toggles the overwriting behaviour between changing at the old location and changing at the bottom of chat). For example: `Room.sendHTML('<b>This is an example.</b>', {rank: '+', change: true})`
+* `sendHTML (html: string, opts?: { name?: string, rank?: string, change?: boolean }): boolean` sends a UHTML box to the room with the specified (optional) options (reusing a name will overwrite the previous box, rank will only show the HTML to the specified ranks and higher, and `change` toggles the overwriting behaviour between changing at the old location and changing at the bottom of chat). For example: `Room.sendHTML('<b>This is an example.</b>', { rank: '+', change: true })`
 * `privateHTML (user: string | User, html: string, opts?: { name?: string, rank?: string, change?: boolean }): boolean` behaves similarly to sendHTML, the difference being that privateHTML only sends the HTML to the specified user.
 * `waitFor (condition: (message: Message): boolean, time: number): Promise<Message>` waits for a message in the Room. This is resolved when the Client receives a message from the Room for which `condition` returns true, and is rejected if (time) milliseconds pass without being resolved. By default, time corresponds to 1 minute - you can set it to 0 to disable the time limit.
 
@@ -186,18 +189,18 @@ User has the following properties:
 * `group`: The global rank of the user. Is ` ` for regular users.
 * `autoconfirmed`: Indicates whether the user is autoconfirmed.
 * `status`: The string of the status set by the user. If no status is set, this is ``""``.
-* `rooms`: An object containing the rooms of the user, structured as `(rank)(roomid): {}` or `(rank)(roomid): {isPrivate: true}`.
+* `rooms`: An object containing the rooms of the user, structured as `(rank + roomid): {}` or `(rank + roomid): { isPrivate: true }`.
 
 User has the following methods:
 * `send (text: string): Promise<Message>` sends a message to the User and returns a Promise that is resolved with the sent [Message](#message-structure), or is rejected with the message content.
-* `sendHTML (html: string, opts?: { name?: string, change?: boolean }): boolean` sends a UHTML box to the user with the specified (optional) options (reusing a name will overwrite the previous box and `change` toggles the overwriting behaviour between changing at the old location and changing at the bottom of the DM). For example: `User.sendHTML('<b>This is an example.</b>', {change: true})`
+* `sendHTML (html: string, opts?: { name?: string, change?: boolean }): boolean` sends a UHTML box to the user with the specified (optional) options (reusing a name will overwrite the previous box and `change` toggles the overwriting behaviour between changing at the old location and changing at the bottom of the DM). For example: `User.sendHTML('<b>This is an example.</b>', { change: true })`
 * `pageHTML (html: string, name?: string): boolean` sends a UHTML box to the user with the specified (optional) name (reusing a name will overwrite the previous page). For example: `User.pageHTML("<b>Let's play chess!</b>", "chess")`
 * `waitFor (condition: (message: Message): boolean, time: number): Promise<Message>` waits for a message from the User. This is resolved when the Client receives a message from the User for which `condition` returns true, and is rejected if (time) milliseconds pass without being resolved. By default, time corresponds to 1 minute - you can set it to 0 to disable the time limit.
 
 
 ## Tools
 For common purposes and frequently useful methods, a variety of tools have been made available. Tools can be accessed from `require('ps-client').Tools`. It has the following functions: 
-* `HSL (name: string, original: boolean): {source: string, hsl: number[], original?: {source: string, hsl: number[]}}`: This function calculates the HSL values of the namecolours of the given username as calculated by PS! (S and L are in percentages). If the provided username has an associated custom colour, and `original` is not set to `true`, the function also generates an identical object keyed as original with the original colours, while hashing the custom one.
+* `HSL (name: string, original: boolean): { source: string, hsl: number[], original?: { source: string, hsl: number[] } }`: This function calculates the HSL values of the namecolours of the given username as calculated by PS! (S and L are in percentages). If the provided username has an associated custom colour, and `original` is not set to `true`, the function also generates an identical object keyed as original with the original colours, while hashing the custom one.
 * `toID (name: string): string`: Converts a username into their userid.
 * `update (data?: string[]): string[]`: Updates the corresponding datacenters in the module. If no parameters are passed, updates all datacenters. Valid inputs are: abilities, aliases, config, formatsdata, formats, items, learnsets, moves, pokedex, and typechart. Resolves with an array containing the names of all the updated centers, or rejects with any errors.
 * `uploadToPastie (text: string, callback?: (url: string)): Promise<string>`: Uploads the given text to Pastie.io. Resolves with the raw link to the uploaded text. A callback may also be used.

@@ -7,7 +7,7 @@ class Message {
 		let { by, text, type, target, raw, isIntro, parent, time } = input;
 		by = toID(by);
 		if (!parent.users[by]) {
-			parent.addUser({userid: by});
+			parent.addUser({ userid: by });
 			parent.getUserDetails(by);
 		}
 		this.author = parent.users[by];
