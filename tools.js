@@ -6,12 +6,12 @@ const fs = require('fs');
 const path = require('path');
 const querystring = require('querystring');
 
-const Config = require('./showdown/config.js').Config;
+let Config = require('./showdown/config.js').Config;
 
 
-exports.HSL = function (name, original) {
+exports.HSL = function HSL (name, original) {
 	name = exports.toID(name);
-	let out = {source: name, hsl: null};
+	let out = { source: name, hsl: null };
 	if (Config.customcolors[name] && !original) {
 		out.base = exports.HSL(name, true);
 		name = Config.customcolors[name];
@@ -75,83 +75,108 @@ exports.HSL = function (name, original) {
 	return out;
 }
 
-exports.toID = function (text) {
+exports.toID = function toID (text) {
 	return String(text).toLowerCase().replace(/[^a-z0-9]/g, '');
 }
 
-exports.update = function (...types) {
+exports.update = function update (...types) {
 	const links = {
 		abilities: {
 			url: "https://play.pokemonshowdown.com/data/abilities.js",
-			path: "showdown/abilities.js",
-			name: "Abilities"
+			path: "./showdown/abilities.js",
+			name: "Abilities",
+			expo: "BattleAbilities"
 		},
 		aliases: {
 			url: "https://play.pokemonshowdown.com/data/aliases.js",
-			path: "showdown/aliases.js",
-			name: "Aliases"
+			path: "./showdown/aliases.js",
+			name: "Aliases",
+			expo: "BattleAliases"
 		},
 		config: {
 			url: "https://play.pokemonshowdown.com/config/config.js",
-			path: "showdown/config.js",
-			ship: "\n\nexports.Config = Config;",
-			name: "Config"
+			path: "./showdown/config.js",
+			append: "\n\nexports.Config = Config;",
+			name: "Config",
+			expo: "Config"
 		},
 		formatsdata: {
 			url: "https://play.pokemonshowdown.com/data/formats-data.js",
-			path: "showdown/formats-data.js",
-			name: "Formats Data"
+			path: "./showdown/formats-data.js",
+			name: "Formats Data",
+			key: "formatsData",
+			expo: "BattleFormatsData"
 		},
 		formats: {
 			url: "https://play.pokemonshowdown.com/data/formats.js",
-			path: "showdown/formats.js",
-			name: "Formats"
+			path: "./showdown/formats.js",
+			name: "Formats",
+			expo: "BattleFormats"
 		},
 		items: {
 			url: "https://play.pokemonshowdown.com/data/items.js",
-			path: "showdown/items.js",
-			name: "Items"
+			path: "./showdown/items.js",
+			name: "Items",
+			expo: "BattleItems"
 		},
 		learnsets: {
 			url: "https://play.pokemonshowdown.com/data/learnsets.js",
-			path: "showdown/learnsets.js",
-			name: "Learnsets"
+			path: "./showdown/learnsets.js",
+			name: "Learnsets",
+			expo: "BattleLearnsets"
 		},
 		moves: {
-			url: "https://play.pokemonshowdown.com/data/moves.js",
-			path: "showdown/moves.js",
+			url: "https://play.pokemonshowdown.com/data/moves.json",
+			path: "./showdown/moves.json",
 			name: "Moves"
 		},
 		pokedex: {
-			url: "https://play.pokemonshowdown.com/data/pokedex.js",
-			path: "showdown/pokedex.js",
+			url: "https://play.pokemonshowdown.com/data/pokedex.json",
+			path: "./showdown/pokedex.json",
 			name: "Pokedex"
 		},
 		typechart: {
 			url: "https://play.pokemonshowdown.com/data/typechart.js",
-			path: "showdown/typechart.js",
-			name: "Typechart"
+			path: "./showdown/typechart.js",
+			name: "Typechart",
+			expo: "BattleTypeChart"
 		}
 	}
 	types = types.map(exports.toID).map(type => links[type]).filter(type => type);
 	if (!types.length) types = Object.values(links);
 	return new Promise((resolve, reject) => {
-		Promise.all(types.map(type => new Promise (res => {
+		Promise.all(types.map(type => new Promise(res => {
 			axios.get(type.url).then(response => {
 				const data = response.data;
-				fs.writeFile(path.join(__dirname, type.path), (data + (type.ship || '')), err => {
+				fs.writeFile(path.join(__dirname, type.path), ((typeof data === 'string' ? data : JSON.stringify(data)) + (type.append || '')), err => {
 					if (err) return console.error(err.stack);
 					try {
 						delete require.cache[require.resolve(type.path)];
-					} catch {}
-					res(type.name);
+					} catch {} finally {
+						res(type.name);
+					}
 				});
 			}).catch(reject);
-		}))).then(resolve);
+		}))).then(res => {
+			console.log(1);
+			if (require.cache[require.resolve('./index.js')]) {
+				const main = require('./index.js');
+				// delete main.Data;
+				// main.Data = {};
+				types.forEach(type => {
+					const key = type.key || exports.toID(type.name);
+					if (type.expo) main.Data[key] = require(type.path)[type.expo];
+					else main.Data[key] = require(type.path);
+				});
+				Config = require('./showdown/config.js').Config;
+			}
+			console.log(res);
+			resolve(res);
+		});
 	});
 }
 
-exports.uploadToPastie = function (text, callback) {
+exports.uploadToPastie = function uploadToPastie (text, callback) {
 	return new Promise((resolve, reject) => {
 		axios.post("https://pastie.io/documents", String(text), {
 			headers: {
@@ -164,7 +189,7 @@ exports.uploadToPastie = function (text, callback) {
 	});
 }
 
-exports.uploadToPokepaste = function (text, output) {
+exports.uploadToPokepaste = function uploadToPokepaste (text, output) {
 	return new Promise((resolve, reject) => {
 		switch (typeof text) {
 			case 'string': {
@@ -178,8 +203,7 @@ exports.uploadToPokepaste = function (text, output) {
 			}
 			default: {
 				if (text.paste) break;
-				reject(new Error("Invalid Paste value."));
-				return;
+				return reject(new Error("Invalid Paste value."));
 			}
 		}
 		axios.post("https://pokepast.es/create", querystring.stringify(text)).then(res => {
@@ -199,7 +223,7 @@ exports.uploadToPokepaste = function (text, output) {
 	});
 }
 
-exports.escapeHTML = function (str) {
+exports.escapeHTML = function escapeHTML (str) {
 	if (!str) return '';
 	return String(str)
 		.replace(/&/g, '&amp;')
@@ -210,7 +234,7 @@ exports.escapeHTML = function (str) {
 		.replace(/\//g, '&#x2f;');
 }
 
-exports.unescapeHTML = function (str) {
+exports.unescapeHTML = function unescapeHTML (str) {
 	if (!str) return '';
 	return String(str)
 		.replace(/&amp;/g, '&')
