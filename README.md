@@ -208,7 +208,7 @@ For common purposes and frequently useful methods, a variety of tools have been 
 * `escapeHTML (input: string): string`: Escapes special characters with their HTML sequences.
 * `unescapeHTML (input: string): string`: Unescapes HTML sequences into their corresponding characters.
 
-Note: This module uses [axios](https://github.com/axios/axios) for POST requests.
+Note: This module uses [axios](https://github.com/axios/axios) for POST requests.<br/>
 Note: The various methods that use HTML in the Message / Room / User classes all use the [inline-css](https://www.npmjs.com/package/inline-css) library for expanding `<style>` tags into inline CSS.
 
 
