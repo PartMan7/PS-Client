@@ -48,7 +48,7 @@ PS-Client requires **Node.js v14.0.0 or higher**.
 ## Example Setup
 
 ```javascript
-const Client = require('ps-client').Client;
+const { Client } = require('ps-client');
 const Bot = new Client({ username: 'PartMan', password: 'REDACTED', debug: true, avatar: 'supernerd', autoJoin: ['botdevelopment'] });
 
 Bot.connect();
@@ -64,7 +64,7 @@ Bot.on('message', message => {
 Creating a Bot is fairly simple - all you have to do is create a new instance of the Client and pass the configuration options.
 
 ```javascript
-const Client = require('ps-client').Client;
+const { Client } = require('ps-client');
 let Bot = new Client({ username: name, password: password });
 
 Bot.connect();
@@ -232,7 +232,7 @@ More information on how to use these can be found [here](https://github.com/smog
 
 
 ## Credits
-Written by PartMan7. Many thanks to Ecuacion for the base connection logic, and many others (Morfent, NotBlizzard, and LegoFigure11, to name a few) for earlier assistance.
+Written by PartMan7. Many thanks to Ecuacion for the base connection logic.
 
 ### To-Do
 

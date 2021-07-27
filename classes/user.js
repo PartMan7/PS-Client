@@ -23,11 +23,10 @@ class User {
 		if (!opts.name) opts.name = this.parent.status.username + Date.now().toString(36);
 		const rooms = {};
 		Object.values(this.parent.rooms).forEach(room => {
-			if (rooms.public) return;
 			if (
-				rooms.auth?.['*']?.includes(this.parent.status.userid) ||
-				rooms.auth?.['#']?.includes(this.parent.status.userid)
-			) rooms[room.type] = room;
+				room.auth?.['*']?.includes(this.parent.status.userid) ||
+				room.auth?.['#']?.includes(this.parent.status.userid)
+			) rooms[room.visibility] = room;
 		});
 		const room = rooms.public || rooms.hidden || rooms.private;
 		if (!room) return false;
@@ -46,8 +45,10 @@ class User {
 		name = name.toString();
 		const rooms = {};
 		Object.values(this.parent.rooms).forEach(room => {
-			if (rooms.public) return;
-			if (rooms.auth?.['*']?.includes(this.parent.status.userid)) rooms[room.type] = room;
+			if (
+				room.auth?.['*']?.includes(this.parent.status.userid) ||
+				room.auth?.['#']?.includes(this.parent.status.userid)
+			) rooms[room.visibility] = room;
 		});
 		const room = rooms.public || rooms.hidden || rooms.private;
 		if (!room) return false;
