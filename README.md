@@ -22,6 +22,9 @@ PS-Client is a module that handles connection to Pokemon Showdown servers. Apart
 
 ### What's New
 
+**v1.4.1**
+* User#sendHTML and User#pageHTML now work correctly.
+
 **v1.4.0**
 * Multi-line messages now resolve at the time of the final line being successfully sent, instead of never resolving.
 * Some datacenters now use JSON.
