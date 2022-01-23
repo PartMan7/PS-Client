@@ -297,6 +297,7 @@ class Client extends EventEmitter {
 					this.send('|/ip');
 					this.opts.autoJoin.forEach(room => this.send(`|/join ${room}`));
 					if (this.opts.avatar) this.send(`|/avatar ${this.opts.avatar}`);
+					if (this.opts.status) this.send(`|/status ${this.opts.status}`);
 				}
 				this.status.username = args[2].substr(1);
 				this.status.userid = Tools.toID(this.status.username);
