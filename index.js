@@ -362,6 +362,7 @@ class Client extends EventEmitter {
 						} catch (e) {
 							this.handle(`Error in parsing userdetails: ${e.message}`);
 						}
+            if (!userdetails.userid) userdetails.userid ??= "&";
 						this.addUser(userdetails);
 						let user;
 						for (let u of this._userdetailsQueue) {
