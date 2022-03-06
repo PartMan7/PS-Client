@@ -33,8 +33,8 @@ class Client extends EventEmitter {
 		}
 		this.actionURL = url.parse(this.opts.loginServer);
 		this.isTrusted = null;
-		this.rooms = {};
-		this.users = {};
+		this.rooms = new Map();
+		this.users = new Map();
 		this.status = {
 			connected: false,
 			loggedIn: false,
@@ -45,6 +45,7 @@ class Client extends EventEmitter {
 		this._queue = [];
 		this._queued = [];
 		this._userdetailsQueue = [];
+    this._roominfoQueue = [];
 
 		this.debug = opts.debug ? console.log : () => {};
 		this.handle = opts.handle === null ? () => {} : (typeof opts.handle === 'function' ? opts.handle : console.error);
@@ -58,7 +59,7 @@ class Client extends EventEmitter {
 		const webSocket = new wsClient();
 		this.webSocket = webSocket;
 		const client = this;
-		client.rooms = {}; // reset
+		client.rooms.clear(); // reset
 		webSocket.on('connectFailed', function (err) {
 				client.emit('disconnect', err);
 				client.handle(`Unable to connect to ${client.opts.server}: ${util.inspect(err)}`);
@@ -238,7 +239,7 @@ class Client extends EventEmitter {
 		else userid = Tools.toID(user);
 		if (!userid) this.handle("Invalid ID in Client#sendUser");
 		this.addUser({ userid: userid });
-		return this.users[userid].send(text);
+		return this.users.get(userid).send(text);
 	}
 
 	// Receiving data
@@ -281,7 +282,7 @@ class Client extends EventEmitter {
 			this.receiveLine('lobby', message);
 		}
 	}
-	receiveLine (room, message, isIntro) {
+	async receiveLine (room, message, isIntro) {
 		this.emit('line', room, message, isIntro);
 		const args = message.split('|');
 		switch (args[1]) {
@@ -313,13 +314,13 @@ class Client extends EventEmitter {
 				break;
 			}
 			case 'init': {
-				if (!this.rooms[room]) this.rooms[room] = new Room(room, this);
-				this.send(`|/cmd roominfo ${room}`);
+				if (!this.rooms.has(room)) this.rooms.set(room, new Room(room, this));
+        room = await this.fetchRoom(room);
 				this.emit('joinRoom', room);
 				break;
 			}
 			case 'deinit': {
-				if (this.rooms[room]) delete this.rooms[room];
+        room = this.getRoom(room) ?? room;
 				this.emit('leaveRoom', room);
 				break;
 			}
@@ -341,9 +342,17 @@ class Client extends EventEmitter {
 						} catch (e) {
 							this.handle(`Error in parsing roominfo: ${e.message}`);
 						}
-						if (!this.rooms[roominfo.roomid]) break;
-						Object.keys(roominfo).forEach(key => this.rooms[roominfo.roomid][key] = roominfo[key]);
-						roominfo.users.forEach(user => this.getUserDetails(user).catch(this.handle));
+						this.addRoom(roominfo);
+						let room;
+						for (let r of this._roominfoQueue) {
+							if (r.id === roominfo.id) {
+								room = r;
+								break;
+							}
+						}
+            this.rooms.set(roominfo.roomid, roominfo);
+						if (room) room.resolve(roominfo);
+						roominfo.users.forEach(user => this.fetchUser(user).catch(this.handle));
 						break;
 					}
 					case 'userdetails': {
@@ -361,6 +370,7 @@ class Client extends EventEmitter {
 								break;
 							}
 						}
+            this.users.set(userdetails.id, userdetails)
 						if (user) user.resolve(userdetails);
 						break;
 					}
@@ -482,28 +492,29 @@ class Client extends EventEmitter {
 				break;
 			}
 			case 'j': case 'J': case 'join': {
-				this.send(`|/cmd roominfo ${room}`);
 				this.addUser({ userid: Tools.toID(args.slice(2).join('|')) });
+        room = await this.fetchRoom(room)
 				this.emit('join', room, args.slice(2).join('|'), isIntro);
 				break;
 			}
 			case 'l': case 'L': case 'leave': {
-				this.send(`|/cmd roominfo ${room}`);
+				room = await this.fetchRoom(room)
 				this.emit('leave', room, args.slice(2).join('|'), isIntro);
 				break;
 			}
 			case 'n': case 'N': case 'name': {
-				this.send(`|/cmd roominfo ${room}`);
+				room = await this.fetchRoom(room)
 				this.emit('name', room, args[2], args[3]);
 				const old = Tools.toID(args[3]), yng = Tools.toID(args[2]);
 				if (!this.users[old]) break;
-				this.users[old].alts.push(yng);
-				this.users[yng] = this.users[old];
-				delete this.users[old];
+				this.users.get(old).alts.push(yng);
+				this.users.set(yng, this.users.get(old));
+				this.users.delete(old);
 				this.getUserDetails(yng);
 				break;
 			}
 			case 'error': {
+        room = this.getRoom(room);
 				this.emit('chaterror', room, args.slice(2).join('|'), isIntro);
 				break;
 			}
@@ -514,31 +525,57 @@ class Client extends EventEmitter {
 	// Utility
 	addUser (input) {
 		if (typeof input !== 'object' || !input.userid) throw new Error ("Input must be an object with userid for new User");
-		let user = this.users[input.userid];
+		let user = this.users.get(input.userid);
 		if (!user) {
-			this.users[input.userid] = new User (input, this);
-			user = this.users[input.userid];
-			this.getUserDetails(input.userid);
+      this.users.set(input.userid, new User (input, this));
+			user = this.users.get(input.userid);
+			this.fetchUser(input.userid);
 		}
-		Object.keys(input).forEach(key => user[key] = input[key]);
+		Object.keys(input).forEach(key => user[key] = input[key])
 		return user;
+	}
+  addRoom (input) {
+		if (typeof input !== 'object' || !input.roomid) throw new Error ("Input must be an object with roomid for new Room");
+		let room = this.rooms.get(input.userid);
+		if (!room) {
+      this.users.set(input.roomid, new Room (input, this));
+			room = this.rooms.get(input.userid);
+			this.fetchRoom(input.roomid);
+		}
+		Object.keys(input).forEach(key => room[key] = input[key]);
+		return room;
 	}
 	getUser (str) {
 		if (str instanceof User) str = str.userid;
 		if (typeof str !== 'string') return null;
 		str = Tools.toID(str);
-		if (this.users[str]) return this.users[str];
-		for (const user of Object.keys(this.users)) {
+    if (this.users.has(str)) return this.users.get(str);
+		for (const user of [...this.users.values()]) {
 			if (user.alts?.includes(str)) return user;
 		}
 		return false;
 	}
-	getUserDetails (userid) {
+	fetchUser (userid) {
 		userid = Tools.toID(userid);
 		const client = this;
 		return new Promise(resolve => {
 			this.send(`|/cmd userdetails ${userid}`);
 			client._userdetailsQueue.push({ id: userid, resolve: resolve });
+		});
+	}
+  getRoom (str) {
+		if (str instanceof Room) str = str.roomid;
+		if (typeof str !== 'string') return null;
+		str = Tools.toID(str);
+		if (!this.rooms.has(str)) return false;
+    return this.rooms.get(str);
+	}
+  fetchRoom (roomid) {
+		roomid = Tools.toID(roomid);
+		const client = this;
+		return new Promise(resolve => {
+      this.send(`|/cmd roominfo ${roomid}`);
+			client._roomInfoQueue.push({ id: roomid, resolve: resolve });
 		});
 	}
 }
