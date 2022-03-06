@@ -576,7 +576,7 @@ class Client extends EventEmitter {
 		const client = this;
 		return new Promise(resolve => {
 			this.send(`|/cmd roominfo ${roomid}`);
-			client._roomInfoQueue.push({ id: roomid, resolve: resolve });
+			client._roominfoQueue.push({ id: roomid, resolve: resolve });
 		});
 	}
 }
