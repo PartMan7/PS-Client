@@ -161,7 +161,7 @@ class Client extends EventEmitter {
 					return;
 				}
 				try {
-					data = JSON.parse(data.substr(1));
+					data = JSON.parse(data.substring(1));
 					if (data.actionsuccess) data = data.assertion;
 					else {
 						client.handle(`Unable to login: ${JSON.stringify(data)}`);
@@ -244,11 +244,11 @@ class Client extends EventEmitter {
 
 	// Receiving data
 	receive (message) {
-		const flag = message.substr(0, 1);
+		const flag = message.substring(0, 1);
 		let data;
 		switch (flag) {
 			case 'a':
-				data = JSON.parse(message.substr(1));
+				data = JSON.parse(message.substring(1));
 				if (data instanceof Array) {
 					for (let i = 0; i < data.length; i++) {
 						this.receiveMsg(data[i]);
@@ -265,7 +265,7 @@ class Client extends EventEmitter {
 			const spl = message.split('\n');
 			let room = 'lobby';
 			if (spl[0].charAt(0) === '>') {
-				room = spl[0].substr(1);
+				room = spl[0].substring(1);
 				if (room === '') room = 'lobby';
 			}
 			for (let i = 0, len = spl.length; i < len; i++) {
@@ -292,7 +292,7 @@ class Client extends EventEmitter {
 			}
 			case 'updateuser': {
 				if (!args[2].startsWith(' Guest')) {
-					this.debug(`Successfully logged in as ${args[2].substr(1)}.`);
+					this.debug(`Successfully logged in as ${args[2].substring(1)}.`);
 					this.status.loggedIn = true;
 					this.emit('loggedin', args[2]);
 					this.send('|/ip');
@@ -300,7 +300,7 @@ class Client extends EventEmitter {
 					if (this.opts.avatar) this.send(`|/avatar ${this.opts.avatar}`);
 					if (this.opts.status) this.send(`|/status ${this.opts.status}`);
 				}
-				this.status.username = args[2].substr(1);
+				this.status.username = args[2].substring(1);
 				this.status.userid = Tools.toID(this.status.username);
 				this.emit('updateuser', room, args.slice(2).join('|'), isIntro);
 				break;
@@ -397,7 +397,7 @@ class Client extends EventEmitter {
 						}
 					});
 					mssg.target._waits = mssg.target._waits.filter(wait => !resolved.includes(wait.id));
-					if (by.substr(1) === this.status.username) {
+					if (by.substring(1) === this.status.username) {
 						if (this._queued.map(msg => msg.content).includes(value)) {
 							while (this._queued.length) {
 								const msg = this._queued.shift();
@@ -432,7 +432,7 @@ class Client extends EventEmitter {
 					}
 				});
 				mssg.target._waits = mssg.target._waits.filter(wait => !resolved.includes(wait.id));
-				if (!isIntro && by.substr(1) === this.status.username && this._queued.map(msg => msg.content).includes(comp)) {
+				if (!isIntro && by.substring(1) === this.status.username && this._queued.map(msg => msg.content).includes(comp)) {
 					while (this._queued.length) {
 						const msg = this._queued.shift();
 						if (msg.content === comp) {
@@ -447,7 +447,7 @@ class Client extends EventEmitter {
 			}
 			case 'pm': {
 				let by = args[2], to = args[3], value = args.slice(4).join('|'), chatWith, resolved = [];
-				if (by.substr(1) === this.status.username) chatWith = to;
+				if (by.substring(1) === this.status.username) chatWith = to;
 				else chatWith = by;
 				const mssg = new Message({
 					by: by,
@@ -459,7 +459,7 @@ class Client extends EventEmitter {
 					parent: this,
 					time: Date.now()
 				}), comp = `|/pm ${Tools.toID(to)},${value}`;
-				if (mssg.command && mssg.command === 'error') mssg.target._waits.shift().fail(mssg.content.substr(7));
+				if (mssg.command && mssg.command === 'error') mssg.target._waits.shift().fail(mssg.content.substring(7));
 				if (mssg.target) {
 					mssg.target._waits.forEach(wait => {
 						if (wait.condition(mssg)) {
@@ -469,7 +469,7 @@ class Client extends EventEmitter {
 						}
 					});
 					mssg.target._waits = mssg.target._waits.filter(wait => !resolved.includes(wait.id));
-					if (!isIntro && by.substr(1) === this.status.username && this._queued.map(msg => msg.content).includes(comp)) {
+					if (!isIntro && by.substring(1) === this.status.username && this._queued.map(msg => msg.content).includes(comp)) {
 						while (this._queued.length) {
 							const msg = this._queued.shift();
 							if (msg.content === comp) {
