@@ -511,7 +511,7 @@ class Client extends EventEmitter {
 				this.users.get(old).alts.push(yng);
 				this.users.set(yng, this.users.get(old));
 				this.users.delete(old);
-				this.getUserDetails(yng);
+				this.fetchUser(yng);
 				break;
 			}
 			case 'error': {
@@ -539,8 +539,8 @@ class Client extends EventEmitter {
 		if (typeof input !== 'object' || !input.roomid) throw new Error ("Input must be an object with roomid for new Room");
 		let room = this.rooms.get(input.userid);
 		if (!room) {
-			this.users.set(input.roomid, new Room (input, this));
-			room = this.rooms.get(input.userid);
+			this.users.set(input.roomid, new Room (input.roomid, this));
+			room = this.rooms.get(input.roomid);
 			this.fetchRoom(input.roomid);
 		}
 		Object.keys(input).forEach(key => room[key] = input[key]);

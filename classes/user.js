@@ -21,12 +21,12 @@ class User {
 		if (typeof opts === 'string') opts = { name: opts };
 		if (!opts || typeof opts !== 'object') throw new TypeError("Options must be an object");
 		if (!opts.name) opts.name = this.parent.status.username + Date.now().toString(36);
-		const rooms = {};
-		Object.values(this.parent.rooms).forEach(room => {
+		const rooms = new Map();
+		[...this.parent.rooms.values()].forEach(room => {
 			if (
 				room.auth?.['*']?.includes(this.parent.status.userid) ||
 				room.auth?.['#']?.includes(this.parent.status.userid)
-			) rooms[room.visibility] = room;
+			) rooms.set(room.visibility, room);
 		});
 		const room = rooms.public || rooms.hidden || rooms.private;
 		if (!room) return false;
@@ -43,12 +43,12 @@ class User {
 		if (!html) throw new Error("Missing HTML argument");
 		if (!name) name = this.parent.status.username + Date.now().toString(36);
 		name = name.toString();
-		const rooms = {};
-		Object.values(this.parent.rooms).forEach(room => {
+		const rooms = new Map();
+		[...this.parent.rooms.values()].forEach(room => {
 			if (
 				room.auth?.['*']?.includes(this.parent.status.userid) ||
 				room.auth?.['#']?.includes(this.parent.status.userid)
-			) rooms[room.visibility] = room;
+			) rooms.set(room.visibility, room);
 		});
 		const room = rooms.public || rooms.hidden || rooms.private;
 		if (!room) return false;

@@ -6,11 +6,11 @@ class Message {
 	constructor (input) {
 		let { by, text, type, target, raw, isIntro, parent, time } = input;
 		by = toID(by);
-		if (!parent.users[by]) {
+		if (!parent.users.has(by)) {
 			parent.addUser({ userid: by });
 			parent.fetchUser(by);
 		}
-		this.author = parent.users[by];
+		this.author = parent.users.get(by);
 		this.content = text;
 		let match = text.match(/^[/!][^ ]+/);
 		if (match) this.command = match[0];
@@ -24,10 +24,10 @@ class Message {
 		else this.time = Date.now();
 		switch (this.type) {
 			case 'chat':
-				this.target = this.parent.rooms[target];
+				this.target = this.parent.rooms.get(target);
 				break;
 			case 'pm':
-				this.target = this.parent.users[target];
+				this.target = this.parent.users.get(target);
 				break;
 			default: console.error(this.type);
 		}
