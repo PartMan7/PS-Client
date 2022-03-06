@@ -8,7 +8,7 @@ class Message {
 		by = toID(by);
 		if (!parent.users[by]) {
 			parent.addUser({ userid: by });
-			parent.getUserDetails(by);
+			parent.fetchUser(by);
 		}
 		this.author = parent.users[by];
 		this.content = text;
