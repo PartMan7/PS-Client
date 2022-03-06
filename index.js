@@ -45,7 +45,7 @@ class Client extends EventEmitter {
 		this._queue = [];
 		this._queued = [];
 		this._userdetailsQueue = [];
-    this._roominfoQueue = [];
+		this._roominfoQueue = [];
 
 		this.debug = opts.debug ? console.log : () => {};
 		this.handle = opts.handle === null ? () => {} : (typeof opts.handle === 'function' ? opts.handle : console.error);
@@ -315,12 +315,12 @@ class Client extends EventEmitter {
 			}
 			case 'init': {
 				if (!this.rooms.has(room)) this.rooms.set(room, new Room(room, this));
-        room = await this.fetchRoom(room);
+				room = await this.fetchRoom(room);
 				this.emit('joinRoom', room);
 				break;
 			}
 			case 'deinit': {
-        room = this.getRoom(room) ?? room;
+				room = this.getRoom(room) ?? room;
 				this.emit('leaveRoom', room);
 				break;
 			}
@@ -350,7 +350,7 @@ class Client extends EventEmitter {
 								break;
 							}
 						}
-            this.rooms.set(roominfo.roomid, roominfo);
+						this.rooms.set(roominfo.roomid, roominfo);
 						if (room) room.resolve(roominfo);
 						roominfo.users.forEach(user => this.fetchUser(user).catch(this.handle));
 						break;
@@ -362,7 +362,7 @@ class Client extends EventEmitter {
 						} catch (e) {
 							this.handle(`Error in parsing userdetails: ${e.message}`);
 						}
-            if (!userdetails.userid) userdetails.userid ??= "&";
+						if (!userdetails.userid) userdetails.userid ??= "&";
 						this.addUser(userdetails);
 						let user;
 						for (let u of this._userdetailsQueue) {
@@ -371,7 +371,7 @@ class Client extends EventEmitter {
 								break;
 							}
 						}
-            this.users.set(userdetails.id, userdetails)
+						this.users.set(userdetails.id, userdetails)
 						if (user) user.resolve(userdetails);
 						break;
 					}
@@ -494,7 +494,7 @@ class Client extends EventEmitter {
 			}
 			case 'j': case 'J': case 'join': {
 				this.addUser({ userid: Tools.toID(args.slice(2).join('|')) });
-        room = await this.fetchRoom(room)
+				room = await this.fetchRoom(room)
 				this.emit('join', room, args.slice(2).join('|'), isIntro);
 				break;
 			}
@@ -515,7 +515,7 @@ class Client extends EventEmitter {
 				break;
 			}
 			case 'error': {
-        room = this.getRoom(room);
+				room = this.getRoom(room);
 				this.emit('chaterror', room, args.slice(2).join('|'), isIntro);
 				break;
 			}
@@ -535,11 +535,11 @@ class Client extends EventEmitter {
 		Object.keys(input).forEach(key => user[key] = input[key])
 		return user;
 	}
-  addRoom (input) {
+	addRoom (input) {
 		if (typeof input !== 'object' || !input.roomid) throw new Error ("Input must be an object with roomid for new Room");
 		let room = this.rooms.get(input.userid);
 		if (!room) {
-      this.users.set(input.roomid, new Room (input, this));
+			this.users.set(input.roomid, new Room (input, this));
 			room = this.rooms.get(input.userid);
 			this.fetchRoom(input.roomid);
 		}
@@ -550,7 +550,7 @@ class Client extends EventEmitter {
 		if (str instanceof User) str = str.userid;
 		if (typeof str !== 'string') return null;
 		str = Tools.toID(str);
-    if (this.users.has(str)) return this.users.get(str);
+		if (this.users.has(str)) return this.users.get(str);
 		for (const user of [...this.users.values()]) {
 			if (user.alts?.includes(str)) return user;
 		}
@@ -564,18 +564,18 @@ class Client extends EventEmitter {
 			client._userdetailsQueue.push({ id: userid, resolve: resolve });
 		});
 	}
-  getRoom (str) {
+	getRoom (str) {
 		if (str instanceof Room) str = str.roomid;
 		if (typeof str !== 'string') return null;
 		str = Tools.toID(str);
 		if (!this.rooms.has(str)) return false;
-    return this.rooms.get(str);
+		return this.rooms.get(str);
 	}
-  fetchRoom (roomid) {
+	fetchRoom (roomid) {
 		roomid = Tools.toID(roomid);
 		const client = this;
 		return new Promise(resolve => {
-      this.send(`|/cmd roominfo ${roomid}`);
+			this.send(`|/cmd roominfo ${roomid}`);
 			client._roomInfoQueue.push({ id: roomid, resolve: resolve });
 		});
 	}
