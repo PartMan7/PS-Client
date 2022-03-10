@@ -60,7 +60,7 @@ class Client extends EventEmitter {
 		this.webSocket = webSocket;
 		const client = this;
 		client.rooms.clear(); // reset
-    client.users.clear();
+		client.users.clear();
 		['~', '&'].forEach(e => client.users.set(e, new User({ id: e, userid: e, name: e, rooms: false }, client)));
 		webSocket.on('connectFailed', function (err) {
 				client.emit('disconnect', err);
@@ -284,7 +284,7 @@ class Client extends EventEmitter {
 			this.receiveLine('lobby', message);
 		}
 	}
-  receiveLine (room, message, isIntro) {
+	receiveLine (room, message, isIntro) {
 		this.emit('line', room, message, isIntro);
 		const args = message.split('|');
 		switch (args[1]) {
@@ -344,7 +344,7 @@ class Client extends EventEmitter {
 						} catch (e) {
 							this.handle(`Error in parsing roominfo: ${e.message}`);
 						}
-            if (roominfo.error) console.error(roominfo.error);
+						if (roominfo.error) console.error(roominfo.error);
 						this.addRoom(roominfo);
 						let room;
 						for (let r of this._roominfoQueue) {
@@ -497,7 +497,7 @@ class Client extends EventEmitter {
 				break;
 			}
 			case 'j': case 'J': case 'join': {
-        this.send(`|/cmd roominfo ${room}`);
+				this.send(`|/cmd roominfo ${room}`);
 				this.addUser({ userid: Tools.toID(args.slice(2).join('|')) });
 				this.emit('join', room, args.slice(2).join('|'), isIntro);
 				break;
@@ -528,11 +528,11 @@ class Client extends EventEmitter {
 
 	// Utility
 	addUser (input) {
-    if (input?.userid?.length === 0) return;
+		if (input?.userid?.length === 0) return;
 		if (typeof input !== 'object' || !input.userid) throw new Error ("Input must be an object with userid for new User");
 		let user = this.users.get(input.userid);
 		if (!user) {
-      this.users.set(input.userid, new User (input, this));
+			this.users.set(input.userid, new User (input, this));
 			user = this.users.get(input.userid);
 			this.fetchUser(input.userid);
 		}
@@ -562,7 +562,7 @@ class Client extends EventEmitter {
 	}
 	fetchUser (userid) {
 		userid = Tools.toID(userid);
-    if ([undefined, null, 0]?.includes(userid?.length)) return;
+		if ([undefined, null, 0]?.includes(userid?.length)) return;
 		const client = this;
 		return new Promise(resolve => {
 			this.send(`|/cmd userdetails ${userid}`);
