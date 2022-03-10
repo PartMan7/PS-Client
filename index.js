@@ -60,6 +60,8 @@ class Client extends EventEmitter {
 		this.webSocket = webSocket;
 		const client = this;
 		client.rooms.clear(); // reset
+    client.users.clear();
+		['~', '&'].forEach(e => client.users.set(e, new User({ id: e, userid: e, name: e, rooms: false }, client)));
 		webSocket.on('connectFailed', function (err) {
 				client.emit('disconnect', err);
 				client.handle(`Unable to connect to ${client.opts.server}: ${util.inspect(err)}`);
@@ -282,7 +284,7 @@ class Client extends EventEmitter {
 			this.receiveLine('lobby', message);
 		}
 	}
-	async receiveLine (room, message, isIntro) {
+  receiveLine (room, message, isIntro) {
 		this.emit('line', room, message, isIntro);
 		const args = message.split('|');
 		switch (args[1]) {
@@ -314,13 +316,13 @@ class Client extends EventEmitter {
 				break;
 			}
 			case 'init': {
-				if (!this.rooms.has(room)) this.rooms.set(room, new Room(room, this));
-				room = await this.fetchRoom(room);
+				this.rooms.set(room, new Room(room, this));
+				this.send(`|/cmd roominfo ${room}`);
 				this.emit('joinRoom', room);
 				break;
 			}
 			case 'deinit': {
-				room = this.getRoom(room) ?? room;
+				this.rooms.delete(room);
 				this.emit('leaveRoom', room);
 				break;
 			}
@@ -342,6 +344,7 @@ class Client extends EventEmitter {
 						} catch (e) {
 							this.handle(`Error in parsing roominfo: ${e.message}`);
 						}
+            if (roominfo.error) console.error(roominfo.error);
 						this.addRoom(roominfo);
 						let room;
 						for (let r of this._roominfoQueue) {
@@ -350,7 +353,8 @@ class Client extends EventEmitter {
 								break;
 							}
 						}
-						this.rooms.set(roominfo.roomid, roominfo);
+						if (!this.rooms.has(roominfo.roomid)) break;
+						this.rooms.set(roominfo.roomid, new Room(roominfo.roomid, this));
 						if (room) room.resolve(roominfo);
 						roominfo.users.forEach(user => this.fetchUser(user).catch(this.handle));
 						break;
@@ -362,7 +366,7 @@ class Client extends EventEmitter {
 						} catch (e) {
 							this.handle(`Error in parsing userdetails: ${e.message}`);
 						}
-						if (!userdetails.userid) userdetails.userid ??= "&";
+						if ([undefined, null, 0]?.includes(userdetails?.userid?.length)) break;
 						this.addUser(userdetails);
 						let user;
 						for (let u of this._userdetailsQueue) {
@@ -371,7 +375,7 @@ class Client extends EventEmitter {
 								break;
 							}
 						}
-						this.users.set(userdetails.id, userdetails)
+						this.users.set(userdetails.userid, new User(userdetails, this));
 						if (user) user.resolve(userdetails);
 						break;
 					}
@@ -493,29 +497,28 @@ class Client extends EventEmitter {
 				break;
 			}
 			case 'j': case 'J': case 'join': {
+        this.send(`|/cmd roominfo ${room}`);
 				this.addUser({ userid: Tools.toID(args.slice(2).join('|')) });
-				room = await this.fetchRoom(room)
 				this.emit('join', room, args.slice(2).join('|'), isIntro);
 				break;
 			}
 			case 'l': case 'L': case 'leave': {
-				room = await this.fetchRoom(room)
+				this.send(`|/cmd roominfo ${room}`);
 				this.emit('leave', room, args.slice(2).join('|'), isIntro);
 				break;
 			}
 			case 'n': case 'N': case 'name': {
-				room = await this.fetchRoom(room)
+				this.send(`|/cmd roominfo ${room}`);
 				this.emit('name', room, args[2], args[3]);
 				const old = Tools.toID(args[3]), yng = Tools.toID(args[2]);
-				if (!this.users[old]) break;
-				this.users.get(old).alts.push(yng);
+				if (!this.users.has(old)) break;
+				this.users.set(old, this.users.get(old).alts.push(yng))
 				this.users.set(yng, this.users.get(old));
 				this.users.delete(old);
 				this.fetchUser(yng);
 				break;
 			}
 			case 'error': {
-				room = this.getRoom(room);
 				this.emit('chaterror', room, args.slice(2).join('|'), isIntro);
 				break;
 			}
@@ -525,6 +528,7 @@ class Client extends EventEmitter {
 
 	// Utility
 	addUser (input) {
+    if (input?.userid?.length === 0) return;
 		if (typeof input !== 'object' || !input.userid) throw new Error ("Input must be an object with userid for new User");
 		let user = this.users.get(input.userid);
 		if (!user) {
@@ -532,18 +536,18 @@ class Client extends EventEmitter {
 			user = this.users.get(input.userid);
 			this.fetchUser(input.userid);
 		}
-		Object.keys(input).forEach(key => user[key] = input[key])
+		Object.assign(user, input);
 		return user;
 	}
 	addRoom (input) {
 		if (typeof input !== 'object' || !input.roomid) throw new Error ("Input must be an object with roomid for new Room");
-		let room = this.rooms.get(input.userid);
+		let room = this.rooms.get(input.roomid);
 		if (!room) {
-			this.users.set(input.roomid, new Room (input.roomid, this));
+			this.rooms.set(input.roomid, new Room (input.roomid, this));
 			room = this.rooms.get(input.roomid);
 			this.fetchRoom(input.roomid);
 		}
-		Object.keys(input).forEach(key => room[key] = input[key]);
+		Object.assign(room, input);
 		return room;
 	}
 	getUser (str) {
@@ -558,6 +562,7 @@ class Client extends EventEmitter {
 	}
 	fetchUser (userid) {
 		userid = Tools.toID(userid);
+    if ([undefined, null, 0]?.includes(userid?.length)) return;
 		const client = this;
 		return new Promise(resolve => {
 			this.send(`|/cmd userdetails ${userid}`);
@@ -567,12 +572,12 @@ class Client extends EventEmitter {
 	getRoom (str) {
 		if (str instanceof Room) str = str.roomid;
 		if (typeof str !== 'string') return null;
-		str = Tools.toID(str);
+		str = str.toLowerCase().replace(/[^a-z0-9-]/g, '');
 		if (!this.rooms.has(str)) return false;
 		return this.rooms.get(str);
 	}
 	fetchRoom (roomid) {
-		roomid = Tools.toID(roomid);
+		roomid = roomid.toLowerCase().replace(/[^a-z0-9-]/g, '');
 		const client = this;
 		return new Promise(resolve => {
 			this.send(`|/cmd roominfo ${roomid}`);

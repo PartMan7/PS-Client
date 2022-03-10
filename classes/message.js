@@ -5,7 +5,7 @@ const { toID } = require('../tools.js');
 class Message {
 	constructor (input) {
 		let { by, text, type, target, raw, isIntro, parent, time } = input;
-		by = toID(by);
+		if (!['~', '&'].includes(by)) by = toID(by);
 		if (!parent.users.has(by)) {
 			parent.addUser({ userid: by });
 			parent.fetchUser(by);
