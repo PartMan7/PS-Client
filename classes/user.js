@@ -4,7 +4,7 @@ const inlineCss = require('inline-css');
 
 class User {
 	constructor (init, parent) {
-    Object.assign(this, init);
+		Object.assign(this, init);
 		this.parent = parent;
 		this._waits = [];
 		this.alts = [];
