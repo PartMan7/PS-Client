@@ -366,7 +366,7 @@ class Client extends EventEmitter {
 						} catch (e) {
 							this.handle(`Error in parsing userdetails: ${e.message}`);
 						}
-						if ([undefined, null, 0]?.includes(userdetails?.userid?.length)) break;
+						if (!userdetails?.userid || userdetails?.userid?.length === 0) break;
 						this.addUser(userdetails);
 						let user;
 						for (let u of this._userdetailsQueue) {
@@ -561,8 +561,9 @@ class Client extends EventEmitter {
 		return false;
 	}
 	fetchUser (userid) {
+    if (typeof userid !== 'string') return null;
 		userid = Tools.toID(userid);
-		if ([undefined, null, 0]?.includes(userid?.length)) return;
+		if (userid.length === 0) return null;
 		const client = this;
 		return new Promise(resolve => {
 			this.send(`|/cmd userdetails ${userid}`);

@@ -6,7 +6,7 @@
     },
     "extends": "eslint:recommended",
     "parserOptions": {
-        "ecmaVersion": 1a
+        "ecmaVersion": 11
     },
     "rules": {
         "accessor-pairs": "error",
