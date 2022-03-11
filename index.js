@@ -354,7 +354,7 @@ class Client extends EventEmitter {
 							}
 						}
 						if (!this.rooms.has(roominfo.roomid)) break;
-						this.rooms.set(roominfo.roomid, Object.assign(new Room(roominfo.roomid, this), roominfo);
+						this.rooms.set(roominfo.roomid, Object.assign(new Room(roominfo.roomid, this), roominfo));
 						if (room) room.resolve(roominfo);
 						roominfo.users.forEach(user => this.fetchUser(user).catch(this.handle));
 						break;
