@@ -316,7 +316,7 @@ class Client extends EventEmitter {
 				break;
 			}
 			case 'init': {
-				this.rooms.set(room, new Room(room, this));
+				this.addRoom({ roomid: room });
 				this.send(`|/cmd roominfo ${room}`);
 				this.emit('joinRoom', room);
 				break;
@@ -354,7 +354,7 @@ class Client extends EventEmitter {
 							}
 						}
 						if (!this.rooms.has(roominfo.roomid)) break;
-						this.rooms.set(roominfo.roomid, Object.assign(new Room(roominfo.roomid, this), roominfo));
+						this.rooms.set(roominfo.roomid, new Room(roominfo, this));
 						if (room) room.resolve(roominfo);
 						roominfo.users.forEach(user => this.fetchUser(user).catch(this.handle));
 						break;
@@ -488,7 +488,7 @@ class Client extends EventEmitter {
 					}
 				} else {
 					if (value.startsWith('/raw ') && this.status && this.status.loggedIn && typeof this.opts.isTrusted !== 'boolean') {
-						if (value.includes("<small style=\"color:gray\">(trusted)</small>")) this.opts.isTrusted = true;
+						if (value.includes('<small style=\"color:gray\">(trusted)</small>')) this.opts.isTrusted = true;
 						else this.opts.isTrusted = false;
 						if (!this.activatedQueue) this.activateQueue();
 					}
@@ -529,7 +529,7 @@ class Client extends EventEmitter {
 	// Utility
 	addUser (input) {
 		if (input?.userid?.length === 0) return;
-		if (typeof input !== 'object' || !input.userid) throw new Error ("Input must be an object with userid for new User");
+		if (typeof input !== 'object' || !input.userid) throw new Error ('Input must be an object with userid for new User');
 		let user = this.users.get(input.userid);
 		if (!user) {
 			this.users.set(input.userid, new User (input, this));
@@ -540,10 +540,10 @@ class Client extends EventEmitter {
 		return user;
 	}
 	addRoom (input) {
-		if (typeof input !== 'object' || !input.roomid) throw new Error ("Input must be an object with roomid for new Room");
+		if (typeof input !== 'object' || !input.roomid) throw new Error ('Input must be an object with roomid for new Room');
 		let room = this.rooms.get(input.roomid);
 		if (!room) {
-			this.rooms.set(input.roomid, new Room (input.roomid, this));
+			this.rooms.set(input.roomid, new Room (input, this));
 			room = this.rooms.get(input.roomid);
 			this.fetchRoom(input.roomid);
 		}
@@ -561,7 +561,7 @@ class Client extends EventEmitter {
 		return false;
 	}
 	fetchUser (userid) {
-    if (typeof userid !== 'string') return null;
+                if (typeof userid !== 'string') return null;
 		userid = Tools.toID(userid);
 		if (userid.length === 0) return null;
 		const client = this;

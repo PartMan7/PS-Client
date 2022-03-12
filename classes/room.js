@@ -4,8 +4,8 @@ const inlineCss = require('inline-css');
 const Tools = require('../tools.js');
 
 class Room {
-	constructor (name, parent) {
-		this.roomid = name.toLowerCase().replace(/[^a-z0-9-]/g, '');
+	constructor (init, parent) {
+		Object.assign(this, init);
 		this.parent = parent;
 		this._waits = [];
 	}
