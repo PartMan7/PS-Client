@@ -239,9 +239,17 @@ class Client extends EventEmitter {
 		let userid;
 		if (user instanceof User) userid = user.userid;
 		else userid = Tools.toID(user);
-		if (!userid) this.handle("Invalid ID in Client#sendUser");
+		if (!userid || userid?.length === 0) this.handle('Invalid ID in Client#sendUser');
 		this.addUser({ userid: userid });
 		return this.users.get(userid).send(text);
+	}
+	sendRoom (room, text) {
+		let roomid;
+		if room instanceof Room) roomid = room.roomid;
+		else roomid = room.toLowerCase().replace(/[^a-z0-9-]/g, '');
+		if (!roomid || roomid?.length === 0) this.handle('Invalid ID in Client#sendRoom');
+		this.addRoom({ roomid: roomid });
+		return this.rooms.get(roomid).send(text);
 	}
 
 	// Receiving data
