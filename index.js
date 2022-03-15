@@ -352,7 +352,10 @@ class Client extends EventEmitter {
 						} catch (e) {
 							this.handle(`Error in parsing roominfo: ${e.message}`);
 						}
-						if (roominfo.error) console.error(roominfo.error) break;
+						if (roominfo.error) {
+							console.error(roominfo.error)
+							break;
+						}
 						this.addRoom(roominfo);
 						let room;
 						for (let r of this._roominfoQueue) {
