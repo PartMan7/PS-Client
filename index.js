@@ -245,7 +245,7 @@ class Client extends EventEmitter {
 	}
 	sendRoom (room, text) {
 		let roomid;
-		if room instanceof Room) roomid = room.roomid;
+		if (room instanceof Room) roomid = room.roomid;
 		else roomid = room.toLowerCase().replace(/[^a-z0-9-]/g, '');
 		if (!roomid || roomid?.length === 0) this.handle('Invalid ID in Client#sendRoom');
 		this.addRoom({ roomid: roomid });
