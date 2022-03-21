@@ -161,11 +161,8 @@ exports.update = function update (...types) {
 			console.log(1);
 			if (require.cache[require.resolve('./index.js')]) {
 				const main = require('./index.js');
-
-				/*
-				 * delete main.Data;
-				 * main.Data = {};
-				 */
+				//delete main.Data;
+				//main.Data = {};
 				types.forEach(type => {
 					const key = type.key || exports.toID(type.name);
 					if (type.expo) main.Data[key] = require(type.path)[type.expo];
