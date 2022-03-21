@@ -343,7 +343,7 @@ class Client extends EventEmitter {
 			}
 			case 'html': {
 				if (this.status.loggedIn && typeof this.isTrusted !== 'boolean') {
-					if (message.includes("<small style=\"color:gray\">(trusted)</small>")) {
+					if (message.includes('<small style="color:gray">(trusted)</small>')) {
 						this.isTrusted = true;
 						this.sendInterval = 150;
 					}
