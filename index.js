@@ -292,10 +292,9 @@ class Client extends EventEmitter {
 					this.debug(`Successfully logged in as ${args[2].substr(1)}.`);
 					this.status.loggedIn = true;
 					this.send('|/ip');
-					//To write smarter, disabled next line: func-style, arrow-body-style, no-promise-executor-return
-					/* eslint-disable no-promise-executor-return */
+					//To write smarter, disabled next line: func-style, no-promise-executor-return
+					//eslint-disable-next-line func-style, no-promise-executor-return
 					const sleep = time => new Promise(resolve => setTimeout(resolve, time));
-					/* eslint-enable */
 
 					if (this.opts.avatar) this.send(`|/avatar ${this.opts.avatar}`);
 					if (this.opts.status) this.send(`|/status ${this.opts.status}`);
