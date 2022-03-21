@@ -2,11 +2,11 @@
     "env": {
         "node": true,
         "commonjs": true,
-        "es2020": true
+        "es2022": true
     },
     "extends": "eslint:recommended",
     "parserOptions": {
-        "ecmaVersion": 11
+        "ecmaVersion": 13
     },
     "rules": {
         "accessor-pairs": "error",
