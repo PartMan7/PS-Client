@@ -305,13 +305,13 @@ class Client extends EventEmitter {
 							sleep(this.sendInterval)
 								//eslint-disable-next-line max-len
 								.then(() => this.opts.autoJoin?.slice(i, i + 5)?.forEach(e => this.send('|/j ' + e)))
-                .then(() => {
-                  if (i >= this.opts.autoJoin.length) {
-										clearInterval(join);
-										this.debug('Successfully joined all autoJoin rooms.');
-										this.emit('loggedin', args[2]);
-									}
-									else i += 5;
+								.then(() => {
+								if (i >= this.opts.autoJoin.length) {
+									clearInterval(join);
+									this.debug('Successfully joined all autoJoin rooms.');
+									this.emit('loggedin', args[2]);
+								}
+								else i += 5;
 								});
 						}, this.sendInterval + 50);
 					}
