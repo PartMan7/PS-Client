@@ -320,7 +320,7 @@ class Client extends EventEmitter {
                                                                 .then(() => {
                                                                         if (i >= this.opts.autoJoin.length) {
                                                                                 clearInterval(join);
-                                                                                this.debug('Successfuly joined all autoJoin rooms.');
+                                                                                this.debug('Successfully joined all autoJoin rooms.');
                                                                                 this.emit('loggedin', args[2]);
 									}
 									else i += 5;
