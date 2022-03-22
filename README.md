@@ -44,7 +44,7 @@ sudo npm install ps-client
 
 If you have it in your package.json, simply run ``npm install``. If you have installed it and wish to update your version, run ``sudo npm update ps-client``.
 
-PS-Client requires **Node.js v14.0.0 or higher**.
+PS-Client requires **Node.js v16.6.0 or higher**.
 
 
 
@@ -117,6 +117,7 @@ Client also has the following methods:
 
 Client has the following events:
 
+* `loggedin (username: string)` - Emitted whenever the Client logged on.
 * `message (message: Message)` - Emitted whenever a message is received (includes both chat and PMs).
 * `join (room: string, user: string, isIntro: boolean)` - Emitted whenever a user joins a room.
 * `leave (room: string, user: string, isIntro: boolean)` - Emitted whenever a user leaves a room.

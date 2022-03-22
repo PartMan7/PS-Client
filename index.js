@@ -33,6 +33,7 @@ class Client extends EventEmitter {
 		}
 		this.actionURL = url.parse(this.opts.loginServer);
 		this.isTrusted = null;
+		this.sendInterval = 650;
 		this.rooms = {};
 		this.users = {};
 		this.status = {
@@ -191,20 +192,19 @@ class Client extends EventEmitter {
 
 	// Sending data
 	activateQueue () {
-		const throttle = this.isTrusted ? 300 : 1800;
 		this.activatedQueue = true;
 		this.queueTimer = setInterval(() => {
-			const messages = this._queue.splice(0, 3);
+			const messages = this._queue.splice(0, 5);
 			this._queued.push(...messages.filter(msg => /^(?:[a-z0-9-]+\|[^/]|\|\/pm [^,]+,[^/])/.test(msg.content)));
 			this.send(Object.values(messages).map(message => message.content));
-		}, throttle);
+		}, this.sendInterval);
 		return;
 	}
 	send (text) {
 		if (!text.length) return;
 		if (!this.connection) return this.handle('Not connected!');
 		if (!Array.isArray(text)) text = [text];
-		if (text.length > 3) this.handle("The message limit is 3 at a time! Please use Client#sendQueue instead.");
+		if (text.length > 5) this.handle("The message limit is 5 at a time! Please use Client#sendQueue instead.");
 		text = JSON.stringify(text);
 		this.connection.send(text);
 		return;
@@ -217,12 +217,10 @@ class Client extends EventEmitter {
 			Promise.all(text.split('\n').map((line, i) => {
 				if (i) line = multiTest[1] + line;
 				return line;
-			}).map(line => {
-				return new Promise((resolve, reject) => {
-					this._queue.push({ content: line, sent: resolve, fail: reject });
-				});
-			})).then(messages => {
-				const message = messages[messages.length - 1];
+			}).map(line => new Promise((resolve, reject) => {
+					this._queue.push({ content: line, sent: resolve, fail: reject })
+			}))).then(messages => {
+				const message = messages.at(-1);
 				message.content = text;
 				sent(message);
 			}).catch(error => {
@@ -293,11 +291,31 @@ class Client extends EventEmitter {
 				if (!args[2].startsWith(' Guest')) {
 					this.debug(`Successfully logged in as ${args[2].substr(1)}.`);
 					this.status.loggedIn = true;
-					this.emit('loggedin', args[2]);
 					this.send('|/ip');
-					this.opts.autoJoin.forEach(room => this.send(`|/join ${room}`));
+					//To write smarter, disabled next line: func-style, no-promise-executor-return
+					//eslint-disable-next-line func-style, no-promise-executor-return
+					const sleep = time => new Promise(resolve => setTimeout(resolve, time));
+
 					if (this.opts.avatar) this.send(`|/avatar ${this.opts.avatar}`);
 					if (this.opts.status) this.send(`|/status ${this.opts.status}`);
+					if (this.opts.autoJoin?.length) {
+						let i = 0;
+						let join;
+						join = setInterval(() => {
+							sleep(this.sendInterval)
+								//eslint-disable-next-line max-len
+								.then(() => this.opts.autoJoin?.slice(i, i + 5)?.forEach(e => this.send('|/j ' + e)))
+                .then(() => {
+                  if (i >= this.opts.autoJoin.length) {
+										clearInterval(join);
+										this.debug('Successfully joined all autoJoin rooms.');
+										this.emit('loggedin', args[2]);
+									}
+									else i += 5;
+								});
+						}, this.sendInterval + 50);
+					}
+					else sleep(this.sendInterval).then(() => this.emit('loggedin', args[2]));
 				}
 				this.status.username = args[2].substr(1);
 				this.status.userid = Tools.toID(this.status.username);
@@ -324,9 +342,12 @@ class Client extends EventEmitter {
 				break;
 			}
 			case 'html': {
-				if (this.status.loggedIn && typeof this.opts.isTrusted !== 'boolean') {
-					if (message.includes("<small style=\"color:gray\">(trusted)</small>")) this.opts.isTrusted = true;
-					else this.opts.isTrusted = false;
+				if (this.status.loggedIn && typeof this.isTrusted !== 'boolean') {
+					if (message.includes('<small style="color:gray">(trusted)</small>')) {
+						this.isTrusted = true;
+						this.sendInterval = 150;
+					}
+					else this.isTrusted = false;
 					if (!this.activatedQueue) this.activateQueue();
 				}
 				this.emit('html', room, args.slice(2).join('|'), isIntro);
@@ -472,9 +493,12 @@ class Client extends EventEmitter {
 						}
 					}
 				} else {
-					if (value.startsWith('/raw ') && this.status && this.status.loggedIn && typeof this.opts.isTrusted !== 'boolean') {
-						if (value.includes("<small style=\"color:gray\">(trusted)</small>")) this.opts.isTrusted = true;
-						else this.opts.isTrusted = false;
+					if (value.startsWith('/raw ') && this.status && this.status.loggedIn && typeof this.isTrusted !== 'boolean') {
+						if (value.includes('<small style="color:gray">(trusted)</small>')) {
+							this.isTrusted = true;
+							this.sendInterval = 150;
+						}
+						else this.isTrusted = false;
 						if (!this.activatedQueue) this.activateQueue();
 					}
 				}
