@@ -101,8 +101,8 @@ Client is an instance of an EventEmitter, and is the primary class. You can gene
 Client has the following properties:
 * `opts`: An object containing most of the configuration options. Note that Client.opts.password is a function that returns the password instead of a string.
 * `isTrusted`: A boolean that indicates whether the Bot is running on a trusted account. Until this is received, this value is null.
-* `rooms`: An object containing all the rooms the Bot is in. The keys are the room IDs, while the values are [Room](#room-structure) instances.
-* `users`: An object containing all the users the Bot is aware of. The keys are the user IDs, while the values are [User](#user-structure) instances.
+* `rooms`: An Map containing all the rooms the Bot is in. The keys are the room IDs, while the values are [Room](#room-structure) instances.
+* `users`: An Map containing all the users the Bot is aware of. The keys are the user IDs, while the values are [User](#user-structure) instances.
 * `status`: An object containing four keys regarding the status of the connection. These are: ``connected``, which is a Boolean that indicates whether the Bot is currently connected, ``loggedIn``: a boolean that indicates whether the Bot has logged in successfully, ``username``, which is the username the Bot has connected under, and ``userid``, the corresponding user ID.
 * `closed`: A boolean that indicates whether the connection is currently closed.
 * `debug`, `handle`: These are where the debug and handler functions are stored.
@@ -111,12 +111,16 @@ Client also has the following methods:
 * `connect (reconnect: boolean): void` - Creates the websocket to connect to the server, then logs in. ``reconnect`` has no significance besides logging the attempt as a reconnection attempt.
 * `disconnect: void` - Closes the connection.
 * `login (username: string, password: string | undefined): void` - Logs in with the given credentials. Requires the websocket to have been created.
-* `getUser (username: string | User): User | false | null` - Finds a user among tracked users. Returns the user instance (in case the user has been tracked while renaming, the new User instance). Returns `null` for an invalid input and `false` if the user is not tracked.
+* `getUser (username: string | User): User | false | null` - Finds a user among cached users. Returns the user instance (in case the user has been cached while renaming, the new User instance). Returns `null` for an invalid input and `false` if the user is not cached.
+* `fetchUser (userid: string): Promise<User>` - Fetches a user via internet. Returns the user instance. In case the user is offline, property 'rooms' becames false.
+* `getRoom` (roomid: string): Room | false | null - Finds a room among cached rooms. Returns the room instance (in case the room has been cached while renaming, the new Room instance). Returns `null` for an invalid input or not existing room or missing permission. And `false` if the user is not cached.
+* `fetchRoom (roomid: string): Promise<?Room>` - Fetches a room via internet. Returns the room instance. In case the user isn't exist, returns `undefined`.
 * `sendUser (username: string | User, text: string): Promise<Message>` - Sends the provided string to the specified user.
 * `send (text: string): void` - Sends the provided string to the server. This bypasses the queue, and can cause the Bot to exceed the throttle. **Using Room#send or User#send instead is highly recommended.**
 
 Client has the following events:
 
+* `loggedin (username: string)` - Emitted whenever the Client logged on.
 * `message (message: Message)` - Emitted whenever a message is received (includes both chat and PMs).
 * `join (room: string, user: string, isIntro: boolean)` - Emitted whenever a user joins a room.
 * `leave (room: string, user: string, isIntro: boolean)` - Emitted whenever a user leaves a room.
