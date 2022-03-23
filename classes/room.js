@@ -17,14 +17,14 @@ class Room {
 		});
 	}
 	privateSend (user, text) {
-		if (!['*', '#', '&'].includes(this.users.find(u => Tools.toID(u) === this.parent.status.userid)?.charAt(0))) return false;
+		if (!['*', '#', '&'].includes([...this.users.values()].find(u => Tools.toID(u) === this.parent.status.userid)?.charAt(0))) return false;
 		user = this.parent.getUser(user);
 		if (!user) return false;
 		this.send(`/sendprivatehtmlbox ${user.userid}, ${Tools.escapeHTML(text)}`);
 		return true;
 	}
 	sendHTML (html, opts = {}) {
-		if (!['*', '#', '&'].includes(this.users.find(u => Tools.toID(u) === this.parent.status.userid)?.charAt(0))) return false;
+		if (!['*', '#', '&'].includes([...this.users.values()].find(u => Tools.toID(u) === this.parent.status.userid)?.charAt(0))) return false;
 		if (!html) throw new Error("Missing HTML argument");
 		if (typeof opts === 'string') opts = { name: opts };
 		if (!opts || typeof opts !== 'object') throw new TypeError("Options must be an object");
@@ -40,12 +40,12 @@ class Room {
 		return true;
 	}
 	privateHTML (user, html, opts = {}) {
-		if (!['*', '#', '&'].includes(this.users.find(u => Tools.toID(u) === this.parent.status.userid)?.charAt(0))) return false;
+		if (!['*', '#', '&'].includes([...this.users.values()].find(u => Tools.toID(u) === this.parent.status.userid)?.charAt(0))) return false;
 		user = this.parent.getUser(user);
 		if (!user) return false;
 		if (!html) throw new Error("Missing HTML argument");
 		if (typeof opts === 'string') opts = { name: opts };
-		if (!opts || typeof opts !== 'object') throw new TypeError("Options must be an object");
+		if (!opts || typeof opts !== 'object') throw new TypeError('Options must be an object');
 		if (!opts.name) opts.name = this.parent.status.username + Date.now().toString(36);
 		inlineCss(html, {
 			url: 'filePath'
