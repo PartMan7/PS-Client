@@ -1,18 +1,19 @@
-"use strict";
+'use strict';
 
+const customInspectSymbol = Symbol.for('nodejs.util.inspect.custom');
 const { toID } = require('../tools.js');
 
 class Message {
 	constructor (input) {
 		let { by, text, type, target, raw, isIntro, parent, time } = input;
 		by = toID(by);
-		if (!parent.users[by]) {
+		if (!parent.users.get(by)) {
 			parent.addUser({ userid: by });
 			parent.getUserDetails(by);
 		}
-		this.author = parent.users[by];
+		this.author = parent.users.get(by);
 		this.content = text;
-		let match = text.match(/^[/!][^ ]+/);
+		const match = text.match(/^[/!][^ ]+/);
 		if (match) this.command = match[0];
 		else this.command = false;
 		this.raw = raw;
@@ -24,31 +25,20 @@ class Message {
 		else this.time = Date.now();
 		switch (this.type) {
 			case 'chat':
-				this.target = this.parent.rooms[target];
+				this.target = this.parent.rooms.get(target);
 				break;
 			case 'pm':
-				this.target = this.parent.users[target];
+				this.target = this.parent.users.get(target);
 				break;
 			default: console.error(this.type);
 		}
 	}
 	reply (text) {
-		switch (typeof text) {
-			case 'string': break;
-			case 'function':
-				text = text.toString();
-				break;
-			case 'object':
-				text = JSON.stringify(text);
-				break;
-			default: String(text);
-		}
 		return this.target.send(text);
 	}
 	privateReply (text) {
-		if (!text || this.target.type !== 'chat') this.reply(text);
+		if (this.target.type !== 'chat') this.reply(text);
 		else this.target.privateSend(this.author.userid, text);
-		return true;
 	}
 	sendHTML (html, opts) {
 		return this.target.sendHTML(html, opts);
@@ -57,6 +47,13 @@ class Message {
 		if (this.target.type === 'pm') return this.target.sendHTML(html, opts);
 		if (this.target.type === 'chat') return this.target.privateHTML(this.author.userid, html, opts);
 		return false;
+	}
+	[customInspectSymbol] (depth, options, inspect) {
+		if (depth < 1) return options.stylize(`${this.title} [PS-Message]`, 'special');
+		const logObj = {};
+		const keys = ['content', 'type', 'raw', 'time', 'author', 'target', 'command', 'parent', 'isIntro', 'awaited'];
+		keys.forEach(key => logObj[key] = this[key]);
+		return `${options.stylize('PS-Message', 'special')} ${inspect(logObj, { ...options, depth: options.depth - 1 })}`;
 	}
 }
 

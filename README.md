@@ -52,8 +52,7 @@ PS-Client requires **Node.js v14.0.0 or higher**.
 
 ```javascript
 const { Client } = require('ps-client');
-const Bot = new Client({ username: 'PartMan', password: 'REDACTED', debug: true, avatar: 'supernerd', autoJoin: ['botdevelopment'] });
-
+const Bot = new Client({ username: 'PS-Client', password: 'REDACTED', debug: true, avatar: 'supernerd', autoJoin: ['botdevelopment'] });
 Bot.connect();
 
 Bot.on('message', message => {
@@ -68,28 +67,29 @@ Creating a Bot is fairly simple - all you have to do is create a new instance of
 
 ```javascript
 const { Client } = require('ps-client');
-let Bot = new Client({ username: name, password: password });
+const Bot = new Client({ username: name, password: password });
 
 Bot.connect();
 ```
 
 There are multiple configuration options that can be specified - here's a complete list.
 
-```javascript
-const options = {
+```typescript
+type options = {
 	username: string, // The username you wish to connect to. Required parameter.
-	password: string, // The password for the username you're connecting to. Leave this blank if the account is unregistered.
-	server: string, // The server to which you wish to connect to - defaults to 'sim.smogon.com'.
-	port: number, // The port on which you're connecting to. Defaults to 8000.
-	connectionTimeout: number, // The time, in milliseconds, after which your connection times out. Defaults to 2 minutes.
-	loginServer: string, // The login server. Defaults to 'https://play.pokemonshowdown.com/~~showdown/action.php'.
-	avatar: string | number, // The avatar your Bot will have on connection. If not specified, PS will set one randomly.
-	status: string, // The status your Bot will have on connection.
-	retryLogin: number, // The time, in milliseconds, that your Bot will wait before attempting to login again after a failing. If this is 0, it will not attempt to login again. Defaults to 10 seconds.
-	autoReconnect: number, // The time, in milliseconds, that your Bot will wait before attempting to reconnect after a disconnect. If this is 0, it will not attempt to reconnect. Defaults to 30 seconds.
-	autoJoin: string[], // An array with the strings of the rooms you want the Bot to join.
-	debug: (details: string): any, // The function you would like to run on debugs. If this is a falsey value, debug messages will not be displayed. If a true value is given which is not a function, the Bot simply logs messages to the console.
-	handle: (error: string | Error): any // Handling for internal errors. If a function is provided, this will run it with an error / string. The default function logs them to the console. To opt out of error handling (not recommended), set this to null.
+	password?: string, // The password for the username you're connecting to. Leave this blank if the account is unregistered.
+	server?: string, // The server to which you wish to connect to - defaults to 'sim3.psim.us'.
+	port?: number, // The port on which you're connecting to. Defaults to 80.
+	connectionTimeout?: number, // The time, in milliseconds, after which your connection times out. Defaults to 20s.
+	loginServer?: string, // The login server. Defaults to 'https://play.pokemonshowdown.com/~~showdown/action.php'.
+	avatar?: string | number, // The avatar your Bot will have on connection. If not specified, PS will set one randomly.
+	status?: string, // The status your Bot will have on connection.
+	retryLogin?: number, // The time, in milliseconds, that your Bot will wait before attempting to login again after a failing. If this is 0, it will not attempt to login again. Defaults to 10 seconds.
+	autoReconnect?: number, // The time, in milliseconds, that your Bot will wait before attempting to reconnect after a disconnect. If this is 0, it will not attempt to reconnect. Defaults to 30 seconds.
+	rooms: string[], // An array with the strings of the rooms you want the Bot to join.
+	debug?: boolean | (details: string): any; // The function you would like to run on debugs. If this is a falsey value, debug messages will not be displayed. If a true value is given which is not a function, the Bot simply logs messages to the console.
+	handle?: boolean | (error: string | Error): any; // Handling for internal errors. If a function is provided, this will run it with an error / string. The default function logs them to the console. To opt out of error handling (not recommended), set this to false.
+	throttle?: number; // The throttle (in milliseconds) for every 'batch' of three messages. PS has a per-message throttle of 25ms for public roombots, 100ms for trusted users, and 600ms for regular users.
 }
 ```
 
@@ -196,7 +196,7 @@ User has the following properties:
 
 User has the following methods:
 * `send (text: string): Promise<Message>` sends a message to the User and returns a Promise that is resolved with the sent [Message](#message-structure), or is rejected with the message content.
-* `sendHTML (html: string, opts?: { name?: string, change?: boolean }): boolean` sends a UHTML box to the user with the specified (optional) options (reusing a name will overwrite the previous box and `change` toggles the overwriting behaviour between changing at the old location and changing at the bottom of the DM). For example: `User.sendHTML('<b>This is an example.</b>', { change: true })`
+* `sendHTML (html: string, opts?: { name?: string, change?: boolean }): boolean` sends a UHTML box to the user with the specified (optional) options (reusing a name will overwrite the previous box and `change` toggles the overwriting behaviour between changing at the old location and changing at the bottom of the PM). For example: `User.sendHTML('<b>This is an example.</b>', { change: true })`
 * `pageHTML (html: string, name?: string): boolean` sends a UHTML box to the user with the specified (optional) name (reusing a name will overwrite the previous page). For example: `User.pageHTML("<b>Let's play chess!</b>", "chess")`
 * `waitFor (condition: (message: Message): boolean, time: number): Promise<Message>` waits for a message from the User. This is resolved when the Client receives a message from the User for which `condition` returns true, and is rejected if (time) milliseconds pass without being resolved. By default, time corresponds to 1 minute - you can set it to 0 to disable the time limit.
 
@@ -222,7 +222,7 @@ Since this module is for Pokemon Showdown, it also contains references to data f
 Data has the following entries:
 * `abilities`: Contains the data for abilities.
 * `aliases`: Contains the list of aliases.
-* `config`: Contains the configuration for PS; primarily used for custom colours.
+* `colors`: Contains the custom colors for users on PS.
 * `formats-data`: Contains tiers and Randoms moves.
 * `formats`: Contains the clauses for various tiers.
 * `items`: Contains the data for items.

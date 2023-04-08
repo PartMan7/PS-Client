@@ -1,10 +1,12 @@
 {
   "name": "ps-client",
-  "version": "1.4.1",
+  "version": "1.5.0",
   "description": "Package for connecting to Pokemon Showdown servers.",
-  "main": "index.js",
+  "main": "client.js",
   "scripts": {
-    "lint": "eslint . --config .eslintrc.json *.js"
+    "lint": "eslint . --config .eslintrc.json *.js",
+    "mocha": "mocha test/*.js -t 10000",
+    "test": "npm run lint && npm run mocha"
   },
   "keywords": [
     "pokemon",
@@ -22,6 +24,8 @@
     "websocket": "^1.0.31"
   },
   "devDependencies": {
-    "eslint": "^7.4.0"
+    "dotenv": "^16.0.3",
+    "eslint": "^8.37.0",
+    "mocha": "^10.2.0"
   }
 }
