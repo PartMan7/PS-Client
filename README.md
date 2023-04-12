@@ -52,7 +52,7 @@ PS-Client requires **Node.js v14.0.0 or higher**.
 
 ```javascript
 const { Client } = require('ps-client');
-const Bot = new Client({ username: 'PS-Client', password: 'REDACTED', debug: true, avatar: 'supernerd', autoJoin: ['botdevelopment'] });
+const Bot = new Client({ username: 'PS-Client', password: 'REDACTED', debug: true, avatar: 'supernerd', rooms: ['botdevelopment'] });
 Bot.connect();
 
 Bot.on('message', message => {
