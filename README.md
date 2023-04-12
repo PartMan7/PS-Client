@@ -153,6 +153,8 @@ Message has the following methods:
 * `sendHTML (html: string, opts?: { name?: string, rank?: string, change?: boolean }): boolean` is an alias for [Room#sendHTML](#room-structure) and [User#sendHTML](#user-structure).
 * `replyHTML (html: string, opts?: { name?: string, rank?: string, change?: boolean }): boolean` is an alias for [Room#privateHTML](#room-structure) and [User#sendHTML](#user-structure).
 
+Note: A message can have `author` and `target` nullish if sent by the `&` account. Handle those accordingly!
+
 
 ### Room Structure
 Room is the class that represents a chatroom on the server. By default, the Client only spawns Room instances for rooms that the Bot is in.

@@ -221,7 +221,7 @@ class Client extends EventEmitter {
 		if (user instanceof User) userid = user.userid;
 		else userid = Tools.toID(user);
 		if (!userid) this.handle('Invalid ID in Client#sendUser');
-		this.addUser({ userid: userid });
+		this.addUser({ userid });
 		return this.users.get(userid).send(text);
 	}
 
@@ -368,6 +368,7 @@ class Client extends EventEmitter {
 						} catch (e) {
 							this.handle(`Error in parsing userdetails: ${e.message}`);
 						}
+						if (!userdetails) break;
 						this.addUser(userdetails);
 						const user = this._userdetailsQueue.find(u => u.id === userdetails.id);
 						if (user) user.resolve(userdetails);

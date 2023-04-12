@@ -7,11 +7,11 @@ class Message {
 	constructor (input) {
 		let { by, text, type, target, raw, isIntro, parent, time } = input;
 		by = toID(by);
-		if (!parent.users.get(by)) {
+		if (by && !parent.users.get(by)) {
 			parent.addUser({ userid: by });
 			parent.getUserDetails(by);
 		}
-		this.author = parent.users.get(by);
+		this.author = by ? parent.users.get(by) : null;
 		this.content = text;
 		const match = text.match(/^[/!][^ ]+/);
 		if (match) this.command = match[0];
@@ -28,7 +28,7 @@ class Message {
 				this.target = this.parent.rooms.get(target);
 				break;
 			case 'pm':
-				this.target = this.parent.users.get(target);
+				this.target = by ? this.parent.users.get(target) : null;
 				break;
 			default: console.error(this.type);
 		}
