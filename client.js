@@ -551,7 +551,6 @@ class Client extends EventEmitter {
 
 Data.abilities = require('./showdown/abilities.js').BattleAbilities;
 Data.aliases = require('./showdown/aliases.js').BattleAliases;
-Data.config = require('./showdown/config.js').Config;
 Data.formatsData = require('./showdown/formats-data.js').BattleFormatsData;
 Data.formats = require('./showdown/formats.js').Formats;
 Data.items = require('./showdown/items.js').BattleItems;
@@ -562,12 +561,8 @@ Data.typechart = require('./showdown/typechart.js').BattleTypeChart;
 
 
 module.exports = {
-	Client: Client,
-	classes: {
-		Message: Message,
-		User: User,
-		Room: Room
-	},
-	Tools: Tools,
-	Data: Data
+	Client,
+	classes: { Message, User, Room },
+	Tools,
+	Data
 };

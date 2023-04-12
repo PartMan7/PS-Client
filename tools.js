@@ -6,9 +6,7 @@ const fs = require('fs');
 const path = require('path');
 const querystring = require('querystring');
 
-let Config = require('./showdown/config.js').Config;
-const COLORS = Config.customcolors;
-// TODO: Remove this
+let COLORS = require('./showdown/colors.json');
 
 
 function toID (text) {
@@ -96,12 +94,9 @@ exports.update = function update (...types) {
 			name: 'Aliases',
 			expo: 'BattleAliases'
 		},
-		config: {
-			url: 'https://play.pokemonshowdown.com/config/config.js',
-			path: './showdown/config.js',
-			append: '\n\nexports.Config = Config;',
-			name: 'Config',
-			expo: 'Config'
+		colors: {
+			path: './showdown/colors.json',
+			name: 'Colors'
 		},
 		formatsdata: {
 			url: 'https://play.pokemonshowdown.com/data/formats-data.js',
@@ -149,6 +144,19 @@ exports.update = function update (...types) {
 	if (!types.length) types = Object.values(links);
 	return new Promise((resolve, reject) => {
 		Promise.all(types.map(type => new Promise(res => {
+			if (type.name === 'Colors') {
+				return axios.get('http://play.pokemonshowdown.com/config/colors.json').then(async response => {
+					const configStr = await axios.get('https://play.pokemonshowdown.com/config/config.js');
+					const pairs = configStr.data.match(/(?<=')[a-z0-9]+': '[a-z0-9]*(?=')/g).map(match => match.split(`': '`));
+					const obj = Object.assign(Object.fromEntries(pairs), response.data);
+					fs.writeFile(type.path, JSON.stringify(obj, null, '\t'), err => {
+						if (err) return reject(err.message);
+						delete require.cache[require.resolve(type.path)];
+						COLORS = require(type.path);
+						return res(type.name);
+					});
+				});
+			}
 			axios.get(type.url).then(response => {
 				const data = response.data;
 				const writeData = (typeof data === 'string' ? data : JSON.stringify(data)) + (type.append || '');
@@ -164,14 +172,11 @@ exports.update = function update (...types) {
 		}))).then(res => {
 			if (require.cache[require.resolve('./client.js')]) {
 				const main = require('./client.js');
-				// delete main.Data;
-				// main.Data = {};
 				types.forEach(type => {
 					const key = type.key || toID(type.name);
 					if (type.expo) main.Data[key] = require(type.path)[type.expo];
 					else main.Data[key] = require(type.path);
 				});
-				Config = require('./showdown/config.js').Config;
 			}
 			resolve(res);
 		});

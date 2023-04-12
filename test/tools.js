@@ -17,6 +17,9 @@ describe('HSL', () => {
 	it('should return the right original HSL', () => {
 		assert.deepEqual(Tools.HSL('PartMan', true).hsl, [162, 84, 33]);
 	});
+	it('should also import new custom colors', () => {
+		assert.deepEqual(Tools.HSL('style.css').hsl, [258, 62, 56.12230272578728]);
+	});
 });
 
 describe('uploadToPastie', function () {
