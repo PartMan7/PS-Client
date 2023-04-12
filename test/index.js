@@ -30,7 +30,7 @@ if (debug) Bot.on('line', (room, line, time) => {
 Bot.on('message', message => {
 	if (message.isIntro) return;
 	if (debug) console.log(message);
-	else if (['partbot', 'partprofessor', 'psclient'].includes(message.author.id)) console.log(`    ${message.raw}`);
+	else if (['partbot', 'psclient'].includes(message.author.id)) console.log(`    ${message.raw}`);
 });
 
 describe('PS-Client', () => {
