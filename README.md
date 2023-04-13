@@ -2,7 +2,7 @@
 <a href="https://www.npmjs.com/package/ps-client"><img src="https://img.shields.io/npm/v/ps-client.svg?maxAge=3600" alt="NPM version" /></a>
 <a href="https://www.npmjs.com/package/ps-client"><img src="https://img.shields.io/npm/dt/ps-client.svg?maxAge=3600" alt="NPM downloads" /></a>
 
-PS-Client is a module that handles connection to Pokemon Showdown servers. Apart from a _very_ minimalistic configuration requirement, it also boasts multiple utility features, like promise-based messages, synchronized room and user data, alt tracking, and a lot of other stuff - go through the documentation for a complete summary.
+PS-Client is a module that handles connection to Pokémon Showdown servers. Apart from a _very_ minimalistic configuration requirement, it also boasts multiple utility features, like promise-based messages, synchronized room and user data, alt tracking, and a lot of other stuff - go through the documentation for a complete summary.
 
 ## Table of Contents
 
@@ -161,7 +161,7 @@ Message has the following properties:
 * `type`: The type of the message being received. Can be either `'pm'` or `'chat'`.
 * `isIntro`: A boolean that indicates whether the message was received as a past message on connection.
 * `time`: The Unix datestamp that indicates when the message was created. This is normally received from PS! wherever possible, but uses `Date.now()` if the data is unavailable.
-* `target`: This can be either a [Room](#room-structure) or a [User](#user-structure), depending on whether the type is chat or pm. If the type is chat, this is the Room in which the message was sent. If the type is pm, this is the User with which the PM is with - note that this is not always the target of the PM, such as in cases where the Bot receives a PM from another user.
+* `target`: This can be either a [Room](#room-structure) or a [User](#user-structure), depending on whether the type is `'chat'` or `'pm'`. If the type is `'chat'`, this is the Room in which the message was sent. If the type is `'pm'`, this is the User with which the PM is with - note that this is not always the target of the PM, such as in cases where the Bot receives a PM from another user.
 * `raw`: The original received message (ie, a message of the form `|c|+PartMan|Hi!` would have that as the raw and `Hi!` as the content).
 * `awaited`: A Boolean value indicating whether the message was used to resolve a Room#waitFor or User#waitFor promise.
 
@@ -237,7 +237,7 @@ Note: The various methods that use HTML in the Message / Room / User classes all
 
 
 ## Datacenters
-Since this module is for Pokemon Showdown, it also contains references to data from Pokemon Showdown. All of the data in this module is sourced from play.pokemonshowdown.com, and can be updated via Tools#update. This data is exported under `require('ps-client').Data`.
+Since this module is for Pokémon Showdown, it also contains references to data from Pokémon Showdown. All of the data in this module is sourced from play.pokemonshowdown.com, and can be updated via Tools#update. This data is exported under `require('ps-client').Data`.
 
 Data has the following entries:
 * `abilities`: Contains the data for abilities.
@@ -246,7 +246,7 @@ Data has the following entries:
 * `formats-data`: Contains tiers and Randoms moves.
 * `formats`: Contains the clauses for various tiers.
 * `items`: Contains the data for items.
-* `learnsets`: Contains the data for Pokemon learnsets.
+* `learnsets`: Contains the data for Pokémon learnsets.
 * `moves`: Contains the data for moves.
 * `pokedex`: Contains the basic Pokedex info.
 * `typechart`: Contains type matchup data.
