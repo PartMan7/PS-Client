@@ -22,6 +22,24 @@ PS-Client is a module that handles connection to Pokemon Showdown servers. Apart
 
 ### What's New
 
+**v1.7.1**
+* Fixed the crash when a user used `/hidelines` or a similar `&`-sent message.
+* Accidentally skipped 1.7.0.
+
+**v1.6.1**
+* Cleaned up unit tests and removed unnecessary PartProfessor mentions.
+
+**v1.6.0**
+* PS-Client now uses both customcolor sources (the same way the actual client does) to read namecolors.
+* Added unit tests.
+
+**v1.5.0**
+* Add `*.d.ts` files for method documentation.
+* Update descriptions in the README.
+* `Client#users` and `Client#rooms` are now Maps instead of objects.
+* Updated the util.inspect entries for Client/Room/User/Message.
+* Massive code cleanup.
+
 **v1.4.1**
 * User#sendHTML and User#pageHTML now work correctly.
 
@@ -101,8 +119,8 @@ Client is an instance of an EventEmitter, and is the primary class. You can gene
 Client has the following properties:
 * `opts`: An object containing most of the configuration options. Note that Client.opts.password is a function that returns the password instead of a string.
 * `isTrusted`: A boolean that indicates whether the Bot is running on a trusted account. Until this is received, this value is null.
-* `rooms`: An object containing all the rooms the Bot is in. The keys are the room IDs, while the values are [Room](#room-structure) instances.
-* `users`: An object containing all the users the Bot is aware of. The keys are the user IDs, while the values are [User](#user-structure) instances.
+* `rooms`: A Map containing all the rooms the Bot is in. The keys are the room IDs, while the values are [Room](#room-structure) instances.
+* `users`: A Map containing all the users the Bot is aware of. The keys are the user IDs, while the values are [User](#user-structure) instances.
 * `status`: An object containing four keys regarding the status of the connection. These are: ``connected``, which is a Boolean that indicates whether the Bot is currently connected, ``loggedIn``: a boolean that indicates whether the Bot has logged in successfully, ``username``, which is the username the Bot has connected under, and ``userid``, the corresponding user ID.
 * `closed`: A boolean that indicates whether the connection is currently closed.
 * `debug`, `handle`: These are where the debug and handler functions are stored.
