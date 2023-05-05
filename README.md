@@ -22,6 +22,9 @@ PS-Client is a module that handles connection to Pokémon Showdown servers. Apar
 
 ### What's New
 
+**v2.0.0**
+* I suck and forgot to document this; `rooms` has been used in place of `autoJoin` in the config now for automatically joining rooms.
+
 **v1.7.1**
 * Fixed the crash when a user used `/hidelines` or a similar `&`-sent message.
 * Accidentally skipped 1.7.0.
