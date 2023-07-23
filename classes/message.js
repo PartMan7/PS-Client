@@ -6,6 +6,7 @@ const { toID } = require('../tools.js');
 class Message {
 	constructor (input) {
 		let { by, text, type, target, raw, isIntro, parent, time } = input;
+		const msgRank = by[0];
 		by = toID(by);
 		if (by && !parent.users.get(by)) {
 			parent.addUser({ userid: by });
@@ -16,6 +17,7 @@ class Message {
 		const match = text.match(/^[/!][^ ]+/);
 		if (match) this.command = match[0];
 		else this.command = false;
+		this.msgRank = msgRank;
 		this.raw = raw;
 		this.parent = parent;
 		this.type = type;

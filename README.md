@@ -22,6 +22,9 @@ PS-Client is a module that handles connection to Pokémon Showdown servers. Apar
 
 ### What's New
 
+**v2.1.0**
+* Added in a `Message#msgRank` field for much easier rank parsing.
+
 **v2.0.0**
 * I suck and forgot to document this; `rooms` has been used in place of `autoJoin` in the config now for automatically joining rooms.
 
@@ -160,6 +163,7 @@ Message has the following properties:
 * `author`: The User object of the author of the message.
 * `content`: The string of the message content.
 * `command`: Represents the command that the message has (!dt, for example). If this is not a command, this is `false`.
+* `msgRank`: The rank of the author as shown in the message.
 * `parent`: The Client that received the message.
 * `type`: The type of the message being received. Can be either `'pm'` or `'chat'`.
 * `isIntro`: A boolean that indicates whether the message was received as a past message on connection.
