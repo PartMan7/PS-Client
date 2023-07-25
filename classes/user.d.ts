@@ -1,6 +1,6 @@
-import { HTMLopts } from './common.d.ts';
-import { Client } from '../client.d.ts';
-import Message from './message.d.ts';
+import type { HTMLopts } from './common.d.ts';
+import type { Client } from '../client.d.ts';
+import type Message from './message.d.ts';
 
 
 export default class User {

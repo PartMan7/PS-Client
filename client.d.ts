@@ -1,6 +1,6 @@
-import Message from './classes/message.d.ts';
-import Room from './classes/room.d.ts';
-import User from './classes/user.d.ts';
+import type Message from './classes/message.d.ts';
+import type Room from './classes/room.d.ts';
+import type User from './classes/user.d.ts';
 
 type ClientOpts = {
 	username: string,
@@ -56,7 +56,7 @@ export class Client {
 	 * Connects to the server
 	 * @param retry - Indicates whether this is a reconnect attempt
 	 */
-	connect (retry: booelan);
+	connect (retry: boolean);
 
 	/**
 	 * Disconnects from the server

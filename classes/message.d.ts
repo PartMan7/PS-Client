@@ -1,5 +1,7 @@
-import { HTMLopts } from './common.d.ts';
-import { Client } from '../client.d.ts';
+import type { HTMLopts } from './common.d.ts';
+import type { Client } from '../client.d.ts';
+import type Room from './room.d.ts';
+import type User from './user.d.ts';
 
 type MessageOpts = {
 	by: string;

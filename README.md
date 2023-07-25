@@ -20,58 +20,6 @@ PS-Client is a module that handles connection to Pokémon Showdown servers. Apar
 - [Credits](#credits)
 
 
-### What's New
-
-**v2.1.0**
-* Added in a `Message#msgRank` field for much easier rank parsing.
-
-**v2.0.0**
-* I suck and forgot to document this; `rooms` has been used in place of `autoJoin` in the config now for automatically joining rooms.
-
-**v1.7.1**
-* Fixed the crash when a user used `/hidelines` or a similar `&`-sent message.
-* Accidentally skipped 1.7.0.
-
-**v1.6.1**
-* Cleaned up unit tests and removed unnecessary PartProfessor mentions.
-
-**v1.6.0**
-* PS-Client now uses both customcolor sources (the same way the actual client does) to read namecolors.
-* Added unit tests.
-
-**v1.5.0**
-* Add `*.d.ts` files for method documentation.
-* Update descriptions in the README.
-* `Client#users` and `Client#rooms` are now Maps instead of objects.
-* Updated the util.inspect entries for Client/Room/User/Message.
-* Massive code cleanup.
-
-**v1.4.1**
-* User#sendHTML and User#pageHTML now work correctly.
-
-**v1.4.0**
-* Multi-line messages now resolve at the time of the final line being successfully sent, instead of never resolving.
-* Some datacenters now use JSON.
-
-**v1.3.0**
-* Added various HTML methods to the Message, Room, and User classes.
-* Messages that successfully resolve a waitFor promise now have the `awaited` flag set.
-* Various properties of the Client, Room, and User classes have now been privatized.
-* Additions to Tools, including escapeHTML, unescapeHTML, and parseMessage.
-
-
-### Installation
-To install `ps-client` using npm, open the terminal and type the following:
-```
-sudo npm install ps-client
-```
-
-If you have it in your package.json, simply run ``npm install``. If you have installed it and wish to update your version, run ``sudo npm update ps-client``.
-
-PS-Client requires **Node.js v14.0.0 or higher**.
-
-
-
 ## Example Setup
 
 ```javascript
@@ -258,6 +206,62 @@ Data has the following entries:
 * `pokedex`: Contains the basic Pokedex info.
 * `typechart`: Contains type matchup data.
 More information on how to use these can be found [here](https://github.com/smogon/pokemon-showdown/tree/master/data).
+
+
+
+### What's New
+
+**v2.1.1**
+* Fixed the d.ts files to actually work.
+* Moved the changelog to be lower in the README.
+
+**v2.1.0**
+* Added in a `Message#msgRank` field for much easier rank parsing.
+
+**v2.0.0**
+* I suck and forgot to document this; `rooms` has been used in place of `autoJoin` in the config now for automatically joining rooms.
+
+**v1.7.1**
+* Fixed the crash when a user used `/hidelines` or a similar `&`-sent message.
+* Accidentally skipped 1.7.0.
+
+**v1.6.1**
+* Cleaned up unit tests and removed unnecessary PartProfessor mentions.
+
+**v1.6.0**
+* PS-Client now uses both customcolor sources (the same way the actual client does) to read namecolors.
+* Added unit tests.
+
+**v1.5.0**
+* Add `*.d.ts` files for method documentation.
+* Update descriptions in the README.
+* `Client#users` and `Client#rooms` are now Maps instead of objects.
+* Updated the util.inspect entries for Client/Room/User/Message.
+* Massive code cleanup.
+
+**v1.4.1**
+* User#sendHTML and User#pageHTML now work correctly.
+
+**v1.4.0**
+* Multi-line messages now resolve at the time of the final line being successfully sent, instead of never resolving.
+* Some datacenters now use JSON.
+
+**v1.3.0**
+* Added various HTML methods to the Message, Room, and User classes.
+* Messages that successfully resolve a waitFor promise now have the `awaited` flag set.
+* Various properties of the Client, Room, and User classes have now been privatized.
+* Additions to Tools, including escapeHTML, unescapeHTML, and parseMessage.
+
+
+### Installation
+To install `ps-client` using npm, open the terminal and type the following:
+```
+sudo npm install ps-client
+```
+
+If you have it in your package.json, simply run ``npm install``. If you have installed it and wish to update your version, run ``sudo npm update ps-client``.
+
+PS-Client requires **Node.js v14.0.0 or higher**.
 
 
 
