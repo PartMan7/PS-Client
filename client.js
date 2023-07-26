@@ -487,7 +487,7 @@ class Client extends EventEmitter {
 				break;
 			}
 			case 'error': {
-				this.emit('chaterror', room, args.slice(2).join('|'), isIntro);
+				this.emit('chatError', room, args.slice(2).join('|'), isIntro);
 				break;
 			}
 			default: this.emit(args[1], room, args.slice(2).join('|'), isIntro);

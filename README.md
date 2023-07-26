@@ -211,6 +211,10 @@ More information on how to use these can be found [here](https://github.com/smog
 
 ### What's New
 
+**v3.0.0**
+* Type definitions for all custom events added.
+* The 'chaterror' event was renamed to 'chatError' to be in line with other event names.
+
 **v2.1.1**
 * Fixed the d.ts files to actually work.
 * Moved the changelog to be lower in the README.

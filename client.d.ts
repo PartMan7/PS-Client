@@ -1,3 +1,4 @@
+import * as events from 'events';
 import type Message from './classes/message.d.ts';
 import type Room from './classes/room.d.ts';
 import type User from './classes/user.d.ts';
@@ -20,14 +21,26 @@ type ClientOpts = {
 	loginServer?: string
 };
 
-export class Client {
+export interface Client {
+	on(event: 'connect', listener: () => void): this;
+	on(event: 'message', listener: (message: Message) => void): this;
+	on(event: 'join', listener: (room: string, user: string, isIntro: boolean) => void): this;
+	on(event: 'leave', listener: (room: string, user: string, isIntro: boolean) => void): this;
+	on(event: 'name', listener: (room: string, newName: string, oldName: string) => void): this;
+	on(event: 'joinRoom', listener: (room: string) => void): this;
+	on(event: 'leaveRoom', listener: (room: string) => void): this;
+	on(event: 'chatError', listener: (room: string, error: string, isIntro: boolean) => void): this;
+	on(event: string, listener: (room: string, line: string, isIntro: boolean) => void): this;
+}
+
+export class Client extends events.EventEmitter {
 	opts: {
 		username: string,
 		password?: string,
 		avatar?: string,
 		status?: string,
 		rooms: string[],
-		debug: boolean,
+		debug?: boolean,
 		throttle?: number,
 		retryLogin: number,
 		autoReconnect: boolean,
@@ -56,7 +69,7 @@ export class Client {
 	 * Connects to the server
 	 * @param retry - Indicates whether this is a reconnect attempt
 	 */
-	connect (retry: boolean);
+	connect (retry?: boolean);
 
 	/**
 	 * Disconnects from the server
@@ -129,3 +142,5 @@ export class Client {
 	 */
 	joinRoom (room: string): Promise<void>;
 }
+
+export { Message, Room, User };
