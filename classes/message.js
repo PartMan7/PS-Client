@@ -40,7 +40,7 @@ class Message {
 	}
 	privateReply (text) {
 		if (this.target.type !== 'chat') this.reply(text);
-		else this.target.privateSend(this.author.userid, text);
+		else this.target.privateSend(this.author.userid, text) || this.author.send(text);
 	}
 	sendHTML (html, opts) {
 		return this.target.sendHTML(html, opts);

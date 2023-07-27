@@ -122,7 +122,7 @@ Message has the following properties:
 
 Message has the following methods:
 * `reply (text: string): Promise<Message>` sends a message to the target and returns a Promise that is resolved with the sent Message, or is rejected with the message content. This is a shortcut for `Message#target#send`.
-* `privateReply (text: string): true` sends a private response (private message in the room if possible, otherwise a direct message).
+* `privateReply (text: string): true` sends a private response (private HTML message in the room if possible, otherwise a direct message).
 * `sendHTML (html: string, opts?: { name?: string, rank?: string, change?: boolean }): boolean` is an alias for [Room#sendHTML](#room-structure) and [User#sendHTML](#user-structure).
 * `replyHTML (html: string, opts?: { name?: string, rank?: string, change?: boolean }): boolean` is an alias for [Room#privateHTML](#room-structure) and [User#sendHTML](#user-structure).
 
@@ -210,6 +210,9 @@ More information on how to use these can be found [here](https://github.com/smog
 
 
 ### What's New
+
+**v3.1.0**
+* Made `Message#privateReply` send a DM to the author if the client does not have permissions to send private HTML in the room.
 
 **v3.0.0**
 * Type definitions for all custom events added.
