@@ -211,6 +211,10 @@ More information on how to use these can be found [here](https://github.com/smog
 
 ### What's New
 
+**v3.1.1**
+* Fixed minor lint errors.
+* Added Husky to make sure this doesn't happen again.
+
 **v3.1.0**
 * Made `Message#privateReply` send a DM to the author if the client does not have permissions to send private HTML in the room.
 
