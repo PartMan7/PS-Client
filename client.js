@@ -30,7 +30,8 @@ class Client extends EventEmitter {
 			autoReconnectDelay: 5 * 1000,
 			rooms: [],
 			debug: false,
-			throttle: null
+			throttle: null,
+			noFailMessages: false
 		};
 		this._utilOptEntries = ['username', 'password'];
 		Object.assign(this.opts, opts);
@@ -410,7 +411,7 @@ class Client extends EventEmitter {
 									msg.sent(mssg);
 									break;
 								}
-								msg.fail(msg.content);
+								if (this.opts.noFailMessages) msg.fail(msg.content);
 							}
 						}
 					}
@@ -449,7 +450,7 @@ class Client extends EventEmitter {
 								msg.sent(mssg);
 								break;
 							}
-							msg.fail(msg.content);
+							if (this.opts.noFailMessages) msg.fail(msg.content);
 							// eslint-disable-next-line max-len
 							if (/^\/error (?:User .*? is offline\.|User .*? not found\. Did you misspell their name\?)$/.test(value)) break;
 						}

@@ -61,6 +61,7 @@ type options = {
 	rooms: string[], // An array with the strings of the rooms you want the Bot to join.
 	debug?: boolean | (details: string): any; // The function you would like to run on debugs. If this is a falsey value, debug messages will not be displayed. If a true value is given which is not a function, the Bot simply logs messages to the console.
 	handle?: boolean | (error: string | Error): any; // Handling for internal errors. If a function is provided, this will run it with an error / string. The default function logs them to the console. To opt out of error handling (not recommended), set this to false.
+	noFailMessages?: boolean; // Dictates whether messages throw errors by default. Set to 'false' to enable messages throwing errors. Defaults to true.
 	throttle?: number; // The throttle (in milliseconds) for every 'batch' of three messages. PS has a per-message throttle of 25ms for public roombots, 100ms for trusted users, and 600ms for regular users.
 }
 ```
@@ -210,6 +211,9 @@ More information on how to use these can be found [here](https://github.com/smog
 
 
 ### What's New
+
+**v3.2.0**
+* Added a `noFailMessages` option in config to prevent messages throwing errors; defaults to true.
 
 **v3.1.1**
 * Fixed minor lint errors.
