@@ -93,7 +93,7 @@ Client has the following events:
 * `message (message: Message)` - Emitted whenever a message is received (includes both chat and PMs).
 * `join (room: string, user: string, isIntro: boolean)` - Emitted whenever a user joins a room.
 * `leave (room: string, user: string, isIntro: boolean)` - Emitted whenever a user leaves a room.
-* `name (room: string, newName: string, oldName: string)` - Emitted whenever a user renames from `oldName` to `newName`.
+* `name (room: string, newName: string, oldName: string, isIntro: boolean)` - Emitted whenever a user renames from `oldName` to `newName`.
 * `joinRoom (room: string)` - Emitted whenever the Client joins a room.
 * `leaveRoom (room: string)` - Emitted whenever the Client leaves a room.
 * `chaterror (room: string, error: string, isIntro: boolean)` - Emitted whenever an error appears in chat, regardless of the source.
@@ -211,6 +211,9 @@ More information on how to use these can be found [here](https://github.com/smog
 
 
 ### What's New
+
+**v3.2.1**
+* Made `Client#on('name')` also emit an isIntro event.
 
 **v3.2.0**
 * Added a `noFailMessages` option in config to prevent messages throwing errors; defaults to true.

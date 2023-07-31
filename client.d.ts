@@ -27,7 +27,7 @@ export interface Client {
 	on(event: 'message', listener: (message: Message) => void): this;
 	on(event: 'join', listener: (room: string, user: string, isIntro: boolean) => void): this;
 	on(event: 'leave', listener: (room: string, user: string, isIntro: boolean) => void): this;
-	on(event: 'name', listener: (room: string, newName: string, oldName: string) => void): this;
+	on(event: 'name', listener: (room: string, newName: string, oldName: string, isIntro: boolean) => void): this;
 	on(event: 'joinRoom', listener: (room: string) => void): this;
 	on(event: 'leaveRoom', listener: (room: string) => void): this;
 	on(event: 'chatError', listener: (room: string, error: string, isIntro: boolean) => void): this;

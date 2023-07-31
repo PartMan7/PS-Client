@@ -478,7 +478,7 @@ class Client extends EventEmitter {
 			}
 			case 'n': case 'N': case 'name': {
 				this.send(`|/cmd roominfo ${room}`);
-				this.emit('name', room, args[2], args[3]);
+				this.emit('name', room, args[2], args[3], isIntro); // Nicks are stored in logs for stuff like battlerooms
 				const old = Tools.toID(args[3]), yng = Tools.toID(args[2]);
 				if (!this.users[old]) break;
 				this.users[old].alts.add(yng);
