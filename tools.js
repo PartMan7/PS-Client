@@ -251,3 +251,5 @@ exports.unescapeHTML = function unescapeHTML (str) {
 		.replace(/&apos;/g, '\'')
 		.replace(/&#x2f;/g, '/');
 };
+
+exports.formatText = require('./chat.js');

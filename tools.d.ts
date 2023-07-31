@@ -58,3 +58,9 @@ export function escapeHTML (input: string): string;
  * @returns The HTML-desanitized text
  */
 export function unescapeHTML (input: string): string;
+
+/**
+ * @param input - The text to format
+ * @returns The formatted text
+ */
+export function formatText (input: string): string;

@@ -154,7 +154,7 @@ Message has the following properties:
 
 Message has the following methods:
 * `reply (text: string): Promise<Message>` sends a message to the target and returns a Promise that is resolved with the sent Message, or is rejected with the message content. This is a shortcut for `Message#target#send`.
-* `privateReply (text: string): true` sends a private response (private HTML message in the room if possible, otherwise a direct message).
+* `privateReply (text: string): true` sends a private response (private HTML message (formatted by `Tools#formatText`) in the room if possible, otherwise a direct message).
 * `sendHTML (html: string, opts?: { name?: string, rank?: string, change?: boolean }): boolean` is an alias for [Room#sendHTML](#room-structure) and [User#sendHTML](#user-structure).
 * `replyHTML (html: string, opts?: { name?: string, rank?: string, change?: boolean }): boolean` is an alias for [Room#privateHTML](#room-structure) and [User#sendHTML](#user-structure).
 
@@ -177,7 +177,7 @@ Room has the following properties:
 
 Room has the following methods:
 * `send (text: string): Promise<Message>` sends a message to the Room and returns a Promise that is resolved with the sent [Message](#message-structure), or is rejected with the message content.
-* `privateSend (user: string | User, text: string): boolean` sends a message in chat that is only visible to the specified user. Returns ``false`` if the client does not have permissions.
+* `privateSend (user: string | User, text: string): boolean` sends a message in chat that is only visible to the specified user. Returns ``false`` if the client does not have permissions. Text is formatted using `Tools#formatText`.
 * `sendHTML (html: string, opts?: { name?: string, rank?: string, change?: boolean }): boolean` sends a UHTML box to the room with the specified (optional) options (reusing a name will overwrite the previous box, rank will only show the HTML to the specified ranks and higher, and `change` toggles the overwriting behaviour between changing at the old location and changing at the bottom of chat). For example: `Room.sendHTML('<b>This is an example.</b>', { rank: '+', change: true })`
 * `privateHTML (user: string | User, html: string, opts?: { name?: string, rank?: string, change?: boolean }): boolean` behaves similarly to sendHTML, the difference being that privateHTML only sends the HTML to the specified user.
 * `waitFor (condition: (message: Message): boolean, time: number): Promise<Message>` waits for a message in the Room. This is resolved when the Client receives a message from the Room for which `condition` returns true, and is rejected if (time) milliseconds pass without being resolved. By default, time corresponds to 1 minute - you can set it to 0 to disable the time limit.
@@ -217,6 +217,7 @@ For common purposes and frequently useful methods, a variety of tools have been 
 * `uploadToPokepaste (sets: string, output?: (url: string) => {} | 'raw' | 'html'): Promise<string>`: Uploads a string containing sets to pokepast.es. Resolves with the URL to the uploaded paste. If `output` is a callback, the callback is instead run. `output` may also be set to `'html'` to resolve with the received HTML, or `'raw'` to resolve with the link to the raw paste.
 * `escapeHTML (input: string): string`: Escapes special characters with their HTML sequences.
 * `unescapeHTML (input: string): string`: Unescapes HTML sequences into their corresponding characters.
+* `formatText (input: string): string`: Formats a string the way PS does for chat messages (this WILL escape HTML).
 
 Note: This module uses [axios](https://github.com/axios/axios) for POST requests.<br/>
 Note: The various methods that use HTML in the Message / Room / User classes all use the [inline-css](https://www.npmjs.com/package/inline-css) library for expanding `<style>` tags into inline CSS.
@@ -242,6 +243,9 @@ More information on how to use these can be found [here](https://github.com/smog
 
 
 ### What's New
+
+**v3.3.0**
+* Added a `Tools#formatText` function to format chat text accordingly!
 
 **v3.2.1**
 * Made `Client#on('name')` also emit an isIntro event.

@@ -43,6 +43,43 @@ describe('unescapeHTML', () => {
 	});
 });
 
+describe('formatText', () => {
+	it('should format bold correctly', () => {
+		assert.equal(Tools.formatText('regular **bold**'), 'regular <b>bold</b>');
+	});
+	it('should format italics correctly', () => {
+		assert.equal(Tools.formatText('regular __italic__'), 'regular <i>italic</i>');
+	});
+	it('should format striked correctly', () => {
+		assert.equal(Tools.formatText('regular ~~striked~~'), 'regular <s>striked</s>');
+	});
+	it('should format superscript correctly', () => {
+		assert.equal(Tools.formatText('regular ^^up^^'), 'regular <sup>up</sup>');
+	});
+	it('should format subscript correctly', () => {
+		assert.equal(Tools.formatText('regular \\\\down\\\\'), 'regular <sub>down</sub>');
+	});
+	it('should format spoilers correctly (||spoiler||)', () => {
+		assert.equal(Tools.formatText('regular ||text||'), 'regular <span class="spoiler">text</span>');
+	});
+	it('should format spoilers correctly (spoiler: )', () => {
+		assert.equal(Tools.formatText('regular spoiler: text'), 'regular spoiler: <span class="spoiler">text</span>');
+	});
+	it('should format links correctly', () => {
+
+		assert.equal(
+			Tools.formatText('regular [[link]]'),
+			'regular <a href="//www.google.com/search?ie=UTF-8&btnI&q=link" target="_blank">link</a>'
+		);
+	});
+	it('should format named links correctly', () => {
+		assert.equal(
+			Tools.formatText('regular [[name<link>]]'),
+			'regular <a href="link" rel="noopener" target="_blank">name<small> &lt;link&gt;</small></a>'
+		);
+	});
+});
+
 describe('update', () => {
 	it('should be able to update the datacenters', () => {
 		return Tools.update();

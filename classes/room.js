@@ -1,7 +1,7 @@
 'use strict';
 
 const inlineCss = require('inline-css');
-const { toID, escapeHTML } = require('../tools.js');
+const { toID, formatText } = require('../tools.js');
 
 const customInspectSymbol = Symbol.for('nodejs.util.inspect.custom');
 
@@ -21,7 +21,7 @@ class Room {
 		if (!['*', '#', '&'].includes(this.users.find(u => toID(u) === this.parent.status.userid)?.charAt(0))) return false;
 		user = this.parent.getUser(user);
 		if (!user) return false;
-		this.send(`/sendprivatehtmlbox ${user.userid}, ${escapeHTML(text)}`);
+		this.send(`/sendprivatehtmlbox ${user.userid}, ${formatText(text)}`);
 		return true;
 	}
 	sendHTML (html, opts = {}) {
