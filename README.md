@@ -4,6 +4,8 @@
 
 PS-Client is a module that handles connection to Pokémon Showdown servers. Apart from a _very_ minimalistic configuration requirement, it also boasts multiple utility features, like promise-based messages, synchronized room and user data, alt tracking, and a lot of other stuff - go through the documentation for a complete summary.
 
+PS-Client is fully-typed with accompanying `*.d.ts` files, so you can freely integrate it with your TypeScript projects. For reference, you may look at [PartBot's second iteration](https://github.com/PartMan7/PartBotter).
+
 ## Table of Contents
 
 - [What's New](#whats-new)
@@ -24,11 +26,23 @@ PS-Client is a module that handles connection to Pokémon Showdown servers. Apar
 
 ```javascript
 const { Client } = require('ps-client');
-const Bot = new Client({ username: 'PS-Client', password: 'REDACTED', debug: true, avatar: 'supernerd', rooms: ['botdevelopment'] });
+const Bot = new Client({ username: 'PS-Client', password: 'password', debug: true, avatar: 'supernerd', rooms: ['botdevelopment'] });
 Bot.connect();
 
 Bot.on('message', message => {
-	if (message.isIntro || message.author.name === Bot.status.username) return;
+	if (message.isIntro) return;
+	if (message.content === 'Ping!') return message.reply('Pong!');
+});
+```
+```typescript
+import type { Client, Message, User, Room } from 'ps-client';
+import { Client } from 'ps-client';
+
+const Bot = new Client({ username: 'PS-Client', password: 'password', debug: true, avatar: 'supernerd', rooms: ['botdevelopment'] });
+Bot.connect();
+
+Bot.on('message', (message: Message) => {
+	if (message.isIntro) return;
 	if (message.content === 'Ping!') return message.reply('Pong!');
 });
 ```
@@ -65,6 +79,12 @@ type options = {
 	throttle?: number; // The throttle (in milliseconds) for every 'batch' of three messages. PS has a per-message throttle of 25ms for public roombots, 100ms for trusted users, and 600ms for regular users.
 }
 ```
+
+Note: There are four main reasons to ignore an incoming message:
+1) `message.isIntro`: Messages in the history of the chat are usually not parsed as commands on logging in.
+2) `!message.author.userid`: Messages from the `&Staff` and `&` accounts (formerly `~Staff` and `~`) in DMs usually can't be replied to.
+3) `!message.target`: 'Ghost' messages (used as communication from the server to set up info) should be ignored.
+4) `message.author.userid === message.parent.status.userid`: It is highly recommended to avoid parsing your own messages as commands, since that's an easy recipe for Botception.
 
 ## Documentation
 
