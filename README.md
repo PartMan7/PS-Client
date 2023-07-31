@@ -47,6 +47,17 @@ Bot.on('message', (message: Message) => {
 });
 ```
 
+### Installation
+To install `ps-client` using npm, open the terminal and type the following:
+```
+sudo npm install ps-client
+```
+
+If you have it in your package.json, simply run ``npm install``. If you have installed it and wish to update your version, run ``sudo npm update ps-client``.
+
+PS-Client requires **Node.js v14.0.0 or higher**.
+
+
 ## Configuration
 
 Creating a Bot is fairly simple - all you have to do is create a new instance of the Client and pass the configuration options.
@@ -289,17 +300,6 @@ More information on how to use these can be found [here](https://github.com/smog
 * Messages that successfully resolve a waitFor promise now have the `awaited` flag set.
 * Various properties of the Client, Room, and User classes have now been privatized.
 * Additions to Tools, including escapeHTML, unescapeHTML, and parseMessage.
-
-
-### Installation
-To install `ps-client` using npm, open the terminal and type the following:
-```
-sudo npm install ps-client
-```
-
-If you have it in your package.json, simply run ``npm install``. If you have installed it and wish to update your version, run ``sudo npm update ps-client``.
-
-PS-Client requires **Node.js v14.0.0 or higher**.
 
 
 
