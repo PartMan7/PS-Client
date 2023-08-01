@@ -50,10 +50,10 @@ Bot.on('message', (message: Message) => {
 ### Installation
 To install `ps-client` using npm, open the terminal and type the following:
 ```
-sudo npm install ps-client
+npm install ps-client
 ```
 
-If you have it in your package.json, simply run ``npm install``. If you have installed it and wish to update your version, run ``sudo npm update ps-client``.
+If you have it in your package.json, simply run ``npm install``. If you have installed it and wish to update your version, run ``npm update ps-client``.
 
 PS-Client requires **Node.js v14.0.0 or higher**.
 
@@ -242,7 +242,7 @@ More information on how to use these can be found [here](https://github.com/smog
 
 
 
-### What's New
+## What's New
 
 **v3.3.0**
 * Added a `Tools#formatText` function to format chat text accordingly!
