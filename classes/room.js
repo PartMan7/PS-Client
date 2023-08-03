@@ -50,8 +50,6 @@ class Room {
 			url: 'filePath'
 		}).then(formatted => {
 			this.send(`/${opts.change ? 'change' : 'send'}privateuhtml ${user.userid}, ${opts.name}, ${formatted}`);
-		}).catch(err => {
-			throw err;
 		});
 		return true;
 	}

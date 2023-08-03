@@ -31,19 +31,19 @@ export default class User {
 	 * @param html - The HTML to send
 	 * @param opts - An instance of HTMLopts (name/rank/change)
 	 */
-	sendHTML (html: string, opts: HTMLopts);
+	sendHTML (html: string, opts?: HTMLopts): boolean;
 
 	/**
 	 * Sends an HTML page to the user
 	 * @param html - The HTML to send
 	 * @param name - The name of the HTML page
 	 */
-	pageHTML (html: string, name: string);
+	pageHTML (html: string, name: string): boolean;
 
 	/**
 	 * Waits for the first message in the room that fulfills the given condition
 	 * @param condition - A function to run on incoming messages. Return a truthy value to satisfy
 	 * @param time - The time (in ms) to wait before rejecting as a timeout
 	 */
-	waitFor (condition: (message: Message) => boolean, time?: number);
+	waitFor (condition: (message: Message) => boolean, time?: number): Promise<Message>;
 }

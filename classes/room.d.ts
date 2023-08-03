@@ -31,14 +31,14 @@ export default class Room {
 	 * @param user - The user to send the text to
 	 * @param text - The text to privately send
 	 */
-	privateReply (user: User | string, text: string);
+	privateSend (user: User | string, text: string): boolean;
 
 	/**
 	 * Sends HTML in the room
 	 * @param html - The HTML to send
 	 * @param opts - An instance of HTMLopts (name/rank/change)
 	 */
-	sendHTML (html: string, opts: HTMLopts);
+	sendHTML (html: string, opts?: HTMLopts): boolean;
 
 	/**
 	 * Privately sends HTML in the room
@@ -46,7 +46,7 @@ export default class Room {
 	 * @param html - The HTML to send
 	 * @param opts - An instance of HTMLopts (name/rank/change)
 	 */
-	privateHTML (user: User | string, html: string, opts: HTMLopts);
+	privateHTML (user: User | string, html: string, opts?: HTMLopts): boolean;
 
 	/**
 	 * Waits for the first message in the room that fulfills the given condition

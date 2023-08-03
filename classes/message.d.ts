@@ -40,19 +40,19 @@ export default class Message {
 	 * Privately responds to the message
 	 * @param text - The text to privately respond (to the message) with
 	 */
-	privateReply (text: string);
+	privateReply (text: string): void;
 
 	/**
 	 * Sends HTML in the message context (chatroom for 'chat', PMs for 'pm')
 	 * @param html - The HTML to send
 	 * @param opts - An instance of HTMLopts (name/rank/change)
 	 */
-	sendHTML (html: string, opts: HTMLopts);
+	sendHTML (html: string, opts?: HTMLopts): boolean;
 
 	/**
 	 * Privately sends HTML in the message context (chatroom for 'chat', PMs for 'pm')
 	 * @param html - The HTML to send
 	 * @param opts - An instance of HTMLopts (name/rank/change)
 	 */
-	replyHTML (html: string, opts: HTMLopts);
+	replyHTML (html: string, opts?: HTMLopts): boolean;
 }

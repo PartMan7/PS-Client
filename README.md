@@ -24,6 +24,7 @@ PS-Client is fully-typed with accompanying `*.d.ts` files, so you can freely int
 
 ## Example Setup
 
+NodeJS
 ```javascript
 const { Client } = require('ps-client');
 const Bot = new Client({ username: 'PS-Client', password: 'password', debug: true, avatar: 'supernerd', rooms: ['botdevelopment'] });
@@ -34,6 +35,8 @@ Bot.on('message', message => {
 	if (message.content === 'Ping!') return message.reply('Pong!');
 });
 ```
+
+TypeScript
 ```typescript
 import type { Client, Message, User, Room } from 'ps-client';
 import { Client } from 'ps-client';
@@ -243,6 +246,9 @@ More information on how to use these can be found [here](https://github.com/smog
 
 
 ## What's New
+
+**v3.3.1**
+* Updated typings on the classes to correctly include all return values and optional fields.
 
 **v3.3.0**
 * Added a `Tools#formatText` function to format chat text accordingly!

@@ -30,19 +30,14 @@ class User {
 				room.auth?.['#']?.includes(this.parent.status.userid)
 			) rooms[room.visibility] = room;
 		}
-		// Object.values(this.parent.rooms).forEach(room => {
-		// 	if (
-		// 		room.auth?.['*']?.includes(this.parent.status.userid) ||
-		// 		room.auth?.['#']?.includes(this.parent.status.userid)
-		// 	) rooms[room.visibility] = room;
-		// });
 		const room = rooms.public || rooms.hidden || rooms.private;
-		if (!room) throw new Error('No common rooms');
-		return inlineCss(html, {
+		if (!room) return false;
+		inlineCss(html, {
 			url: 'filePath'
 		}).then(formatted => {
 			room.send(`/pmuhtml${opts.change ? 'change' : ''} ${this.userid}, ${opts.name}, ${formatted}`);
 		});
+		return true;
 	}
 	pageHTML (html, name) {
 		if (!html) throw new Error('Missing HTML argument');
@@ -56,10 +51,11 @@ class User {
 			) rooms[room.visibility] = room;
 		}
 		const room = rooms.public || rooms.hidden || rooms.private;
-		if (!room) throw new Error('No common rooms');
-		return inlineCss(html, { url: 'filePath' }).then(formatted => {
+		if (!room) return false;
+		inlineCss(html, { url: 'filePath' }).then(formatted => {
 			room.send(`/sendhtmlpage ${this.userid}, ${name}, ${formatted}`);
 		});
+		return true;
 	}
 	waitFor (condition, time = 60_000) {
 		if (typeof condition !== 'function') throw new TypeError('Condition must be a function.');
