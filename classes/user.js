@@ -24,7 +24,7 @@ class User {
 		if (!opts || typeof opts !== 'object') throw new TypeError('Options must be an object');
 		if (!opts.name) opts.name = this.parent.status.username + Date.now().toString(36);
 		const rooms = {};
-		for (const room of this.parent.values()) {
+		for (const room of this.parent.rooms.values()) {
 			if (
 				room.auth?.['*']?.includes(this.parent.status.userid) ||
 				room.auth?.['#']?.includes(this.parent.status.userid)
@@ -44,7 +44,7 @@ class User {
 		if (!name) name = this.parent.status.username + Date.now().toString(36);
 		name = name.toString();
 		const rooms = {};
-		for (const room of this.parent.values()) {
+		for (const room of this.parent.rooms.values()) {
 			if (
 				room.auth?.['*']?.includes(this.parent.status.userid) ||
 				room.auth?.['#']?.includes(this.parent.status.userid)

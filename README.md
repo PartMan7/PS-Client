@@ -247,6 +247,9 @@ More information on how to use these can be found [here](https://github.com/smog
 
 ## What's New
 
+**v3.3.2**
+* Addressed a bug in `User#sendHTML`.
+
 **v3.3.1**
 * Updated typings on the classes to correctly include all return values and optional fields.
 

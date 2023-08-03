@@ -33,8 +33,6 @@ class Room {
 		inlineCss(html, { url: 'filePath' }).then(formatted => {
 			this.send(`/${opts.change ? 'change' : 'add'}${opts.rank ? 'rank' : ''}uhtml` +
 				`${opts.rank ? `${opts.rank}, ` : ''}${opts.name}, ${formatted}`);
-		}).catch(err => {
-			throw err;
 		});
 		return true;
 	}
