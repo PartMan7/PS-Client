@@ -50,6 +50,15 @@ Bot.on('message', (message: Message) => {
 });
 ```
 
+Browser
+```html
+<script src="https://cdn.jsdelivr.net/npm/ps-client/dist/psclient.js">
+</script>
+<script charset="utf-8">
+    console.log(ps_client.Tools.toID("helloWorld!!"));
+</script>
+```
+https://cdn.jsdelivr.net/npm/jquery/dist/ps
 ### Installation
 To install `ps-client` using npm, open the terminal and type the following:
 ```
