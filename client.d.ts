@@ -128,7 +128,7 @@ export class Client extends events.EventEmitter {
 	 * @param user - The user being queried
 	 * @returns A promise that resolves with the queried userdetails
 	 */
-	getUserDetails (userid: string): Promise<Message>;
+	getUserDetails (userid: string): Promise<User>;
 
 	/**
 	 * Gets a (cached) room from its name (aliases not supported)
