@@ -22,6 +22,7 @@ export default class Message {
 	raw: string;
 	parent: Client;
 	type: 'chat' | 'pm';
+	msgRank: HTMLopts['rank'] | ' ';
 	isIntro: boolean;
 	awaited: boolean;
 	time: number;

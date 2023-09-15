@@ -247,6 +247,9 @@ More information on how to use these can be found [here](https://github.com/smog
 
 ## What's New
 
+**v3.3.3**
+* Added missing type definitions for `Message#msgRank`.
+
 **v3.3.2**
 * Addressed a bug in `User#sendHTML`.
 
