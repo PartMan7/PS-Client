@@ -372,10 +372,10 @@ class Client extends EventEmitter {
 						if (!userdetails) break;
 						this.addUser(userdetails);
 						const user = this._userdetailsQueue.find(u => u.id === userdetails.id);
-                        if (user) {
-                            user.resolve(userdetails);
-                            this._userdetailsQueue.splice(this._userdetailsQueue.indexOf(user), 1);
-                        }
+						if (user) {
+							user.resolve(userdetails);
+							this._userdetailsQueue.splice(this._userdetailsQueue.indexOf(user), 1);
+						}
 						break;
 					}
 				}
