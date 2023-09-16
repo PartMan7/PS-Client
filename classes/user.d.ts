@@ -13,7 +13,7 @@ export default class User {
 	autoconfirmed: boolean;
 	status?: string;
 	alts: string[];
-	rooms: { [key: string]: { isPrivate?: true } };
+	rooms: { [key: string]: { isPrivate?: true } } | false;
 	parent: Client;
 
 
