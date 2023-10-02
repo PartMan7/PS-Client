@@ -1,6 +1,6 @@
 'use strict';
 
-const inlineCss = require('inline-css');
+const inlineCss = require('juice');
 
 const customInspectSymbol = Symbol.for('nodejs.util.inspect.custom');
 
@@ -32,11 +32,8 @@ class User {
 		}
 		const room = rooms.public || rooms.hidden || rooms.private;
 		if (!room) return false;
-		inlineCss(html, {
-			url: 'filePath'
-		}).then(formatted => {
-			room.send(`/pmuhtml${opts.change ? 'change' : ''} ${this.userid}, ${opts.name}, ${formatted}`);
-		});
+		const formatted = inlineCss(html);
+		room.send(`/pmuhtml${opts.change ? 'change' : ''} ${this.userid}, ${opts.name}, ${formatted}`);
 		return true;
 	}
 	pageHTML (html, name) {
@@ -52,9 +49,8 @@ class User {
 		}
 		const room = rooms.public || rooms.hidden || rooms.private;
 		if (!room) return false;
-		inlineCss(html, { url: 'filePath' }).then(formatted => {
-			room.send(`/sendhtmlpage ${this.userid}, ${name}, ${formatted}`);
-		});
+		const formatted = inlineCss(html);
+		room.send(`/sendhtmlpage ${this.userid}, ${name}, ${formatted}`);
 		return true;
 	}
 	waitFor (condition, time = 60_000) {

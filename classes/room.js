@@ -1,6 +1,6 @@
 'use strict';
 
-const inlineCss = require('inline-css');
+const inlineCss = require('juice');
 const { toID, formatText } = require('../tools.js');
 
 const customInspectSymbol = Symbol.for('nodejs.util.inspect.custom');
@@ -30,10 +30,9 @@ class Room {
 		if (typeof opts === 'string') opts = { name: opts };
 		if (!opts || typeof opts !== 'object') throw new TypeError('Options must be an object');
 		if (!opts.name) opts.name = this.parent.status.username + Date.now().toString(36);
-		inlineCss(html, { url: 'filePath' }).then(formatted => {
-			this.send(`/${opts.change ? 'change' : 'add'}${opts.rank ? 'rank' : ''}uhtml` +
+		const formatted = inlineCss(html);
+		this.send(`/${opts.change ? 'change' : 'add'}${opts.rank ? 'rank' : ''}uhtml ` +
 				`${opts.rank ? `${opts.rank}, ` : ''}${opts.name}, ${formatted}`);
-		});
 		return true;
 	}
 	privateHTML (user, html, opts = {}) {
@@ -44,11 +43,8 @@ class Room {
 		if (typeof opts === 'string') opts = { name: opts };
 		if (!opts || typeof opts !== 'object') throw new TypeError('Options must be an object');
 		if (!opts.name) opts.name = this.parent.status.username + Date.now().toString(36);
-		inlineCss(html, {
-			url: 'filePath'
-		}).then(formatted => {
-			this.send(`/${opts.change ? 'change' : 'send'}privateuhtml ${user.userid}, ${opts.name}, ${formatted}`);
-		});
+		const formatted = inlineCss(html);
+		this.send(`/${opts.change ? 'change' : 'send'}privateuhtml ${user.userid}, ${opts.name}, ${formatted}`);
 		return true;
 	}
 	waitFor (condition, time) {

@@ -8,7 +8,8 @@
     "lint": "eslint . --config .eslintrc.json *.js",
     "mocha": "mocha test/*.js -t 10000",
     "test": "npm run lint && npm run mocha",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "build:browser": "browserify client.js -o dist/psclient.js --standalone ps_client"
   },
   "keywords": [
     "pokemon",
@@ -22,10 +23,11 @@
   },
   "dependencies": {
     "axios": "^0.21.1",
-    "inline-css": "^3.0.0",
+    "juice": "^9.1.0",
     "websocket": "^1.0.31"
   },
   "devDependencies": {
+    "browserify": "^17.0.0",
     "dotenv": "^16.0.3",
     "eslint": "^8.37.0",
     "husky": "^8.0.3",
