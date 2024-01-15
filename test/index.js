@@ -35,6 +35,7 @@ Bot.on('message', message => {
 
 describe('PS-Client', () => {
 	before(function () {
+		this.timeout(30_000);
 		return new Promise((resolve, reject) => {
 			Bot.connect();
 			Bot.on('ready', () => resolve());

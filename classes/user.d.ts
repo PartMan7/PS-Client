@@ -45,7 +45,7 @@ export default class User {
 	/**
 	 * List of rooms the user is currently in
 	 */
-	rooms: { [key: string]: { isPrivate?: true } };
+	rooms: { [key: string]: { isPrivate?: true } } | false;
 	/**
 	 * The Bot this user is attached to
 	 */
