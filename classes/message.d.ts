@@ -15,20 +15,23 @@ type MessageOpts = {
 };
 
 
-export default class Message {
-
+type Message = {
 	author: User;
 	content: string;
 	raw: string;
 	parent: Client;
-	type: 'chat' | 'pm';
 	msgRank: HTMLopts['rank'] | ' ';
 	isIntro: boolean;
 	awaited: boolean;
 	time: number;
-	target: Room | User;
-
-	constructor (input: MessageOpts);
+} & ({
+	type: 'chat';
+	target: Room
+} | {
+	type: 'pm';
+	target: User;
+}) & {
+	constructor (input: MessageOpts): void;
 
 	/**
 	 * Responds to the message
@@ -57,3 +60,6 @@ export default class Message {
 	 */
 	replyHTML (html: string, opts?: HTMLopts): boolean;
 }
+
+
+export default Message;

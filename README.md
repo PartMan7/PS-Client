@@ -248,6 +248,9 @@ More information on how to use these can be found [here](https://github.com/smog
 
 ## What's New
 
+**v3.4.1**
+* Added proper split typings to Message for narrowing in TypeScript.
+
 **v3.4.0**
 * Added `update` methods to Users and Rooms.
 * Restructured type definitions, added JSDoc-style comments, moved Message, User, and Room to root-level imports.
