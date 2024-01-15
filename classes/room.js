@@ -74,6 +74,9 @@ class Room {
 			room._waits.push(waitObj);
 		});
 	}
+	update () {
+		this.parent.send(`|/cmd roominfo ${this.roomid}`);
+	}
 	[customInspectSymbol] (depth, options, inspect) {
 		if (depth < 1) return options.stylize(`${this.title} [PS-Room]`, 'special');
 		const logObj = {};

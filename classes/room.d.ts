@@ -6,14 +6,45 @@ import type User from './user.d.ts';
 
 export default class Room {
 
+	/**
+	 * Formatted name of the room
+	 * @example Bot Development
+	 */
 	title: string;
+	/**
+	 * Room ID
+	 * @example botdevelopment
+	 */
 	roomid: string;
+	/**
+	 * Room ID
+	 * @example botdevelopment
+	 */
 	id: string;
+	/**
+	 * The Bot that this room is registered to
+	 */
 	parent: Client;
+	/**
+	 * Whether the room is a chatroom or a battleroom
+	 */
 	type: 'chat' | 'battle';
+	/**
+	 * Room visibility
+	 */
 	visibility: 'public' | 'secret';
+	/**
+	 * Current modchat level
+	 */
 	modchat?: string;
+	/**
+	 * @example { '*': ['partbot'] }
+	 */
 	auth: { [key: string]: string[] };
+	/**
+	 * List of all users currently online, formatted as shown in chat
+	 * @example ['#PartMan@!', '*PartBot']
+	 */
 	users: string[];
 
 
@@ -54,4 +85,9 @@ export default class Room {
 	 * @param time - The time (in ms) to wait before rejecting as a timeout
 	 */
 	waitFor (condition: (message: Message) => boolean, time?: number): Promise<Message>;
+
+	/**
+	 * Re-fetch the room's details from the server
+	 */
+	update (): void;
 }

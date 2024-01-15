@@ -507,13 +507,15 @@ class Client extends EventEmitter {
 		Object.keys(input).forEach(key => user[key] = input[key]);
 		return user;
 	}
-	getUser (str) {
+	getUser (str, deep = false) {
 		if (str instanceof User) str = str.userid;
 		if (typeof str !== 'string') return null;
 		str = Tools.toID(str);
 		if (this.users.get(str)) return this.users.get(str);
-		for (const user of this.users.values()) {
-			if (user.alts?.has(str)) return user;
+		if (deep) {
+			for (const user of this.users.values()) {
+				if (user.alts?.has(str)) return user;
+			}
 		}
 		return false;
 	}
@@ -564,7 +566,9 @@ Data.typechart = require('./showdown/typechart.js').BattleTypeChart;
 
 module.exports = {
 	Client,
-	classes: { Message, User, Room },
+	Message,
+	User,
+	Room,
 	Tools,
 	Data
 };

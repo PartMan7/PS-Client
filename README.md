@@ -38,8 +38,7 @@ Bot.on('message', message => {
 
 TypeScript
 ```typescript
-import type { Client, Message, User, Room } from 'ps-client';
-import { Client } from 'ps-client';
+import { Client, Message } from 'ps-client';
 
 const Bot = new Client({ username: 'PS-Client', password: 'password', debug: true, avatar: 'supernerd', rooms: ['botdevelopment'] });
 Bot.connect();
@@ -118,7 +117,7 @@ Client also has the following methods:
 * `connect (reconnect: boolean): void` - Creates the websocket to connect to the server, then logs in. ``reconnect`` has no significance besides logging the attempt as a reconnection attempt.
 * `disconnect: void` - Closes the connection.
 * `login (username: string, password: string | undefined): void` - Logs in with the given credentials. Requires the websocket to have been created.
-* `getUser (username: string | User): User | false | null` - Finds a user among tracked users. Returns the user instance (in case the user has been tracked while renaming, the new User instance). Returns `null` for an invalid input and `false` if the user is not tracked.
+* `getUser (username: string | User, deep: boolean): User | false | null` - Finds a user among tracked users. Returns the user instance (in case deep is true and the user has been tracked while renaming, it returns the new User instance). Returns `null` for an invalid input and `false` if the user is not tracked.
 * `sendUser (username: string | User, text: string): Promise<Message>` - Sends the provided string to the specified user.
 * `send (text: string): void` - Sends the provided string to the server. This bypasses the queue, and can cause the Bot to exceed the throttle. **Using Room#send or User#send instead is highly recommended.**
 
@@ -184,6 +183,7 @@ Room has the following methods:
 * `sendHTML (html: string, opts?: { name?: string, rank?: string, change?: boolean }): boolean` sends a UHTML box to the room with the specified (optional) options (reusing a name will overwrite the previous box, rank will only show the HTML to the specified ranks and higher, and `change` toggles the overwriting behaviour between changing at the old location and changing at the bottom of chat). For example: `Room.sendHTML('<b>This is an example.</b>', { rank: '+', change: true })`
 * `privateHTML (user: string | User, html: string, opts?: { name?: string, rank?: string, change?: boolean }): boolean` behaves similarly to sendHTML, the difference being that privateHTML only sends the HTML to the specified user.
 * `waitFor (condition: (message: Message): boolean, time: number): Promise<Message>` waits for a message in the Room. This is resolved when the Client receives a message from the Room for which `condition` returns true, and is rejected if (time) milliseconds pass without being resolved. By default, time corresponds to 1 minute - you can set it to 0 to disable the time limit.
+* `update (): void` refetches the entire room metadata (as well as all userdetails of users in the room).
 
 
 ### User Structure
@@ -209,6 +209,7 @@ User has the following methods:
 * `sendHTML (html: string, opts?: { name?: string, change?: boolean }): boolean` sends a UHTML box to the user with the specified (optional) options (reusing a name will overwrite the previous box and `change` toggles the overwriting behaviour between changing at the old location and changing at the bottom of the PM). For example: `User.sendHTML('<b>This is an example.</b>', { change: true })`
 * `pageHTML (html: string, name?: string): boolean` sends a UHTML box to the user with the specified (optional) name (reusing a name will overwrite the previous page). For example: `User.pageHTML("<b>Let's play chess!</b>", "chess")`
 * `waitFor (condition: (message: Message): boolean, time: number): Promise<Message>` waits for a message from the User. This is resolved when the Client receives a message from the User for which `condition` returns true, and is rejected if (time) milliseconds pass without being resolved. By default, time corresponds to 1 minute - you can set it to 0 to disable the time limit.
+* `update (): Promise<User>` updates and resolves with the current user's information after re-fetching from the server.
 
 
 ## Tools
@@ -246,6 +247,10 @@ More information on how to use these can be found [here](https://github.com/smog
 
 
 ## What's New
+
+**v3.4.0**
+* Added `update` methods to Users and Rooms.
+* Restructured type definitions, added JSDoc-style comments, moved Message, User, and Room to root-level imports.
 
 **v3.3.3**
 * Added missing type definitions for `Message#msgRank`.

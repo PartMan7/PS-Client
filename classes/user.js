@@ -79,6 +79,10 @@ class User {
 			user._waits.push(waitObj);
 		});
 	}
+	update () {
+		const self = this;
+		return this.parent.getUserDetails(this.userid).then(() => self);
+	}
 	[customInspectSymbol] (depth, options, inspect) {
 		if (depth < 1) return options.stylize(`${this.name || '-'} [PS-User]`, 'special');
 		const logObj = {};
