@@ -248,6 +248,9 @@ More information on how to use these can be found [here](https://github.com/smog
 
 ## What's New
 
+**v3.4.2**
+* Fixed a bug in client typings.
+
 **v3.4.1**
 * Added proper split typings to Message for narrowing in TypeScript.
 

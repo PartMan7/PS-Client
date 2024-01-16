@@ -124,7 +124,7 @@ export class Client extends events.EventEmitter {
 	 * @param deepSearch Whether to also look for direct alts
 	 * @returns The user if found, otherwise false
 	 */
-	getUser (user: string, deepSearch: boolean): User | false;
+	getUser (user: string, deepSearch?: boolean): User | false;
 
 	/**
 	 * Queues a request to fetch userdetails
