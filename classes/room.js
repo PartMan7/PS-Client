@@ -32,7 +32,7 @@ class Room {
 		if (!opts.name) opts.name = this.parent.status.username + Date.now().toString(36);
 		inlineCss(html, { url: 'filePath' }).then(formatted => {
 			this.send(`/${opts.change ? 'change' : 'add'}${opts.rank ? 'rank' : ''}uhtml` +
-				`${opts.rank ? `${opts.rank}, ` : ''}${opts.name}, ${formatted}`);
+				` ${opts.rank ? `${opts.rank}, ` : ''}${opts.name}, ${formatted}`);
 		});
 		return true;
 	}
@@ -44,9 +44,7 @@ class Room {
 		if (typeof opts === 'string') opts = { name: opts };
 		if (!opts || typeof opts !== 'object') throw new TypeError('Options must be an object');
 		if (!opts.name) opts.name = this.parent.status.username + Date.now().toString(36);
-		inlineCss(html, {
-			url: 'filePath'
-		}).then(formatted => {
+		inlineCss(html, { url: 'filePath' }).then(formatted => {
 			this.send(`/${opts.change ? 'change' : 'send'}privateuhtml ${user.userid}, ${opts.name}, ${formatted}`);
 		});
 		return true;
