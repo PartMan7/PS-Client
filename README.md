@@ -78,7 +78,7 @@ type options = {
 	username: string, // The username you wish to connect to. Required parameter.
 	password?: string, // The password for the username you're connecting to. Leave this blank if the account is unregistered.
 	server?: string, // The server to which you wish to connect to - defaults to 'sim3.psim.us'.
-	port?: number, // The port on which you're connecting to. Defaults to 80.
+	port?: number, // The port on which you're connecting to. Can also be specified in server as `url:port`, in which case leave this field blank.
 	connectionTimeout?: number, // The time, in milliseconds, after which your connection times out. Defaults to 20s.
 	loginServer?: string, // The login server. Defaults to 'https://play.pokemonshowdown.com/~~showdown/action.php'.
 	avatar?: string | number, // The avatar your Bot will have on connection. If not specified, PS will set one randomly.
@@ -86,8 +86,8 @@ type options = {
 	retryLogin?: number, // The time, in milliseconds, that your Bot will wait before attempting to login again after a failing. If this is 0, it will not attempt to login again. Defaults to 10 seconds.
 	autoReconnect?: number, // The time, in milliseconds, that your Bot will wait before attempting to reconnect after a disconnect. If this is 0, it will not attempt to reconnect. Defaults to 30 seconds.
 	rooms: string[], // An array with the strings of the rooms you want the Bot to join.
-	debug?: boolean | (details: string): any; // The function you would like to run on debugs. If this is a falsey value, debug messages will not be displayed. If a true value is given which is not a function, the Bot simply logs messages to the console.
-	handle?: boolean | (error: string | Error): any; // Handling for internal errors. If a function is provided, this will run it with an error / string. The default function logs them to the console. To opt out of error handling (not recommended), set this to false.
+	debug?: boolean | (details: string): void; // The function you would like to run on debugs. If this is a falsey value, debug messages will not be displayed. If a true value is given which is not a function, the Bot simply logs messages to the console.
+	handle?: boolean | (error: string | Error): void; // Handling for internal errors. If a function is provided, this will run it with an error / string. The default function logs them to the console. To opt out of error handling (not recommended), set this to false.
 	noFailMessages?: boolean; // Dictates whether messages throw errors by default. Set to 'false' to enable messages throwing errors. Defaults to true.
 	throttle?: number; // The throttle (in milliseconds) for every 'batch' of three messages. PS has a per-message throttle of 25ms for public roombots, 100ms for trusted users, and 600ms for regular users.
 }
@@ -247,6 +247,9 @@ More information on how to use these can be found [here](https://github.com/smog
 
 
 ## What's New
+
+**v3.5.0**
+* Allowed specifying the full URL in `opts.server` if `opts.port` is not specified.
 
 **v3.4.3**
 * Fixed a bug in `Room#sendHTML`.
