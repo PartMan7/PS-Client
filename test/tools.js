@@ -23,7 +23,7 @@ describe('HSL', () => {
 });
 
 describe('uploadToPastie', function () {
-	this.timeout(5_000);
+	this.timeout(10_000);
 	it('should upload the given text', async () => {
 		const paste = await Tools.uploadToPastie('Test');
 		const { data } = await axios.get(paste);
