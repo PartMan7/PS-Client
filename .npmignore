@@ -1,4 +1,9 @@
-/node_modules
-/package-lock.json
-/test
+node_modules
+package-lock.json
+
+.github
+.husky
+
+test
+
 .env
