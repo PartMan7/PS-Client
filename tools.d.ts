@@ -1,7 +1,7 @@
 type namecolour = {
 	source: string;
 	hsl: [number, number, number];
-	base?: namecolour;
+	base?: Omit<namecolour, 'base'>;
 };
 
 type pokePaste = {

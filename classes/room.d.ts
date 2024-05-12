@@ -38,9 +38,10 @@ export default class Room {
 	 */
 	modchat?: string;
 	/**
+	 * Can be undefined if no auth is defined in the room
 	 * @example { '*': ['partbot'] }
 	 */
-	auth: { [key: string]: string[] };
+	auth?: { [key: string]: string[] };
 	/**
 	 * List of all users currently online, formatted as shown in chat
 	 * @example ['#PartMan@!', '*PartBot']
