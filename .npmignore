@@ -4,6 +4,9 @@ package-lock.json
 .github
 .husky
 
+.eslintignore
+.eslintrc.json
+
 test
 
 .env

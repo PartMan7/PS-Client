@@ -1,5 +1,10 @@
 ## What's New
 
+**v3.5.2**
+* Added more files to `.npmignore`.
+
+**v3.5.1**
+* Updated types for `room.auth` potentially being undefined, as well as types for namecolour.
 
 **v3.5.0**
 * Allowed specifying the full URL in `opts.server` if `opts.port` is not specified.
