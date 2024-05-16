@@ -1,5 +1,8 @@
 ## What's New
 
+**v3.5.3**
+* Fixes connection logic to work after PS API changes.
+
 **v3.5.2**
 * Added more files to `.npmignore`.
 
