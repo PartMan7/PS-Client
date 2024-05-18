@@ -9,7 +9,7 @@ dotenv.config();
 const { Client, Tools, Data } = require('../client.js');
 
 const Bot = new Client({
-	username: 'PS-Client',
+	username: process.env.PS_USERNAME ?? 'PS-Client',
 	password: process.env.PASSWORD,
 	rooms: ['botdevelopment'],
 	debug,

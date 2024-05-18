@@ -79,6 +79,7 @@ type options = {
 	password?: string, // The password for the username you're connecting to. Leave this blank if the account is unregistered.
 	server?: string, // The server to which you wish to connect to - defaults to 'sim3.psim.us'.
 	port?: number, // The port on which you're connecting to. Can also be specified in server as `url:port`, in which case leave this field blank.
+	serverProtocol?: string, // The protocol used for the websocket connection. Defaults to wss, but can be changed to ws (insecure).
 	connectionTimeout?: number, // The time, in milliseconds, after which your connection times out. Defaults to 20s.
 	loginServer?: string, // The login server. Defaults to 'https://play.pokemonshowdown.com/~~showdown/action.php'.
 	avatar?: string | number, // The avatar your Bot will have on connection. If not specified, PS will set one randomly.
