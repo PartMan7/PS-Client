@@ -18,7 +18,7 @@ PS-Client is fully-typed with accompanying `*.d.ts` files, so you can freely int
 	- [Room](#room-structure)
 - [Tools](#tools)
 - [Datacenters](#datacenters)
-- [What's New](#whats-new) <small>[changelog](CHANGELOG.md)</small>
+- [What's New](CHANGELOG.md)
 - [Credits](#credits)
 
 
@@ -247,14 +247,13 @@ More information on how to use these can be found [here](https://github.com/smog
 
 
 
-## [What's New](CHANGELOG.md)
+## What's New
+
+The changelog can be found at [CHANGELOG.md](CHANGELOG.md).
 
 
 ## Credits
 Written by PartMan7. Many thanks to Ecuacion for the base connection logic.
 
-### To-Do
-
-* Resolve PMs correctly when redirected to another user due to a rename.
-* Create an example repository.
-* Switch datacenters to JSON.
+## Planned Task
+Planned features, ongoing projects, and reported bugs may be found / reported at the [issues tracker](https://github.com/PartMan7/PS-Client/issues).
