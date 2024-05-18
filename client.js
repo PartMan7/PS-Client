@@ -123,8 +123,8 @@ class Client extends EventEmitter {
 		const id = ~~(Math.random() * 900) + 100;
 		const chars = 'abcdefghijklmnopqrstuvwxyz0123456789_'.split('');
 		const str = Array.from({ length: 8 }, () => chars[~~(Math.random() * 36)]).join('');
-		const conStr = `${this.opts.serverProtocol}://${this.opts.server}\
-${this.opts.port ? `:${this.opts.port}` : ''}/showdown/${id}/${str}/websocket`;
+		const { server, serverProtocol, port } = this.opts;
+		const conStr = `${serverProtocol}://${server}${port ? `:${port}` : ''}/showdown/${id}/${str}/websocket`;
 		this.debug(`Connecting to ${conStr}`);
 		webSocket.connect(conStr);
 	}
