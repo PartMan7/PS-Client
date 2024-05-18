@@ -1,5 +1,8 @@
 ## What's New
 
+**v3.6.0**
+* Adds config option to use `ws` while connecting over `wss`. [#20](https://github.com/PartMan7/PS-Client/pull/20) by [@singiamtel](https://github.com/singiamtel)
+
 **v3.5.3**
 * Fixes connection logic to work after PS API changes.
 
@@ -27,6 +30,7 @@
 
 **v3.3.3**
 * Added missing type definitions for `Message#msgRank`.
+* Fix message types and remove extra messages from queue. [#12](https://github.com/PartMan7/PS-Client/pull/12) by [d3nsh1n](https://github.com/d3nsh1n)
 
 **v3.3.2**
 * Addressed a bug in `User#sendHTML`.
@@ -76,6 +80,7 @@
 * Added unit tests.
 
 **v1.5.0**
+* Fix status not being sent while logging in. [#2](https://github.com/PartMan7/PS-Client/pull/2) by [Dirain1700](https://github.com/Dirain1700)
 * Add `*.d.ts` files for method documentation.
 * Update descriptions in the README.
 * `Client#users` and `Client#rooms` are now Maps instead of objects.
