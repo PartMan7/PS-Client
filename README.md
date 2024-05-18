@@ -3,6 +3,7 @@
 <a href="https://www.npmjs.com/package/ps-client"><img src="https://img.shields.io/npm/dt/ps-client.svg?maxAge=3600" alt="NPM downloads" /></a>
 
 PS-Client is a module that handles connection to Pokémon Showdown servers. Apart from a _very_ minimalistic configuration requirement, it also boasts multiple utility features, like promise-based messages, synchronized room and user data, alt tracking, and a lot of other stuff - go through the documentation for a complete summary.
+
 PS-Client is fully-typed with accompanying `*.d.ts` files, so you can freely integrate it with your TypeScript projects. For reference, you may look at [PartBot's second iteration](https://github.com/PartMan7/PartBotter).
 
 [**Documentation**](DOCUMENTATION.md)
