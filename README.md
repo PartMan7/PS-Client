@@ -6,12 +6,12 @@ PS-Client is a module that handles connection to Pokémon Showdown servers. Apar
 
 PS-Client is fully-typed with accompanying `*.d.ts` files, so you can freely integrate it with your TypeScript projects. For reference, you may look at [PartBot's second iteration](https://github.com/PartMan7/PartBotter).
 
-[**Documentation**](DOCUMENTATION.md)
 ## Table of Contents
 
 - [Installation](#installation)
 - [Example](#example-setup)
 - [Configuration](#configuration)
+- [Documentation](DOCUMENTATION.md)
 - [Tools](#tools)
 - [Datacenters](#datacenters)
 - [What's New](CHANGELOG.md)
