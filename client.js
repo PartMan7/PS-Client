@@ -18,6 +18,7 @@ class Client extends EventEmitter {
 		this.opts = {
 			server: 'sim3.psim.us',
 			serverid: 'showdown',
+			serverProtocol: 'wss',
 			connectionTimeout: 20_000,
 			loginServer: 'https://play.pokemonshowdown.com/action.php',
 			username: null,
@@ -122,7 +123,8 @@ class Client extends EventEmitter {
 		const id = ~~(Math.random() * 900) + 100;
 		const chars = 'abcdefghijklmnopqrstuvwxyz0123456789_'.split('');
 		const str = Array.from({ length: 8 }, () => chars[~~(Math.random() * 36)]).join('');
-		const conStr = `wss://${this.opts.server}${this.opts.port ? `:${this.opts.port}` : ''}/showdown/${id}/${str}/websocket`;
+		const conStr = `${this.opts.serverProtocol}://${this.opts.server}\
+${this.opts.port ? `:${this.opts.port}` : ''}/showdown/${id}/${str}/websocket`;
 		this.debug(`Connecting to ${conStr}`);
 		webSocket.connect(conStr);
 	}

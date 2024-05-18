@@ -21,6 +21,7 @@ type ClientOpts = {
 	server?: string,
 	serverid?: string,
 	port?: number,
+  serverProtocol: string,
 	loginServer?: string
 };
 
