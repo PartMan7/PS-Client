@@ -1,5 +1,8 @@
 ## What's New
 
+**v3.6.1**
+* Fixes invalid time values for `|c:|` messages.
+
 **v3.6.0**
 * Adds config option to use `ws` while connecting over `wss`. [#20](https://github.com/PartMan7/PS-Client/pull/20) by [@singiamtel](https://github.com/singiamtel)
 
