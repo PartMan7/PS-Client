@@ -342,8 +342,7 @@ class Client extends EventEmitter {
 			}
 			case 'html': {
 				if (this.status.loggedIn && typeof this.opts.isTrusted !== 'boolean') {
-					if (message.includes('<small style="color:gray">(trusted)</small>')) this.opts.isTrusted = true;
-					else this.opts.isTrusted = false;
+					this.opts.isTrusted = !!message.includes('<small style="color:gray">(trusted)</small>');
 					this._activateQueue();
 				}
 				this.emit('html', room, args.slice(2).join('|'), isIntro);
@@ -384,8 +383,8 @@ class Client extends EventEmitter {
 				break;
 			}
 			case 'chat': case 'c': case 'c:': {
-				if (args[1] !== 'c:') args.splice(2, null);
 				const by = args[3], value = args.slice(4).join('|'), resolved = [];
+				const time = parseInt(args[2]) * (args[1] === 'c:' ? 1_000 : 1);
 				const mssg = new Message({
 					by,
 					text: value,
@@ -394,7 +393,7 @@ class Client extends EventEmitter {
 					raw: message,
 					isIntro,
 					parent: this,
-					time: parseInt(args[2]) * 1000 || Date.now()
+					time
 				});
 				if (mssg.target) {
 					mssg.target._waits.forEach(wait => {
@@ -433,8 +432,7 @@ class Client extends EventEmitter {
 					target: Tools.toID(chatWith),
 					raw: message,
 					isIntro: isIntro,
-					parent: this,
-					time: Date.now()
+					parent: this
 				});
 				if (mssg.command && mssg.command === 'error') mssg.target._waits.shift().fail(mssg.content.substr(7));
 				if (mssg.target) {
@@ -461,8 +459,7 @@ class Client extends EventEmitter {
 					}
 				} else {
 					if (value.startsWith('/raw ') && this.status && this.status.loggedIn && typeof this.opts.isTrusted !== 'boolean') {
-						if (value.includes('<small style="color:gray">(trusted)</small>')) this.opts.isTrusted = true;
-						else this.opts.isTrusted = false;
+						this.opts.isTrusted = value.includes('<small style="color:gray">(trusted)</small>');
 						this._activateQueue();
 					}
 				}

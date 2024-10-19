@@ -2,11 +2,11 @@ const debug = process.env.DEBUG;
 
 const assert = require('assert');
 const dotenv = require('dotenv');
-const mocha = require('mocha');
+require('mocha');
 
 dotenv.config();
 
-const { Client, Tools, Data } = require('../client.js');
+const { Client } = require('../client.js');
 
 const Bot = new Client({
 	username: process.env.PS_USERNAME ?? 'PS-Client',
@@ -19,7 +19,7 @@ const Bot = new Client({
 	}
 });
 
-if (debug) Bot.on('line', (room, line, time) => {
+if (debug) Bot.on('line', (room, line) => {
 	if (line.startsWith('|queryresponse|')) return;
 	if (line.startsWith('|c:|')) return;
 	if (line.startsWith('|raw|')) return;
@@ -36,7 +36,7 @@ Bot.on('message', message => {
 describe('PS-Client', () => {
 	before(function () {
 		this.timeout(30_000);
-		return new Promise((resolve, reject) => {
+		return new Promise(resolve => {
 			Bot.connect();
 			Bot.on('ready', () => resolve());
 		});

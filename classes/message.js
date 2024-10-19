@@ -23,8 +23,7 @@ class Message {
 		this.type = type;
 		this.isIntro = Boolean(isIntro);
 		this.awaited = false;
-		if (time) this.time = time * 1000;
-		else this.time = Date.now();
+		this.time = time || Date.now();
 		switch (this.type) {
 			case 'chat':
 				this.target = this.parent.rooms.get(target);
