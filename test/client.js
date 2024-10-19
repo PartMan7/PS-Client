@@ -8,8 +8,11 @@ dotenv.config();
 
 const { Client } = require('../client.js');
 
+const username = process.env.PS_USERNAME ?? 'PS-Client';
+const ifBotIt = username === 'PS-Client' ? it : it.skip;
+
 const Bot = new Client({
-	username: process.env.PS_USERNAME ?? 'PS-Client',
+	username,
 	password: process.env.PASSWORD,
 	rooms: ['botdevelopment'],
 	debug,
@@ -72,6 +75,17 @@ describe('PS-Client', () => {
 		return new Promise((resolve, reject) => {
 			Bot.getUser('PartBot').waitFor(msg => msg.content.includes('PartMan')).then(resolve).catch(reject);
 			Bot.getUser('PartBot').send(',help');
+		});
+	});
+
+	// Test the following only if the user is PS-Client
+
+	ifBotIt('should be able to send HTML', () => {
+		return new Promise((resolve, reject) => {
+			Bot.getRoom('Bot Development')
+				.waitFor(msg => msg.author.id === 'psclient' && /Test/.test(msg.content))
+				.then(resolve);
+			Bot.getRoom('Bot Development').sendHTML('<div style="font-weight: bold">Test</div>');
 		});
 	});
 
