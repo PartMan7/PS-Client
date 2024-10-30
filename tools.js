@@ -131,7 +131,14 @@ exports.update = function update (...types) {
 		pokedex: {
 			url: 'https://play.pokemonshowdown.com/data/pokedex.json',
 			path: './showdown/pokedex.json',
-			name: 'Pokedex'
+			name: 'Pokedex',
+			process: data => {
+				Object.values(data).forEach(pokemon => {
+					pokemon.id = toID(pokemon.name);
+					pokemon.bst = Object.values(pokemon.baseStats).reduce((a, b) => a + b, 0);
+				});
+				return data;
+			}
 		},
 		typechart: {
 			url: 'https://play.pokemonshowdown.com/data/typechart.js',
@@ -158,7 +165,7 @@ exports.update = function update (...types) {
 				});
 			}
 			axios.get(type.url).then(response => {
-				const data = response.data;
+				const data = type.process ? type.process(response.data) : response.data;
 				const writeData = (typeof data === 'string' ? data : JSON.stringify(data)) + (type.append || '');
 				fs.writeFile(path.join(__dirname, type.path), writeData, err => {
 					if (err) return console.error(err.stack);
