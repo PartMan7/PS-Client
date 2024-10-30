@@ -24,19 +24,21 @@ class Room {
 		this.send(`/sendprivatehtmlbox ${user.userid}, ${formatText(text)}`);
 		return true;
 	}
-	sendHTML (html, opts = {}) {
+	sendRawHTML (html, opts = {}) {
 		if (!['*', '#', '&'].includes(this.users.find(u => toID(u) === this.parent.status.userid)?.charAt(0))) return false;
 		if (!html) throw new Error('Missing HTML argument');
 		if (typeof opts === 'string') opts = { name: opts };
 		if (!opts || typeof opts !== 'object') throw new TypeError('Options must be an object');
 		if (!opts.name) opts.name = this.parent.status.username + Date.now().toString(36);
-		inlineCss(html, { url: 'filePath' }).then(formatted => {
-			this.send(`/${opts.change ? 'change' : 'add'}${opts.rank ? 'rank' : ''}uhtml` +
-				` ${opts.rank ? `${opts.rank}, ` : ''}${opts.name}, ${formatted}`);
-		});
+		this.send(`/${opts.change ? 'change' : 'add'}${opts.rank ? 'rank' : ''}uhtml` +
+			` ${opts.rank ? `${opts.rank}, ` : ''}${opts.name}, ${html}`);
 		return true;
 	}
-	privateHTML (user, html, opts = {}) {
+	sendHTML (html, opts = {}) {
+		inlineCss(html, { url: 'filePath' }).then(formatted => this.sendHTML(formatted, opts));
+		return true;
+	}
+	privateRawHTML (user, html, opts = {}) {
 		if (!['*', '#', '&'].includes(this.users.find(u => toID(u) === this.parent.status.userid)?.charAt(0))) return false;
 		user = this.parent.getUser(user);
 		if (!user) return false;
@@ -44,9 +46,11 @@ class Room {
 		if (typeof opts === 'string') opts = { name: opts };
 		if (!opts || typeof opts !== 'object') throw new TypeError('Options must be an object');
 		if (!opts.name) opts.name = this.parent.status.username + Date.now().toString(36);
-		inlineCss(html, { url: 'filePath' }).then(formatted => {
-			this.send(`/${opts.change ? 'change' : 'send'}privateuhtml ${user.userid}, ${opts.name}, ${formatted}`);
-		});
+		this.send(`/${opts.change ? 'change' : 'send'}privateuhtml ${user.userid}, ${opts.name}, ${html}`);
+		return true;
+	}
+	privateHTML (user, html, opts = {}) {
+		inlineCss(html, { url: 'filePath' }).then(formatted => this.privateRawHTML(user, formatted, opts));
 		return true;
 	}
 	waitFor (condition, time) {

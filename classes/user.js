@@ -18,7 +18,7 @@ class User {
 			user.parent.sendQueue(text, resolve, reject);
 		});
 	}
-	sendHTML (html, opts = {}) {
+	sendRawHTML (html, opts = {}) {
 		if (!html) throw new Error('Missing HTML argument');
 		if (typeof opts === 'string') opts = { name: opts };
 		if (!opts || typeof opts !== 'object') throw new TypeError('Options must be an object');
@@ -32,14 +32,14 @@ class User {
 		}
 		const room = rooms.public || rooms.hidden || rooms.private;
 		if (!room) return false;
-		inlineCss(html, {
-			url: 'filePath'
-		}).then(formatted => {
-			room.send(`/pmuhtml${opts.change ? 'change' : ''} ${this.userid}, ${opts.name}, ${formatted}`);
-		});
+		room.send(`/pmuhtml${opts.change ? 'change' : ''} ${this.userid}, ${opts.name}, ${html}`);
 		return true;
 	}
-	pageHTML (html, name) {
+	sendHTML (html, opts = {}) {
+		inlineCss(html, { url: 'filePath' }).then(formatted => this.sendRawHTML(formatted, opts));
+		return true;
+	}
+	pageRawHTML (html, name) {
 		if (!html) throw new Error('Missing HTML argument');
 		if (!name) name = this.parent.status.username + Date.now().toString(36);
 		name = name.toString();
@@ -52,9 +52,11 @@ class User {
 		}
 		const room = rooms.public || rooms.hidden || rooms.private;
 		if (!room) return false;
-		inlineCss(html, { url: 'filePath' }).then(formatted => {
-			room.send(`/sendhtmlpage ${this.userid}, ${name}, ${formatted}`);
-		});
+		room.send(`/sendhtmlpage ${this.userid}, ${name}, ${html}`);
+		return true;
+	}
+	pageHTML (html, name) {
+		inlineCss(html, { url: 'filePath' }).then(formatted => this.pageRawHTML(formatted, name));
 		return true;
 	}
 	waitFor (condition, time = 60_000) {

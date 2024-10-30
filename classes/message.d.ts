@@ -52,6 +52,13 @@ type Message = {
 	 * @param opts - An instance of HTMLopts (name/rank/change)
 	 */
 	sendHTML (html: string, opts?: HTMLopts): boolean;
+	/**
+	 * Sends HTML in the message context (chatroom for 'chat', PMs for 'pm'),
+	 * but without passing it through the HTML processor
+	 * @param html - The HTML to send
+	 * @param opts - An instance of HTMLopts (name/rank/change)
+	 */
+	sendRawHTML (html: string, opts?: HTMLopts): boolean;
 
 	/**
 	 * Privately sends HTML in the message context (chatroom for 'chat', PMs for 'pm')
@@ -59,6 +66,13 @@ type Message = {
 	 * @param opts - An instance of HTMLopts (name/rank/change)
 	 */
 	replyHTML (html: string, opts?: HTMLopts): boolean;
+	/**
+	 * Privately sends HTML in the message context (chatroom for 'chat', PMs for 'pm'),
+	 * but without passing it through the HTML processor
+	 * @param html - The HTML to send
+	 * @param opts - An instance of HTMLopts (name/rank/change)
+	 */
+	replyRawHTML (html: string, opts?: HTMLopts): boolean;
 }
 
 

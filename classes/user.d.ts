@@ -67,6 +67,12 @@ export default class User {
 	 * @param opts An instance of HTMLopts (name/rank/change)
 	 */
 	sendHTML (html: string, opts?: HTMLopts): boolean;
+	/**
+	 * Sends HTML to the user without processing
+	 * @param html The HTML to send
+	 * @param opts An instance of HTMLopts (name/rank/change)
+	 */
+	sendRawHTML (html: string, opts?: HTMLopts): boolean;
 
 	/**
 	 * Sends an HTML page to the user
@@ -74,6 +80,12 @@ export default class User {
 	 * @param name The name of the HTML page
 	 */
 	pageHTML (html: string, name: string): boolean;
+	/**
+	 * Sends an HTML page to the user without processing the HTML
+	 * @param html The HTML to send
+	 * @param name The name of the HTML page
+	 */
+	pageRawHTML (html: string, name: string): boolean;
 
 	/**
 	 * Waits for the first message in the room that fulfills the given condition

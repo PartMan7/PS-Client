@@ -89,6 +89,15 @@ describe('PS-Client', () => {
 		});
 	});
 
+	ifBotIt('should be able to send raw HTML', () => {
+		return new Promise((resolve, reject) => {
+			Bot.getRoom('Bot Development')
+				.waitFor(msg => msg.author.id === 'psclient' && /Test/.test(msg.content))
+				.then(resolve);
+			Bot.getRoom('Bot Development').sendRawHTML('<div class="font-weight: bold">Test</div>');
+		});
+	});
+
 	after(() => {
 		Bot.disconnect();
 	});
