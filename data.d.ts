@@ -8,26 +8,25 @@ type AbilityFlags = Partial<
 	Record<'breakable' | 'cantsuppress' | 'failroleplay' | 'failskillswap' | 'noentrain' | 'noreceiver' | 'notrace' | 'notransform', 1>
 >;
 
+type IsNonstandard = 'CAP' | 'Past' | 'Future' | 'Unobtainable' | 'Gigantamax' | 'LGPE' | null;
 
-export const abilities: Record<
-	string,
-	{
-		isNonstandard?: 'Past' | 'CAP';
-		flags: AbilityFlags;
-		name: string;
-		rating: number;
-		num: number;
-		desc: string;
-		shortDesc: string;
-	}
->;
+export type Ability = {
+	isNonstandard?: 'Past' | 'CAP';
+	flags: AbilityFlags;
+	name: string;
+	rating: number;
+	num: number;
+	desc: string;
+	shortDesc: string;
+};
+export const abilities: Record<string, Ability>;
 
 export const aliases: Record<string, string>;
 
 export const formatsData: Record<
 	string,
 	{
-		isNonstandard?: string;
+		isNonstandard?: IsNonstandard;
 		tier?: string;
 		doublesTier?: string;
 		natDexTier?: string;
@@ -55,38 +54,36 @@ export const formats: (
 	  }
 )[];
 
-export const items: Record<
-	string,
-	{
-		name: string;
-		desc: string;
-		shortDesc: string;
-		gen: number;
-		num: number;
-		spritenum: number;
-		isNonstandard?: 'Past' | 'Unobtainable' | 'CAP';
-		boosts?: StatsTable;
-		condition?: any; // not this
+export type Item = {
+	name: string;
+	desc: string;
+	shortDesc: string;
+	gen: number;
+	num: number;
+	spritenum: number;
+	isNonstandard?: IsNonstandard;
+	boosts?: StatsTable;
+	condition?: any; // not this
 
-		isBerry?: boolean;
-		isPokeball?: boolean;
-		isGem?: boolean;
-		isChoice?: boolean;
-		itemUser?: string[];
-		forcedForme?: string;
-		megaStone?: string;
-		megaEvolves?: string;
-		zMove?: string | boolean;
-		zMoveType?: string;
-		zMoveFrom?: string;
-		naturalGift?: {
-			basePower: number;
-			type: string;
-		};
-		fling?: { basePower: number; status?: string; volatileStatus?: string };
-		ignoreKlutz?: boolean;
-	}
->;
+	isBerry?: boolean;
+	isPokeball?: boolean;
+	isGem?: boolean;
+	isChoice?: boolean;
+	itemUser?: string[];
+	forcedForme?: string;
+	megaStone?: string;
+	megaEvolves?: string;
+	zMove?: string | boolean;
+	zMoveType?: string;
+	zMoveFrom?: string;
+	naturalGift?: {
+		basePower: number;
+		type: string;
+	};
+	fling?: { basePower: number; status?: string; volatileStatus?: string };
+	ignoreKlutz?: boolean;
+};
+export const items: Record<string, Item>;
 
 type MoveSource = `${1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9}${'M' | 'T' | 'L' | 'R' | 'E' | 'D' | 'S' | 'V' | 'C'}${string}`;
 
@@ -108,12 +105,193 @@ type EventInfo = {
 	emeraldEventEgg?: boolean;
 };
 
-type LearnsetData = {
+export type Learnset = {
 	learnset?: Record<string, MoveSource[]>;
 	eventData?: EventInfo[];
 	eventOnly?: boolean;
 	encounters?: EventInfo[];
 	exists?: boolean;
-}
+};
 
-export const learnsets: Record<string, LearnsetData>;
+export const learnsets: Record<string, Learnset>;
+
+type MoveTarget =
+	| 'adjacentAlly'
+	| 'adjacentAllyOrSelf'
+	| 'adjacentFoe'
+	| 'all'
+	| 'allAdjacent'
+	| 'allAdjacentFoes'
+	| 'allies'
+	| 'allySide'
+	| 'allyTeam'
+	| 'any'
+	| 'foeSide'
+	| 'normal'
+	| 'randomNormal'
+	| 'scripted'
+	| 'self';
+
+type MoveFlags = Partial<
+	Record<
+		| 'allyanim'
+		| 'bypasssub'
+		| 'bite'
+		| 'bullet'
+		| 'cantusetwice'
+		| 'charge'
+		| 'contact'
+		| 'dance'
+		| 'defrost'
+		| 'distance'
+		| 'failcopycat'
+		| 'failencore'
+		| 'failinstruct'
+		| 'failmefirst'
+		| 'failmimic'
+		| 'futuremove'
+		| 'gravity'
+		| 'heal'
+		| 'metronome'
+		| 'mirror'
+		| 'mustpressure'
+		| 'noassist'
+		| 'nonsky'
+		| 'noparentalbond'
+		| 'nosketch'
+		| 'nosleeptalk'
+		| 'pledgecombo'
+		| 'powder'
+		| 'protect'
+		| 'pulse'
+		| 'punch'
+		| 'recharge'
+		| 'reflectable'
+		| 'slicing'
+		| 'snatch'
+		| 'sound'
+		| 'wind',
+		1
+	>
+>;
+
+type HitEffect = {
+	boosts?: Partial<StatsTable> | null;
+	status?: string;
+	volatileStatus?: string;
+	sideCondition?: string;
+	slotCondition?: string;
+	pseudoWeather?: string;
+	terrain?: string;
+	weather?: string;
+};
+
+type SecondaryEffect = HitEffect & {
+	chance?: number;
+	ability?: Ability; // TODO
+	dustproof?: boolean;
+	kingsrock?: boolean;
+	self?: HitEffect;
+};
+
+type EffectData = {
+	name?: string;
+	desc?: string;
+	duration?: number;
+	effectType?: string;
+	infiltrates?: boolean;
+	isNonstandard?: IsNonstandard | null;
+	shortDesc?: string;
+};
+
+type Move = EffectData &
+	HitEffect & {
+		name: string;
+		num?: number;
+		condition?: { duration?: number };
+		basePower: number;
+		accuracy: true | number;
+		pp: number;
+		category: 'Physical' | 'Special' | 'Status';
+		type: string;
+		priority: number;
+		target: MoveTarget;
+		flags: MoveFlags;
+		realMove?: string;
+
+		damage?: number | 'level' | false | null;
+		contestType?: string;
+		noPPBoosts?: boolean;
+
+		isZ?: boolean | string;
+		zMove?: {
+			basePower?: number;
+			effect?: string;
+			boost?: Partial<StatsTable>;
+		};
+
+		isMax?: boolean | string;
+		maxMove?: {
+			basePower: number;
+		};
+
+		ohko?: boolean | 'Ice';
+		thawsTarget?: boolean;
+		heal?: number[] | null;
+		forceSwitch?: boolean;
+		selfSwitch?: 'copyvolatile' | 'shedtail' | boolean;
+		selfBoost?: { boosts?: Partial<StatsTable> }; // TODO
+		selfdestruct?: 'always' | 'ifHit' | boolean;
+		breaksProtect?: boolean;
+
+		recoil?: [number, number];
+		drain?: [number, number];
+		mindBlownRecoil?: boolean;
+		stealsBoosts?: boolean;
+		struggleRecoil?: boolean;
+		secondary?: SecondaryEffect | null;
+		secondaries?: SecondaryEffect[] | null;
+		self?: SecondaryEffect | null;
+		hasSheerForce?: boolean;
+
+		alwaysHit?: boolean;
+		baseMoveType?: string;
+		basePowerModifier?: number;
+		critModifier?: number;
+		critRatio?: number;
+		overrideOffensivePokemon?: 'target' | 'source';
+		overrideOffensiveStat?: string;
+		overrideDefensivePokemon?: 'target' | 'source';
+		overrideDefensiveStat?: string;
+		forceSTAB?: boolean;
+		ignoreAbility?: boolean;
+		ignoreAccuracy?: boolean;
+		ignoreDefensive?: boolean;
+		ignoreEvasion?: boolean;
+		ignoreImmunity?: boolean | { [typeName: string]: boolean };
+		ignoreNegativeOffensive?: boolean;
+		ignoreOffensive?: boolean;
+		ignorePositiveDefensive?: boolean;
+		ignorePositiveEvasion?: boolean;
+		multiaccuracy?: boolean;
+		multihit?: number | number[];
+		multihitType?: 'parentalbond';
+		noDamageVariance?: boolean;
+		nonGhostTarget?: MoveTarget;
+		pressureTarget?: MoveTarget;
+		spreadModifier?: number;
+		sleepUsable?: boolean;
+		smartTarget?: boolean;
+		tracksTarget?: boolean;
+		willCrit?: boolean;
+		callsMove?: boolean;
+
+		hasCrashDamage?: boolean;
+		isConfusionSelfHit?: boolean;
+		stallingMove?: boolean;
+		baseMove?: string;
+
+		basePowerCallback?: true;
+	};
+
+export const moves: Record<string, Move>;
