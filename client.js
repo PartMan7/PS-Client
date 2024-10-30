@@ -10,7 +10,8 @@ const User = require('./classes/user.js');
 const Room = require('./classes/room.js');
 const Message = require('./classes/message.js');
 const Tools = require('./tools.js');
-const Data = {};
+
+const Data = require('./data.js');
 
 class Client extends EventEmitter {
 	constructor (opts = {}) {
@@ -552,17 +553,6 @@ class Client extends EventEmitter {
 		return `${options.stylize('PS-Client', 'special')} ${inspect(logObj, options)}`;
 	}
 }
-
-
-Data.abilities = require('./showdown/abilities.js').BattleAbilities;
-Data.aliases = require('./showdown/aliases.js').BattleAliases;
-Data.formatsData = require('./showdown/formats-data.js').BattleFormatsData;
-Data.formats = require('./showdown/formats.js').Formats;
-Data.items = require('./showdown/items.js').BattleItems;
-Data.learnsets = require('./showdown/learnsets.js').BattleLearnsets;
-Data.moves = require('./showdown/moves.json');
-Data.pokedex = require('./showdown/pokedex.json');
-Data.typechart = require('./showdown/typechart.js').BattleTypeChart;
 
 
 module.exports = {
