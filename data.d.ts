@@ -188,7 +188,7 @@ type HitEffect = {
 
 type SecondaryEffect = HitEffect & {
 	chance?: number;
-	ability?: Ability; // TODO
+	ability?: Ability;
 	dustproof?: boolean;
 	kingsrock?: boolean;
 	self?: HitEffect;
@@ -240,7 +240,7 @@ type Move = EffectData &
 		heal?: number[] | null;
 		forceSwitch?: boolean;
 		selfSwitch?: 'copyvolatile' | 'shedtail' | boolean;
-		selfBoost?: { boosts?: Partial<StatsTable> }; // TODO
+		selfBoost?: { boosts?: Partial<StatsTable> };
 		selfdestruct?: 'always' | 'ifHit' | boolean;
 		breaksProtect?: boolean;
 
@@ -295,3 +295,34 @@ type Move = EffectData &
 	};
 
 export const moves: Record<string, Move>;
+
+export type Types =
+	| 'Bug'
+	| 'Dark'
+	| 'Dragon'
+	| 'Electric'
+	| 'Fairy'
+	| 'Fighting'
+	| 'Fire'
+	| 'Flying'
+	| 'Ghost'
+	| 'Grass'
+	| 'Ground'
+	| 'Ice'
+	| 'Normal'
+	| 'Poison'
+	| 'Psychic'
+	| 'Rock'
+	| 'Steel'
+	| 'Stellar'
+	| 'Water';
+
+export const typechart: Record<
+	Lowercase<Types>,
+	{
+		damageTaken: Record<Types, 0 | 1 | 2 | 3> &
+			Partial<Record<'prankster' | 'brn' | 'trapped' | 'powder' | 'par' | 'sandstorm' | 'hail' | 'frz' | 'psn' | 'tox', 0 | 3>>;
+		HPivs?: Partial<StatsTable>;
+		HPdvs?: Partial<StatsTable>;
+	}
+>;
