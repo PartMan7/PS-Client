@@ -1,7 +1,9 @@
 // Rough-ish outline of data from Showdown
 // Help here in getting simpler/more accurate types would be greatly appreciated
 
-// Reference: https://github.com/smogon/pokemon-showdown/blob/master/sim/dex-abilities.ts#L13
+type Stats = 'atk' | 'def' | 'spa' | 'spd' | 'spe' | 'hp';
+type StatsTable = Record<Stats, number>;
+
 interface AbilityFlags {
 	breakable?: 1; // Can be suppressed by Mold Breaker and related effects
 	cantsuppress?: 1; // Ability can't be suppressed by e.g. Gastro Acid or Neutralizing Gas
@@ -56,7 +58,7 @@ export const formats: (
 			bestOfDefault?: boolean;
 			restricted?: string[];
 			teraPreviewDefault?: boolean;
-		}
+	  }
 )[];
 
 export const items: Record<
@@ -69,7 +71,7 @@ export const items: Record<
 		num: number;
 		spritenum: number;
 		isNonstandard?: 'Past' | 'Unobtainable' | 'CAP';
-		boosts?: Record<string, number>;
+		boosts?: StatsTable;
 		condition?: any; // not this
 
 		isBerry?: boolean;
@@ -91,3 +93,33 @@ export const items: Record<
 		ignoreKlutz?: boolean;
 	}
 >;
+
+type MoveSource = `${1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9}${'M' | 'T' | 'L' | 'R' | 'E' | 'D' | 'S' | 'V' | 'C'}${string}`;
+
+type EventInfo = {
+	generation: number;
+	level?: number;
+	shiny?: boolean | 1;
+	gender?: 'M' | 'F' | 'N' | '';
+	nature?: string;
+	ivs?: Partial<StatsTable>;
+	perfectIVs?: number;
+	isHidden?: boolean;
+	abilities?: string[];
+	maxEggMoves?: number;
+	moves?: string[];
+	pokeball?: string;
+	from?: string;
+	japan?: boolean;
+	emeraldEventEgg?: boolean;
+};
+
+export interface LearnsetData {
+	learnset?: Record<string, MoveSource[]>;
+	eventData?: EventInfo[];
+	eventOnly?: boolean;
+	encounters?: EventInfo[];
+	exists?: boolean;
+}
+
+export const learnsets: Record<string, LearnsetData>;
