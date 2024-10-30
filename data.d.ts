@@ -3,12 +3,12 @@
 
 type Stats = 'atk' | 'def' | 'spa' | 'spd' | 'spe' | 'hp';
 type StatsTable = Record<Stats, number>;
+type IsNonstandard = 'CAP' | 'Past' | 'Future' | 'Unobtainable' | 'Gigantamax' | 'LGPE' | 'Custom' | null;
+type Gender = 'M' | 'F' | 'N' | '';
 
 type AbilityFlags = Partial<
 	Record<'breakable' | 'cantsuppress' | 'failroleplay' | 'failskillswap' | 'noentrain' | 'noreceiver' | 'notrace' | 'notransform', 1>
 >;
-
-type IsNonstandard = 'CAP' | 'Past' | 'Future' | 'Unobtainable' | 'Gigantamax' | 'LGPE' | null;
 
 export type Ability = {
 	isNonstandard?: 'Past' | 'CAP';
@@ -74,11 +74,11 @@ export type Item = {
 	megaStone?: string;
 	megaEvolves?: string;
 	zMove?: string | boolean;
-	zMoveType?: Lowercase<Types>;
+	zMoveType?: Types;
 	zMoveFrom?: string;
 	naturalGift?: {
 		basePower: number;
-		type: Lowercase<Types>;
+		type: Types;
 	};
 	fling?: { basePower: number; status?: string; volatileStatus?: string };
 	ignoreKlutz?: boolean;
@@ -91,7 +91,7 @@ type EventInfo = {
 	generation: number;
 	level?: number;
 	shiny?: boolean | 1;
-	gender?: 'M' | 'F' | 'N' | '';
+	gender?: Gender;
 	nature?: string;
 	ivs?: Partial<StatsTable>;
 	perfectIVs?: number;
@@ -213,7 +213,7 @@ type Move = EffectData &
 		accuracy: true | number;
 		pp: number;
 		category: 'Physical' | 'Special' | 'Status';
-		type: Lowercase<Types>;
+		type: Types;
 		priority: number;
 		target: MoveTarget;
 		flags: MoveFlags;
@@ -255,9 +255,6 @@ type Move = EffectData &
 		hasSheerForce?: boolean;
 
 		alwaysHit?: boolean;
-		baseMoveType?: Lowercase<Types>;
-		basePowerModifier?: number;
-		critModifier?: number;
 		critRatio?: number;
 		overrideOffensivePokemon?: 'target' | 'source';
 		overrideOffensiveStat?: string;
@@ -295,6 +292,71 @@ type Move = EffectData &
 	};
 
 export const moves: Record<string, Move>;
+
+export type Species = {
+	id: string;
+	gen?: number; // TODO: Generate this in process
+	name: string;
+	num: number;
+	baseSpecies?: string;
+	forme?: string;
+	baseForme?: string;
+	cosmeticFormes?: string[];
+	otherFormes?: string[];
+	formeOrder?: string[];
+	spriteid?: string;
+	abilities: {
+		0: string;
+		1?: string;
+		H?: string;
+		S?: string;
+	};
+	types: Types[];
+	addedType?: string;
+	prevo?: string;
+	evos?: string[];
+	evoType?: 'trade' | 'useItem' | 'levelMove' | 'levelExtra' | 'levelFriendship' | 'levelHold' | 'other';
+	evoCondition?: string;
+	evoItem?: string;
+	evoMove?: string;
+	evoRegion?: 'Alola' | 'Galar';
+	evoLevel?: number;
+	nfe?: boolean;
+	eggGroups: string[];
+	canHatch?: boolean;
+	gender?: Gender;
+	genderRatio?: { M: number; F: number };
+	baseStats: StatsTable;
+	maxHP?: number;
+	bst: number;
+	weightkg: number;
+	weighthg?: number;
+	heightm: number;
+	color: string;
+	tags?: ('Mythical' | 'Restricted Legendary' | 'Sub-Legendary' | 'Ultra Beast' | 'Paradox')[];
+	isNonstandard?: IsNonstandard;
+	unreleasedHidden?: boolean | 'Past';
+	maleOnlyHidden?: boolean;
+	mother?: string;
+	isMega?: boolean;
+	isPrimal?: boolean;
+	canGigantamax?: string;
+	gmaxUnreleased?: boolean;
+	cannotDynamax?: boolean;
+	forceTeraType?: string;
+	battleOnly?: string | string[];
+	requiredItem?: string;
+	requiredMove?: string;
+	requiredAbility?: string;
+	requiredItems?: string[];
+	changesFrom?: string;
+	pokemonGoData?: string[];
+	tier?: string;
+	doublesTier?: string;
+	natDexTier?: string;
+};
+
+export const pokedex: Record<string, Species>;
 
 export type Types =
 	| 'Bug'
