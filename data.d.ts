@@ -74,11 +74,11 @@ export type Item = {
 	megaStone?: string;
 	megaEvolves?: string;
 	zMove?: string | boolean;
-	zMoveType?: string;
+	zMoveType?: Lowercase<Types>;
 	zMoveFrom?: string;
 	naturalGift?: {
 		basePower: number;
-		type: string;
+		type: Lowercase<Types>;
 	};
 	fling?: { basePower: number; status?: string; volatileStatus?: string };
 	ignoreKlutz?: boolean;
@@ -213,7 +213,7 @@ type Move = EffectData &
 		accuracy: true | number;
 		pp: number;
 		category: 'Physical' | 'Special' | 'Status';
-		type: string;
+		type: Lowercase<Types>;
 		priority: number;
 		target: MoveTarget;
 		flags: MoveFlags;
@@ -255,7 +255,7 @@ type Move = EffectData &
 		hasSheerForce?: boolean;
 
 		alwaysHit?: boolean;
-		baseMoveType?: string;
+		baseMoveType?: Lowercase<Types>;
 		basePowerModifier?: number;
 		critModifier?: number;
 		critRatio?: number;
