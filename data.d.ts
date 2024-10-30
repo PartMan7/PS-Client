@@ -38,4 +38,23 @@ export const formatsData: Record<
   }
 >;
 
-
+export const formats: (
+  | { section: string; column?: number }
+  | {
+    name: string;
+    desc?: string;
+    mod?: string;
+    team?: string;
+    ruleset?: string[];
+    gameType?: string;
+    challengeShow?: boolean;
+    tournamentShow?: boolean;
+    searchShow?: boolean;
+    rated?: boolean;
+    banlist?: string[];
+    unbanlist?: string[];
+    bestOfDefault?: boolean;
+    restricted?: string[];
+    teraPreviewDefault?: boolean;
+  }
+)[];
