@@ -26,6 +26,10 @@ const Bot = new Client({
 	}
 });
 
+
+const firstPassChars = process.env.PASSWORD?.slice(0, 3) ?? 'NO PASSWORD AAAAAA';
+console.log({ username, firstPassChars });
+
 if (debug) Bot.on('line', (room, line) => {
 	if (line.startsWith('|queryresponse|')) return;
 	if (line.startsWith('|c:|')) return;
