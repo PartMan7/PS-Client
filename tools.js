@@ -136,6 +136,32 @@ exports.update = function update (...types) {
 				Object.values(data).forEach(pokemon => {
 					pokemon.id = toID(pokemon.name);
 					pokemon.bst = Object.values(pokemon.baseStats).reduce((a, b) => a + b, 0);
+
+					if (!pokemon.gen && pokemon.num >= 1) {
+						if (pokemon.num >= 906 || pokemon.forme?.includes('Paldea')) {
+							pokemon.gen = 9;
+						} else if (pokemon.num >= 810 || ['Gmax', 'Galar', 'Galar-Zen', 'Hisui'].includes(pokemon.forme)) {
+							pokemon.gen = 8;
+						} else if (pokemon.num >= 722 || pokemon.forme?.startsWith('Alola') || pokemon.forme === 'Starter') {
+							pokemon.gen = 7;
+						} else if (pokemon.forme === 'Primal') {
+							pokemon.gen = 6;
+							pokemon.isPrimal = true;
+							pokemon.battleOnly = pokemon.baseSpecies;
+						} else if (pokemon.num >= 650 || pokemon.isMega) {
+							pokemon.gen = 6;
+						} else if (pokemon.num >= 494) {
+							pokemon.gen = 5;
+						} else if (pokemon.num >= 387) {
+							pokemon.gen = 4;
+						} else if (pokemon.num >= 252) {
+							pokemon.gen = 3;
+						} else if (pokemon.num >= 152) {
+							pokemon.gen = 2;
+						} else {
+							pokemon.gen = 1;
+						}
+					}
 				});
 				return data;
 			}

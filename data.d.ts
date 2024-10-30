@@ -295,9 +295,9 @@ export const moves: Record<string, Move>;
 
 export type Species = {
 	id: string;
-	gen?: number; // TODO: Generate this in process
 	name: string;
 	num: number;
+	gen?: number;
 	baseSpecies?: string;
 	forme?: string;
 	baseForme?: string;
