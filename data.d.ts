@@ -23,5 +23,7 @@ export const abilities: Record<string, {
   shortDesc: string;
 }>;
 
+export const aliases: Record<string, string>;
+
 
 
