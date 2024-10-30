@@ -13,17 +13,29 @@ interface AbilityFlags {
   notransform?: 1; // Disables the Ability if the user is Transformed
 }
 
-export const abilities: Record<string, {
-  isNonstandard?: 'Past' | 'CAP';
-  flags: AbilityFlags;
-  name: string;
-  rating: number;
-  num: number;
-  desc: string;
-  shortDesc: string;
-}>;
+export const abilities: Record<
+  string,
+  {
+    isNonstandard?: 'Past' | 'CAP';
+    flags: AbilityFlags;
+    name: string;
+    rating: number;
+    num: number;
+    desc: string;
+    shortDesc: string;
+  }
+>;
 
 export const aliases: Record<string, string>;
 
+export const formatsData: Record<
+  string,
+  {
+    isNonstandard?: string;
+    tier?: string;
+    doublesTier?: string;
+    natDexTier?: string;
+  }
+>;
 
 
