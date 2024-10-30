@@ -1,4 +1,4 @@
-# Documentaation
+# Documentation
 
 ### Client Structure
 Client is an instance of an EventEmitter, and is the primary class. You can generate multiple Clients in the same script and execute them in parallel.

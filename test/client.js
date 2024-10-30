@@ -1,6 +1,7 @@
 const debug = process.env.DEBUG;
 
 const assert = require('assert');
+const chalk = require('chalk');
 const dotenv = require('dotenv');
 require('mocha');
 
@@ -9,6 +10,9 @@ dotenv.config();
 const { Client } = require('../client.js');
 
 const username = process.env.PS_USERNAME ?? 'PS-Client';
+
+const indent = num => ' '.repeat(num * 2);
+
 const ifBotIt = username === 'PS-Client' ? it : it.skip;
 
 const Bot = new Client({
@@ -33,7 +37,7 @@ if (debug) Bot.on('line', (room, line) => {
 Bot.on('message', message => {
 	if (message.isIntro) return;
 	if (debug) console.log(message);
-	else if (['partbot', 'psclient'].includes(message.author.id)) console.log(`    ${message.raw}`);
+	else if (['partbot', 'psclient'].includes(message.author.id)) console.log(chalk.dim(`${indent(3)}${message.raw}`));
 });
 
 describe('PS-Client', () => {
@@ -94,11 +98,12 @@ describe('PS-Client', () => {
 			Bot.getRoom('Bot Development')
 				.waitFor(msg => msg.author.id === 'psclient' && /Test/.test(msg.content))
 				.then(resolve);
-			Bot.getRoom('Bot Development').sendRawHTML('<div class="font-weight: bold">Test</div>');
+			Bot.getRoom('Bot Development').sendRawHTML('<div style="font-weight: bold">Test</div>');
 		});
 	});
 
 	after(() => {
+		console.log(chalk.dim(`${indent(2)}Disconnecting...`));
 		Bot.disconnect();
 	});
 });

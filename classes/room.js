@@ -35,7 +35,7 @@ class Room {
 		return true;
 	}
 	sendHTML (html, opts = {}) {
-		inlineCss(html, { url: 'filePath' }).then(formatted => this.sendHTML(formatted, opts));
+		inlineCss(html, { url: 'filePath' }).then(formatted => this.sendRawHTML(formatted, opts));
 		return true;
 	}
 	privateRawHTML (user, html, opts = {}) {
