@@ -1,5 +1,8 @@
 ## What's New
 
+**v3.7.0**
+* Adds raw variants for all HTML methods to bypass formatting with inlineCss.
+
 **v3.6.2**
 * Adds optional types for `chat.js` (which shouldn't be directly imported).
 
