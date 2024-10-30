@@ -2,13 +2,13 @@ name: Node.js CI
 
 on:
   push:
-    branches: [ master ]
+    branches: [ main ]
     paths-ignore:
         - 'LICENSE'
         - 'README.md'
         - 'CHANGELOG.md'
   pull_request:
-    branches: [ master ]
+    branches: [ main ]
     paths-ignore:
         - 'LICENSE'
         - 'README.md'
