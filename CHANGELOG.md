@@ -1,5 +1,8 @@
 ## What's New
 
+**v3.6.2**
+* Adds optional types for `chat.js` (which shouldn't be directly imported).
+
 **v3.6.1**
 * Fixes invalid time values for `|c:|` messages.
 
