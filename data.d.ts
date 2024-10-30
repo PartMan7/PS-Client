@@ -114,7 +114,7 @@ type EventInfo = {
 	emeraldEventEgg?: boolean;
 };
 
-export interface LearnsetData {
+type LearnsetData = {
 	learnset?: Record<string, MoveSource[]>;
 	eventData?: EventInfo[];
 	eventOnly?: boolean;
