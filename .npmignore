@@ -7,6 +7,6 @@ package-lock.json
 .eslintignore
 .eslintrc.json
 
-test
+**/*.test.js
 
 .env

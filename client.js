@@ -34,12 +34,9 @@ class Client extends EventEmitter {
 			throttle: null,
 			noFailMessages: false
 		};
-		this._utilOptEntries = ['username', 'password'];
 		Object.assign(this.opts, opts);
-		this._utilOptEntries.push(...Object.keys(opts));
 		this.opts[customInspectSymbol] = (depth, options, inspect) => {
-			const clonedOpts = {};
-			this._utilOptEntries.forEach(key => clonedOpts[key] = this.opts[key]);
+			const clonedOpts = { ...this.opts };
 			clonedOpts.password = '########';
 			return clonedOpts;
 		};
@@ -134,6 +131,7 @@ class Client extends EventEmitter {
 		this.ready = false;
 		this.inited = false;
 		clearInterval(this.queueTimer);
+		console.log('Disconnect was called');
 		this.connection?.close();
 	}
 	async login (name, pass) {

@@ -1,80 +1,76 @@
-const assert = require('node:assert');
 const axios = require('axios');
-
-const Tools = require('../tools.js');
+const Tools = require('./tools.js');
 
 describe('toID', () => {
-	it('should return IDs properly', () => assert.equal('partman', Tools.toID('PartMan!')));
+	it('should return IDs properly', () => expect(Tools.toID('PartMan!')).toBe('partman'));
 });
 
 describe('HSL', () => {
 	it('should return the right non-custom HSL', () => {
-		assert.deepEqual(Tools.HSL('PartBot'), { source: 'partbot', hsl: [265, 50, 57.86516676840277] });
+		expect(Tools.HSL('PartBot')).toEqual({ source: 'partbot', hsl: [265, 50, 57.86516676840277] });
 	});
 	it('should return the right custom HSL', () => {
-		assert.deepEqual(Tools.HSL('PartMan').hsl, [21, 88, 49]);
+		expect(Tools.HSL('PartMan').hsl).toEqual([21, 88, 49]);
 	});
 	it('should return the right original HSL', () => {
-		assert.deepEqual(Tools.HSL('PartMan', true).hsl, [162, 84, 33]);
+		expect(Tools.HSL('PartMan', true).hsl).toEqual([162, 84, 33]);
 	});
 	it('should also import new custom colors', () => {
-		assert.deepEqual(Tools.HSL('style.css').hsl, [258, 62, 56.12230272578728]);
+		expect(Tools.HSL('style.css').hsl).toEqual([258, 62, 56.12230272578728]);
 	});
 });
 
 describe('uploadToPastie', function () {
-	this.timeout(10_000);
 	it('should upload the given text', async () => {
 		const paste = await Tools.uploadToPastie('Test');
 		const { data } = await axios.get(paste);
-		assert.equal(data, 'Test');
+		expect(data).toBe('Test');
 	});
 });
 
 describe('escapeHTML', () => {
 	it('should escape HTML correctly', () => {
-		assert.equal(Tools.escapeHTML('You\'ve <b>lost the game</b>!'), 'You&apos;ve &lt;b&gt;lost the game&lt;&#x2f;b&gt;!');
+		expect(Tools.escapeHTML('You\'ve <b>lost the game</b>!')).toBe('You&apos;ve &lt;b&gt;lost the game&lt;&#x2f;b&gt;!');
 	});
 });
 
 describe('unescapeHTML', () => {
 	it('should unescape HTML correctly', () => {
-		assert.equal(Tools.unescapeHTML('You&apos;ve &lt;b&gt;lost the game&lt;&#x2f;b&gt;!'), 'You\'ve <b>lost the game</b>!');
+		expect(Tools.unescapeHTML('You&apos;ve &lt;b&gt;lost the game&lt;&#x2f;b&gt;!')).toBe('You\'ve <b>lost the game</b>!');
 	});
 });
 
 describe('formatText', () => {
 	it('should format bold correctly', () => {
-		assert.equal(Tools.formatText('regular **bold**'), 'regular <b>bold</b>');
+		expect(Tools.formatText('regular **bold**')).toBe('regular <b>bold</b>');
 	});
 	it('should format italics correctly', () => {
-		assert.equal(Tools.formatText('regular __italic__'), 'regular <i>italic</i>');
+		expect(Tools.formatText('regular __italic__')).toBe('regular <i>italic</i>');
 	});
 	it('should format striked correctly', () => {
-		assert.equal(Tools.formatText('regular ~~striked~~'), 'regular <s>striked</s>');
+		expect(Tools.formatText('regular ~~striked~~')).toBe('regular <s>striked</s>');
 	});
 	it('should format superscript correctly', () => {
-		assert.equal(Tools.formatText('regular ^^up^^'), 'regular <sup>up</sup>');
+		expect(Tools.formatText('regular ^^up^^')).toBe('regular <sup>up</sup>');
 	});
 	it('should format subscript correctly', () => {
-		assert.equal(Tools.formatText('regular \\\\down\\\\'), 'regular <sub>down</sub>');
+		expect(Tools.formatText('regular \\\\down\\\\')).toBe('regular <sub>down</sub>');
 	});
 	it('should format spoilers correctly (||spoiler||)', () => {
-		assert.equal(Tools.formatText('regular ||text||'), 'regular <span class="spoiler">text</span>');
+		expect(Tools.formatText('regular ||text||')).toBe('regular <span class="spoiler">text</span>');
 	});
 	it('should format spoilers correctly (spoiler: )', () => {
-		assert.equal(Tools.formatText('regular spoiler: text'), 'regular spoiler: <span class="spoiler">text</span>');
+		expect(Tools.formatText('regular spoiler: text')).toBe('regular spoiler: <span class="spoiler">text</span>');
 	});
 	it('should format links correctly', () => {
-
-		assert.equal(
-			Tools.formatText('regular [[link]]'),
+		expect(
+			Tools.formatText('regular [[link]]')).toBe(
 			'regular <a href="//www.google.com/search?ie=UTF-8&btnI&q=link" target="_blank">link</a>'
 		);
 	});
 	it('should format named links correctly', () => {
-		assert.equal(
-			Tools.formatText('regular [[name<link>]]'),
+		expect(
+			Tools.formatText('regular [[name<link>]]')).toBe(
 			'regular <a href="link" rel="noopener" target="_blank">name<small> &lt;link&gt;</small></a>'
 		);
 	});

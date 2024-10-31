@@ -1,19 +1,13 @@
 const debug = process.env.DEBUG;
 
-const assert = require('assert');
 const chalk = require('chalk');
 const dotenv = require('dotenv');
-require('mocha');
 
 dotenv.config();
 
-const { Client } = require('../client.js');
+const { Client } = require('./client.js');
 
 const username = process.env.PS_USERNAME ?? 'PS-Client';
-
-const indent = num => ' '.repeat(num * 2);
-
-const ifBotIt = username === 'PS-Client' ? it : it.skip;
 
 const Bot = new Client({
 	username,
@@ -37,24 +31,23 @@ if (debug) Bot.on('line', (room, line) => {
 Bot.on('message', message => {
 	if (message.isIntro) return;
 	if (debug) console.log(message);
-	else if (['partbot', 'psclient'].includes(message.author.id)) console.log(chalk.dim(`${indent(3)}${message.raw}`));
+	else if (['partbot', 'psclient'].includes(message.author.id)) console.log(chalk.dim(`${message.raw}`));
 });
 
 describe('PS-Client', () => {
-	before(function () {
-		this.timeout(30_000);
+	beforeAll(() => {
 		return new Promise(resolve => {
 			Bot.connect();
 			Bot.on('ready', () => resolve());
 		});
-	});
+	}, 60_000);
 
 	it('should be connected', () => {
-		assert(Bot.status.connected);
+		expect(Bot.status.connected).toBe(true);
 	});
 
 	it('should be in BotDev', () => {
-		assert(Bot.getRoom('Bot Development'));
+		expect(Bot.getRoom('Bot Development')).toBeDefined();
 	});
 
 	it('should be able to send chat messages', () => {
@@ -84,26 +77,28 @@ describe('PS-Client', () => {
 
 	// Test the following only if the user is PS-Client
 
-	ifBotIt('should be able to send HTML', () => {
+	it('should be able to send HTML', () => {
 		return new Promise((resolve, reject) => {
 			Bot.getRoom('Bot Development')
 				.waitFor(msg => msg.author.id === 'psclient' && /Test/.test(msg.content))
-				.then(resolve);
+				.then(resolve)
+				.catch(reject);
 			Bot.getRoom('Bot Development').sendHTML('<div style="font-weight: bold">Test</div>');
 		});
 	});
 
-	ifBotIt('should be able to send raw HTML', () => {
+	it('should be able to send raw HTML', () => {
 		return new Promise((resolve, reject) => {
 			Bot.getRoom('Bot Development')
 				.waitFor(msg => msg.author.id === 'psclient' && /Test/.test(msg.content))
-				.then(resolve);
+				.then(resolve)
+				.catch(reject);
 			Bot.getRoom('Bot Development').sendRawHTML('<div style="font-weight: bold">Test</div>');
 		});
 	});
 
-	after(() => {
-		console.log(chalk.dim(`${indent(2)}Disconnecting...`));
+	afterAll(() => {
+		console.log(chalk.dim(`Disconnecting...`));
 		Bot.disconnect();
 	});
 });
