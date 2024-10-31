@@ -24,7 +24,7 @@ const roomInitData = [
 	`>botdevelopment
 			|raw|<div class="infobox"> You joined Bot Development</div>
 			|raw|<div class="infobox infobox-roomintro"><div class="infobox-limited">Roomintro</div></div>`,
-].map(text => text.trim().replaceAll(/\t+/g, ''));
+].map(text => text.trim().replace(/\t+/g, ''));
 
 class Connection extends EventEmitter {
 	constructor(props) {
