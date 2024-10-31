@@ -352,10 +352,6 @@ class Client extends EventEmitter {
 				break;
 			}
 			case 'html': {
-				if (this.status.loggedIn && typeof this.opts.isTrusted !== 'boolean') {
-					this.opts.isTrusted = !!message.includes('<small style="color:gray">(trusted)</small>');
-					this._activateQueue();
-				}
 				this.emit('html', room, args.slice(2).join('|'), isIntro);
 				break;
 			}
@@ -477,9 +473,13 @@ class Client extends EventEmitter {
 						}
 					}
 				} else {
-					if (value.startsWith('/raw ') && this.status && this.status.loggedIn && typeof this.opts.isTrusted !== 'boolean') {
-						this.opts.isTrusted = value.includes('<small style="color:gray">(trusted)</small>');
-						this._activateQueue();
+					if (value.startsWith('/raw ') && this.status?.loggedIn) {
+						const oldValue = this.opts.isTrusted;
+						this.isTrusted = value.includes('<small style="color:gray">(trusted)</small>');
+						if (typeof oldValue !== 'boolean') {
+							this.emit('activate');
+							this._activateQueue();
+						}
 					}
 				}
 				this.emit('message', mssg);

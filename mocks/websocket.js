@@ -50,7 +50,20 @@ class Connection extends EventEmitter {
 			}
 			// /ip
 			if (message === '|/ip') {
-				// TODO
+				this.receive(
+					`|pm| PS-Client|~|/raw
+					 <div class="infobox">
+						<strong class="username">
+							<small style="display:none"> </small>PS-Client
+						</strong>
+						  <small style="color:gray">(ac)</small>
+						 <small style="color:gray">(trusted)</small>
+						<br />
+						 IP: <a>IP</a>
+						<br />
+						Hidden rooms: *<a href="/botdevelopment">botdevelopment</a>
+					</div>`.replace(/[\n\t]/g, '')
+				);
 			}
 			// /cmd details
 			if (message.startsWith('|/cmd ')) {

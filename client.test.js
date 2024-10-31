@@ -1,9 +1,5 @@
-/* eslint-disable no-console -- Test file */
-const debug = process.env.DEBUG;
-
-const chalk = require('chalk');
-
 const { Client } = require('./client.js');
+const chalk = require('chalk');
 
 const Bot = new Client({
 	username: 'PS-Client',
@@ -18,12 +14,13 @@ describe('PS-Client', () => {
 	beforeAll(() => {
 		return new Promise(resolve => {
 			Bot.connect();
-			Bot.on('ready', () => resolve());
+			Bot.on('activate', () => resolve());
 		});
-	}, 60_000);
+	});
 
-	it('should be connected', () => {
+	it('should have the right info', () => {
 		expect(Bot.status.connected).toBe(true);
+		expect(Bot.isTrusted).toBe(true);
 	});
 
 	it('should be in BotDev', () => {
@@ -81,7 +78,7 @@ describe('PS-Client', () => {
 	});
 
 	afterAll(() => {
-		require('console').log(chalk.red('xx'), chalk.dim('Disconnecting...'));
+		require('console').log(chalk.red('xx'), chalk.dim('Disconnecting...'), '\n');
 		Bot.disconnect();
 	});
 });
