@@ -22,8 +22,7 @@
 		"url": "https://github.com/PartMan7/PS-Client.git"
 	},
 	"dependencies": {
-		"axios": "^0.28.0",
-		"juice": "^11.0.0",
+		"axios": "^1.7.7",
 		"websocket": "^1.0.31"
 	},
 	"devDependencies": {
