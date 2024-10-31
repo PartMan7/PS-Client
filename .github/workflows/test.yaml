@@ -2,17 +2,17 @@ name: Node.js CI
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
     paths-ignore:
-        - 'LICENSE'
-        - 'README.md'
-        - 'CHANGELOG.md'
+      - 'LICENSE'
+      - 'README.md'
+      - 'CHANGELOG.md'
   pull_request:
-    branches: [ main ]
+    branches: [main]
     paths-ignore:
-        - 'LICENSE'
-        - 'README.md'
-        - 'CHANGELOG.md'
+      - 'LICENSE'
+      - 'README.md'
+      - 'CHANGELOG.md'
 
 jobs:
   test:
@@ -24,12 +24,12 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-    - uses: actions/checkout@v3
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v3
-      with:
-        node-version: ${{ matrix.node-version }}
-    - run: npm install
-    - run: npm test
-      env:
-        PASSWORD: ${{ secrets.PASSWORD }}
+      - uses: actions/checkout@v3
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+      - run: npm install
+      - run: npm test
+        env:
+          PASSWORD: ${{ secrets.PASSWORD }}
