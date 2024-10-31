@@ -14,7 +14,6 @@ type MessageOpts = {
 	time: void | number;
 };
 
-
 type Message = {
 	author: User;
 	content: string;
@@ -24,56 +23,58 @@ type Message = {
 	isIntro: boolean;
 	awaited: boolean;
 	time: number;
-} & ({
-	type: 'chat';
-	target: Room
-} | {
-	type: 'pm';
-	target: User;
-}) & {
-	constructor (input: MessageOpts): void;
+} & (
+	| {
+			type: 'chat';
+			target: Room;
+	  }
+	| {
+			type: 'pm';
+			target: User;
+	  }
+) & {
+		constructor(input: MessageOpts): void;
 
-	/**
-	 * Responds to the message
-	 * @param text - The text to respond (to the message) with
-	 * @returns A promise that resolves when the message is sent successfully
-	 */
-	reply (text: string): Promise<Message>;
+		/**
+		 * Responds to the message
+		 * @param text - The text to respond (to the message) with
+		 * @returns A promise that resolves when the message is sent successfully
+		 */
+		reply(text: string): Promise<Message>;
 
-	/**
-	 * Privately responds to the message
-	 * @param text - The text to privately respond (to the message) with
-	 */
-	privateReply (text: string): void;
+		/**
+		 * Privately responds to the message
+		 * @param text - The text to privately respond (to the message) with
+		 */
+		privateReply(text: string): void;
 
-	/**
-	 * Sends HTML in the message context (chatroom for 'chat', PMs for 'pm')
-	 * @param html - The HTML to send
-	 * @param opts - An instance of HTMLopts (name/rank/change)
-	 */
-	sendHTML (html: string, opts?: HTMLopts): boolean;
-	/**
-	 * Sends HTML in the message context (chatroom for 'chat', PMs for 'pm'),
-	 * but without passing it through the HTML processor
-	 * @param html - The HTML to send
-	 * @param opts - An instance of HTMLopts (name/rank/change)
-	 */
-	sendRawHTML (html: string, opts?: HTMLopts): boolean;
+		/**
+		 * Sends HTML in the message context (chatroom for 'chat', PMs for 'pm')
+		 * @param html - The HTML to send
+		 * @param opts - An instance of HTMLopts (name/rank/change)
+		 */
+		sendHTML(html: string, opts?: HTMLopts): boolean;
+		/**
+		 * Sends HTML in the message context (chatroom for 'chat', PMs for 'pm'),
+		 * but without passing it through the HTML processor
+		 * @param html - The HTML to send
+		 * @param opts - An instance of HTMLopts (name/rank/change)
+		 */
+		sendRawHTML(html: string, opts?: HTMLopts): boolean;
 
-	/**
-	 * Privately sends HTML in the message context (chatroom for 'chat', PMs for 'pm')
-	 * @param html - The HTML to send
-	 * @param opts - An instance of HTMLopts (name/rank/change)
-	 */
-	replyHTML (html: string, opts?: HTMLopts): boolean;
-	/**
-	 * Privately sends HTML in the message context (chatroom for 'chat', PMs for 'pm'),
-	 * but without passing it through the HTML processor
-	 * @param html - The HTML to send
-	 * @param opts - An instance of HTMLopts (name/rank/change)
-	 */
-	replyRawHTML (html: string, opts?: HTMLopts): boolean;
-}
-
+		/**
+		 * Privately sends HTML in the message context (chatroom for 'chat', PMs for 'pm')
+		 * @param html - The HTML to send
+		 * @param opts - An instance of HTMLopts (name/rank/change)
+		 */
+		replyHTML(html: string, opts?: HTMLopts): boolean;
+		/**
+		 * Privately sends HTML in the message context (chatroom for 'chat', PMs for 'pm'),
+		 * but without passing it through the HTML processor
+		 * @param html - The HTML to send
+		 * @param opts - An instance of HTMLopts (name/rank/change)
+		 */
+		replyRawHTML(html: string, opts?: HTMLopts): boolean;
+	};
 
 export default Message;

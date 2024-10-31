@@ -4,7 +4,7 @@ const customInspectSymbol = Symbol.for('nodejs.util.inspect.custom');
 const { toID } = require('../tools.js');
 
 class Message {
-	constructor (input) {
+	constructor(input) {
 		let { by, text, type, target, raw, isIntro, parent, time } = input;
 		const msgRank = by[0];
 		by = toID(by);
@@ -31,40 +31,41 @@ class Message {
 			case 'pm':
 				this.target = by ? this.parent.users.get(target) : null;
 				break;
-			default: console.error(this.type);
+			default:
+				this.parent.handle(new Error(`Message: Expected type chat/pm; got ${this.type}`));
 		}
 	}
-	reply (text) {
+	reply(text) {
 		return this.target.send(text);
 	}
-	privateReply (text) {
+	privateReply(text) {
 		if (this.target.type !== 'chat') this.reply(text);
 		else {
 			const privateSend = this.target.privateSend(this.author.userid, text);
 			if (privateSend === false) this.author.send(text);
 		}
 	}
-	sendHTML (html, opts) {
+	sendHTML(html, opts) {
 		return this.target.sendHTML(html, opts);
 	}
-	sendRawHTML (html, opts) {
+	sendRawHTML(html, opts) {
 		return this.target.sendRawHTML(html, opts);
 	}
-	replyHTML (html, opts) {
+	replyHTML(html, opts) {
 		if (this.target.type === 'pm') return this.target.sendHTML(html, opts);
 		if (this.target.type === 'chat') return this.target.privateHTML(this.author.userid, html, opts);
 		return false;
 	}
-	replyRawHTML (html, opts) {
+	replyRawHTML(html, opts) {
 		if (this.target.type === 'pm') return this.target.sendRawHTML(html, opts);
 		if (this.target.type === 'chat') return this.target.privateRawHTML(this.author.userid, html, opts);
 		return false;
 	}
-	[customInspectSymbol] (depth, options, inspect) {
+	[customInspectSymbol](depth, options, inspect) {
 		if (depth < 1) return options.stylize(`${this.title} [PS-Message]`, 'special');
 		const logObj = {};
 		const keys = ['content', 'type', 'raw', 'time', 'author', 'target', 'command', 'parent', 'isIntro', 'awaited'];
-		keys.forEach(key => logObj[key] = this[key]);
+		keys.forEach(key => (logObj[key] = this[key]));
 		return `${options.stylize('PS-Message', 'special')} ${inspect(logObj, { ...options, depth: options.depth - 1 })}`;
 	}
 }

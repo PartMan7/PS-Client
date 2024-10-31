@@ -30,13 +30,13 @@ describe('uploadToPastie', function () {
 
 describe('escapeHTML', () => {
 	it('should escape HTML correctly', () => {
-		expect(Tools.escapeHTML('You\'ve <b>lost the game</b>!')).toBe('You&apos;ve &lt;b&gt;lost the game&lt;&#x2f;b&gt;!');
+		expect(Tools.escapeHTML("You've <b>lost the game</b>!")).toBe('You&apos;ve &lt;b&gt;lost the game&lt;&#x2f;b&gt;!');
 	});
 });
 
 describe('unescapeHTML', () => {
 	it('should unescape HTML correctly', () => {
-		expect(Tools.unescapeHTML('You&apos;ve &lt;b&gt;lost the game&lt;&#x2f;b&gt;!')).toBe('You\'ve <b>lost the game</b>!');
+		expect(Tools.unescapeHTML('You&apos;ve &lt;b&gt;lost the game&lt;&#x2f;b&gt;!')).toBe("You've <b>lost the game</b>!");
 	});
 });
 
@@ -63,14 +63,12 @@ describe('formatText', () => {
 		expect(Tools.formatText('regular spoiler: text')).toBe('regular spoiler: <span class="spoiler">text</span>');
 	});
 	it('should format links correctly', () => {
-		expect(
-			Tools.formatText('regular [[link]]')).toBe(
+		expect(Tools.formatText('regular [[link]]')).toBe(
 			'regular <a href="//www.google.com/search?ie=UTF-8&btnI&q=link" target="_blank">link</a>'
 		);
 	});
 	it('should format named links correctly', () => {
-		expect(
-			Tools.formatText('regular [[name<link>]]')).toBe(
+		expect(Tools.formatText('regular [[name<link>]]')).toBe(
 			'regular <a href="link" rel="noopener" target="_blank">name<small> &lt;link&gt;</small></a>'
 		);
 	});

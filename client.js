@@ -14,7 +14,7 @@ const Tools = require('./tools.js');
 const Data = require('./data.js');
 
 class Client extends EventEmitter {
-	constructor (opts = {}) {
+	constructor(opts = {}) {
 		super();
 		this.opts = {
 			server: 'sim3.psim.us',
@@ -32,7 +32,7 @@ class Client extends EventEmitter {
 			rooms: [],
 			debug: false,
 			throttle: null,
-			noFailMessages: false
+			noFailMessages: false,
 		};
 		Object.assign(this.opts, opts);
 		this.opts[customInspectSymbol] = (depth, options, inspect) => {
@@ -47,7 +47,7 @@ class Client extends EventEmitter {
 			connected: false,
 			loggedIn: false,
 			username: null,
-			userid: null
+			userid: null,
 		};
 		this.closed = true;
 		this._queue = [];
@@ -56,12 +56,14 @@ class Client extends EventEmitter {
 		this._pendingRoomJoins = [];
 		this._deinitedRoomJoins = [];
 
+		// eslint-disable-next-line no-console -- Default debugger
 		this.debug = typeof opts.debug === 'function' ? opts.debug : opts.debug ? console.log : () => {};
+		// eslint-disable-next-line no-console -- Default handler
 		this.handle = opts.handle === null ? () => {} : typeof opts.handle === 'function' ? opts.handle : console.error;
 	}
 
 	// Websocket
-	connect (retry) {
+	connect(retry) {
 		if (this.status.connected) return;
 		if (retry) this.debug('Retrying...');
 		if (this.status.connected) return this.handle('Already connected');
@@ -126,26 +128,29 @@ class Client extends EventEmitter {
 		this.debug(`Connecting to ${conStr}`);
 		webSocket.connect(conStr);
 	}
-	disconnect () {
+	disconnect() {
 		this.closed = true;
 		this.ready = false;
 		this.inited = false;
 		clearInterval(this.queueTimer);
-		console.log('Disconnect was called');
 		this.connection?.close();
 	}
-	async login (name, pass) {
+	async login(name, pass) {
 		this.debug('Sending login request...');
 		let res;
 		if (!pass) {
 			res = await axios.get(this.opts.loginServer, {
-				params: { act: 'getassertion', userid: Tools.toID(name), ...this.challstr }
+				params: { act: 'getassertion', userid: Tools.toID(name), ...this.challstr },
 			});
 		} else {
-			res = await axios.post(this.opts.loginServer, {}, {
-				headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-				params: { act: 'login', name: Tools.toID(name), pass, ...this.challstr }
-			});
+			res = await axios.post(
+				this.opts.loginServer,
+				{},
+				{
+					headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+					params: { act: 'login', name: Tools.toID(name), pass, ...this.challstr },
+				}
+			);
 		}
 		const response = res.data;
 		try {
@@ -179,7 +184,7 @@ class Client extends EventEmitter {
 	}
 
 	// Sending data
-	_activateQueue () {
+	_activateQueue() {
 		const throttle = this.opts.throttle || (this.isTrusted ? 300 : 1800);
 		if (this.activatedQueue && this.throttle === throttle) return; // No need to adjust throttle
 		this.throttle = throttle;
@@ -192,7 +197,7 @@ class Client extends EventEmitter {
 			this.send(Object.values(messages).map(message => message.content));
 		}, throttle);
 	}
-	send (text) {
+	send(text) {
 		if (!text.length) return;
 		if (!this.connection) return this.handle('Not connected!');
 		if (!Array.isArray(text)) text = [text];
@@ -200,24 +205,31 @@ class Client extends EventEmitter {
 		text = JSON.stringify(text);
 		this.connection.send(text);
 	}
-	sendQueue (text, sent, fail) {
+	sendQueue(text, sent, fail) {
 		if (!this.status.connected) return fail({ cause: 'Not connected.', message: text });
 		const multiTest = text.match(/^([a-z0-9-]*?\|(?:\/pm [^,]*?, ?)?)[^/!].*?\n/);
 		if (multiTest) {
 			// Multi-line messages
-			Promise.all(text.split('\n').map((line, i) => {
-				if (i) line = multiTest[1] + line;
-				return line;
-			}).map(line => {
-				return new Promise((resolve, reject) => this._queue.push({ content: line, sent: resolve, fail: reject }));
-			})).then(messages => {
-				const message = messages[messages.length - 1];
-				message.content = text;
-				sent(message);
-			}).catch(error => fail(error));
+			Promise.all(
+				text
+					.split('\n')
+					.map((line, i) => {
+						if (i) line = multiTest[1] + line;
+						return line;
+					})
+					.map(line => {
+						return new Promise((resolve, reject) => this._queue.push({ content: line, sent: resolve, fail: reject }));
+					})
+			)
+				.then(messages => {
+					const message = messages[messages.length - 1];
+					message.content = text;
+					sent(message);
+				})
+				.catch(error => fail(error));
 		} else this._queue.push({ content: text, sent, fail });
 	}
-	sendUser (user, text) {
+	sendUser(user, text) {
 		let userid;
 		if (user instanceof User) userid = user.userid;
 		else userid = Tools.toID(user);
@@ -227,7 +239,7 @@ class Client extends EventEmitter {
 	}
 
 	// Receiving data
-	receive (message) {
+	receive(message) {
 		this.lastMessage = Date.now();
 		const flag = message.substr(0, 1);
 		switch (flag) {
@@ -239,7 +251,7 @@ class Client extends EventEmitter {
 			}
 		}
 	}
-	receiveMsg (message) {
+	receiveMsg(message) {
 		if (!message) return;
 		if (message.includes('\n')) {
 			const spl = message.split('\n');
@@ -258,7 +270,7 @@ class Client extends EventEmitter {
 			}
 		} else this.receiveLine('lobby', message).catch(this.handle);
 	}
-	async receiveLine (room, message, isIntro) {
+	async receiveLine(room, message, isIntro) {
 		this.emit('line', room, message, isIntro);
 		const args = message.split('|');
 		switch (args[1]) {
@@ -291,7 +303,7 @@ class Client extends EventEmitter {
 			case 'challstr': {
 				this.challstr = {
 					challengekeyid: args[2],
-					challstr: args[3]
+					challstr: args[3],
 				};
 				if (this.opts.username) {
 					try {
@@ -324,7 +336,7 @@ class Client extends EventEmitter {
 				const pendingIndex = this._pendingRoomJoins.findIndex(obj => obj.room === room);
 				if (pendingIndex >= 0) {
 					this._deinitedRoomJoins.push(...this._pendingRoomJoins.splice(pendingIndex, 1));
-				} else this._deinitedRoomJoins.unshift({ resolve () {} });
+				} else this._deinitedRoomJoins.unshift({ resolve() {} });
 				break;
 			}
 			case 'noinit': {
@@ -357,7 +369,7 @@ class Client extends EventEmitter {
 							this.handle(`Error in parsing roominfo: ${e.message}`);
 						}
 						if (!this.rooms.get(roominfo.roomid)) break;
-						Object.keys(roominfo).forEach(key => this.rooms.get(roominfo.roomid)[key] = roominfo[key]);
+						Object.keys(roominfo).forEach(key => (this.rooms.get(roominfo.roomid)[key] = roominfo[key]));
 						roominfo.users.forEach(user => this.getUserDetails(user).catch(this.handle));
 						break;
 					}
@@ -381,8 +393,12 @@ class Client extends EventEmitter {
 				this.emit('queryresponse', room, args.slice(2).join('|'), isIntro);
 				break;
 			}
-			case 'chat': case 'c': case 'c:': {
-				const by = args[3], value = args.slice(4).join('|'), resolved = [];
+			case 'chat':
+			case 'c':
+			case 'c:': {
+				const by = args[3],
+					value = args.slice(4).join('|'),
+					resolved = [];
 				const time = parseInt(args[2]) * (args[1] === 'c:' ? 1_000 : 1);
 				const mssg = new Message({
 					by,
@@ -392,7 +408,7 @@ class Client extends EventEmitter {
 					raw: message,
 					isIntro,
 					parent: this,
-					time
+					time,
 				});
 				if (mssg.target) {
 					mssg.target._waits.forEach(wait => {
@@ -422,8 +438,12 @@ class Client extends EventEmitter {
 				break;
 			}
 			case 'pm': {
-				const by = args[2], to = args[3], value = args.slice(4).join('|'), resolved = [];
-				const chatWith = by.substr(1) === this.status.username ? to : by, comp = `|/pm ${Tools.toID(to)},${value}`;
+				const by = args[2],
+					to = args[3],
+					value = args.slice(4).join('|'),
+					resolved = [];
+				const chatWith = by.substr(1) === this.status.username ? to : by,
+					comp = `|/pm ${Tools.toID(to)},${value}`;
 				const mssg = new Message({
 					by: by,
 					text: value,
@@ -431,7 +451,7 @@ class Client extends EventEmitter {
 					target: Tools.toID(chatWith),
 					raw: message,
 					isIntro: isIntro,
-					parent: this
+					parent: this,
 				});
 				if (mssg.command && mssg.command === 'error') mssg.target._waits.shift().fail(mssg.content.substr(7));
 				if (mssg.target) {
@@ -465,21 +485,28 @@ class Client extends EventEmitter {
 				this.emit('message', mssg);
 				break;
 			}
-			case 'j': case 'J': case 'join': {
+			case 'j':
+			case 'J':
+			case 'join': {
 				this.send(`|/cmd roominfo ${room}`);
 				this.addUser({ userid: Tools.toID(args.slice(2).join('|')) });
 				this.emit('join', room, args.slice(2).join('|'), isIntro);
 				break;
 			}
-			case 'l': case 'L': case 'leave': {
+			case 'l':
+			case 'L':
+			case 'leave': {
 				this.send(`|/cmd roominfo ${room}`);
 				this.emit('leave', room, args.slice(2).join('|'), isIntro);
 				break;
 			}
-			case 'n': case 'N': case 'name': {
+			case 'n':
+			case 'N':
+			case 'name': {
 				this.send(`|/cmd roominfo ${room}`);
 				this.emit('name', room, args[2], args[3], isIntro); // Nicks are stored in logs for stuff like battlerooms
-				const old = Tools.toID(args[3]), yng = Tools.toID(args[2]);
+				const old = Tools.toID(args[3]),
+					yng = Tools.toID(args[2]);
 				if (!this.users[old]) break;
 				this.users[old].alts.add(yng);
 				this.users[yng] = this.users[old];
@@ -491,12 +518,13 @@ class Client extends EventEmitter {
 				this.emit('chatError', room, args.slice(2).join('|'), isIntro);
 				break;
 			}
-			default: this.emit(args[1], room, args.slice(2).join('|'), isIntro);
+			default:
+				this.emit(args[1], room, args.slice(2).join('|'), isIntro);
 		}
 	}
 
 	// Utility
-	addUser (input) {
+	addUser(input) {
 		if (!input?.userid) throw new Error('Input must be an object with userid for new User');
 		let user = this.users.get(input.userid);
 		if (!user) {
@@ -504,10 +532,10 @@ class Client extends EventEmitter {
 			this.users.set(input.userid, user);
 			this.getUserDetails(input.userid);
 		}
-		Object.keys(input).forEach(key => user[key] = input[key]);
+		Object.keys(input).forEach(key => (user[key] = input[key]));
 		return user;
 	}
-	getUser (str, deep = false) {
+	getUser(str, deep = false) {
 		if (str instanceof User) str = str.userid;
 		if (typeof str !== 'string') return null;
 		str = Tools.toID(str);
@@ -519,7 +547,7 @@ class Client extends EventEmitter {
 		}
 		return false;
 	}
-	getUserDetails (userid) {
+	getUserDetails(userid) {
 		userid = Tools.toID(userid);
 		const client = this;
 		return new Promise(resolve => {
@@ -527,31 +555,30 @@ class Client extends EventEmitter {
 			client._userdetailsQueue.push({ id: userid, resolve: resolve });
 		});
 	}
-	getRoom (room) {
+	getRoom(room) {
 		const roomid = Tools.toID(room);
 		return this.rooms.get(roomid); // Sadly there's no easy way to update aliases
 	}
-	joinRoom (room) {
+	joinRoom(room) {
 		room = Tools.toID(room);
 		return new Promise((resolve, reject) => {
 			this._pendingRoomJoins.push({
 				room,
 				resolve,
-				reject
+				reject,
 			});
 			this.send(`|/join ${room}`);
 		});
 	}
 
-	[customInspectSymbol] (depth, options, inspect) {
+	[customInspectSymbol](depth, options, inspect) {
 		if (depth < 1) return options.stylize(`${this.status.username || '-'} [PS-Client]`, 'special');
 		const outKeys = ['opts', 'status', 'rooms', 'users', 'isTrusted', 'closed'];
 		const logObj = {};
-		outKeys.forEach(key => logObj[key] = this[key]);
+		outKeys.forEach(key => (logObj[key] = this[key]));
 		return `${options.stylize('PS-Client', 'special')} ${inspect(logObj, options)}`;
 	}
 }
-
 
 module.exports = {
 	Client,
@@ -559,5 +586,5 @@ module.exports = {
 	User,
 	Room,
 	Tools,
-	Data
+	Data,
 };

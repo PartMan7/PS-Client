@@ -1,3 +1,4 @@
+/* eslint-disable no-console -- Test file */
 const debug = process.env.DEBUG;
 
 const chalk = require('chalk');
@@ -17,17 +18,18 @@ const Bot = new Client({
 	handle: err => {
 		if (!debug) throw err;
 		else console.error(err);
-	}
+	},
 });
 
-if (debug) Bot.on('line', (room, line) => {
-	if (line.startsWith('|queryresponse|')) return;
-	if (line.startsWith('|c:|')) return;
-	if (line.startsWith('|raw|')) return;
-	if (line.startsWith('|formats|')) return;
-	if (line.startsWith('|updateuser|')) return;
-	console.log(room, line);
-});
+if (debug)
+	Bot.on('line', (room, line) => {
+		if (line.startsWith('|queryresponse|')) return;
+		if (line.startsWith('|c:|')) return;
+		if (line.startsWith('|raw|')) return;
+		if (line.startsWith('|formats|')) return;
+		if (line.startsWith('|updateuser|')) return;
+		console.log(room, line);
+	});
 Bot.on('message', message => {
 	if (message.isIntro) return;
 	if (debug) console.log(message);
@@ -56,9 +58,12 @@ describe('PS-Client', () => {
 
 	it('should detect sent chat messages', () => {
 		return new Promise((resolve, reject) => {
-			Bot.getRoom('Bot Development').waitFor(msg => {
-				return msg.author.userid === 'partbot' && msg.content === '1';
-			}).then(resolve).catch(reject);
+			Bot.getRoom('Bot Development')
+				.waitFor(msg => {
+					return msg.author.userid === 'partbot' && msg.content === '1';
+				})
+				.then(resolve)
+				.catch(reject);
 			Bot.getRoom('Bot Development').send(',eval 1');
 		});
 	});
@@ -70,7 +75,10 @@ describe('PS-Client', () => {
 	it('should detect sent PMs', () => {
 		if (!Bot.getUser('PartBot')) return;
 		return new Promise((resolve, reject) => {
-			Bot.getUser('PartBot').waitFor(msg => msg.content.includes('PartMan')).then(resolve).catch(reject);
+			Bot.getUser('PartBot')
+				.waitFor(msg => msg.content.includes('PartMan'))
+				.then(resolve)
+				.catch(reject);
 			Bot.getUser('PartBot').send(',help');
 		});
 	});

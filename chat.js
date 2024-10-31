@@ -9,26 +9,22 @@
  * @license MIT
  */
 
-const linkRegex = /(?:(?:https?:\/\/[a-z0-9-]+(?:\.[a-z0-9-]+)*|www\.[a-z0-9-]+(?:\.[a-z0-9-]+)+|\b[a-z0-9-]+(?:\.[a-z0-9-]+)*\.(?:(?:com?|org|net|edu|info|us|jp)\b|[a-z]{2,3}(?=:[0-9]|\/)))(?::[0-9]+)?(?:\/(?:(?:[^\s()&<>]|&amp;|&quot;|\((?:[^\\s()<>&]|&amp;)*\))*(?:[^\s()[\]{}".,!?;:&<>*`^~\\]|\((?:[^\s()<>&]|&amp;)*\)))?)?|[a-z0-9.]+@[a-z0-9-]+(?:\.[a-z0-9-]+)*\.[a-z]{2,})(?![^ ]*&gt;)/ig;
+const linkRegex =
+	/(?:(?:https?:\/\/[a-z0-9-]+(?:\.[a-z0-9-]+)*|www\.[a-z0-9-]+(?:\.[a-z0-9-]+)+|\b[a-z0-9-]+(?:\.[a-z0-9-]+)*\.(?:(?:com?|org|net|edu|info|us|jp)\b|[a-z]{2,3}(?=:[0-9]|\/)))(?::[0-9]+)?(?:\/(?:(?:[^\s()&<>]|&amp;|&quot;|\((?:[^\\s()<>&]|&amp;)*\))*(?:[^\s()[\]{}".,!?;:&<>*`^~\\]|\((?:[^\s()<>&]|&amp;)*\)))?)?|[a-z0-9.]+@[a-z0-9-]+(?:\.[a-z0-9-]+)*\.[a-z]{2,})(?![^ ]*&gt;)/gi;
 
 // type SpanType = '_' | '*' | '~' | '^' | '\\' | '|' | '<' | '[' | '`' | 'a' | 'spoiler' | '>' | '(';
 
 // type FormatSpan = [SpanType, number];
 
 class TextFormatter {
-	constructor (str, isTrusted = false, replaceLinebreaks = false) {
+	constructor(str, isTrusted = false, replaceLinebreaks = false) {
 		// escapeHTML, without escaping /
-		str = `${str}`
-			.replace(/&/g, '&amp;')
-			.replace(/</g, '&lt;')
-			.replace(/>/g, '&gt;')
-			.replace(/"/g, '&quot;')
-			.replace(/'/g, '&apos;');
+		str = `${str}`.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;');
 
 		// filter links first
 		str = str.replace(linkRegex, uri => {
 			let fulluri;
-			if (/^[a-z0-9.]+@/ig.test(uri)) {
+			if (/^[a-z0-9.]+@/gi.test(uri)) {
 				fulluri = 'mailto:' + uri;
 			} else {
 				fulluri = uri.replace(/^([a-z]*[^a-z:])/g, 'http://$1');
@@ -39,8 +35,12 @@ class TextFormatter {
 					let slashIndex = uri.lastIndexOf('/');
 					if (uri.length - slashIndex > 18) slashIndex = uri.length;
 					if (slashIndex - 4 > 19 + 3) {
-						uri = uri.slice(0, 19) +
-							'<small class="message-overflow">' + uri.slice(19, slashIndex - 4) + '</small>' + uri.slice(slashIndex - 4);
+						uri =
+							uri.slice(0, 19) +
+							'<small class="message-overflow">' +
+							uri.slice(19, slashIndex - 4) +
+							'</small>' +
+							uri.slice(slashIndex - 4);
 					}
 				}
 			}
@@ -56,29 +56,29 @@ class TextFormatter {
 		this.offset = 0;
 	}
 
-	slice (start, end) {
+	slice(start, end) {
 		return this.str.slice(start, end);
 	}
 
-	at (start) {
+	at(start) {
 		return this.str.charAt(start);
 	}
 
-	pushSpan (spanType, start, end) {
+	pushSpan(spanType, start, end) {
 		this.pushSlice(start);
 		this.stack.push([spanType, this.buffers.length]);
 		this.buffers.push(this.slice(start, end));
 		this.offset = end;
 	}
 
-	pushSlice (end) {
+	pushSlice(end) {
 		if (end !== this.offset) {
 			this.buffers.push(this.slice(this.offset, end));
 			this.offset = end;
 		}
 	}
 
-	closeParenSpan (start) {
+	closeParenSpan(start) {
 		let stackPosition = -1;
 		for (let i = this.stack.length - 1; i >= 0; i--) {
 			const span = this.stack[i];
@@ -99,7 +99,7 @@ class TextFormatter {
 	/**
 	 * Attempt to close a span.
 	 */
-	closeSpan (spanType, start, end) {
+	closeSpan(spanType, start, end) {
 		// loop backwards
 		let stackPosition = -1;
 		for (let i = this.stack.length - 1; i >= 0; i--) {
@@ -118,12 +118,25 @@ class TextFormatter {
 		let tagName = '';
 		let attrs = '';
 		switch (spanType) {
-			case '_': tagName = 'i'; break;
-			case '*': tagName = 'b'; break;
-			case '~': tagName = 's'; break;
-			case '^': tagName = 'sup'; break;
-			case '\\': tagName = 'sub'; break;
-			case '|': tagName = 'span'; attrs = ' class="spoiler"'; break;
+			case '_':
+				tagName = 'i';
+				break;
+			case '*':
+				tagName = 'b';
+				break;
+			case '~':
+				tagName = 's';
+				break;
+			case '^':
+				tagName = 'sup';
+				break;
+			case '\\':
+				tagName = 'sub';
+				break;
+			case '|':
+				tagName = 'span';
+				attrs = ' class="spoiler"';
+				break;
 		}
 		if (tagName) {
 			this.buffers[startIndex] = `<${tagName}${attrs}>`;
@@ -138,7 +151,7 @@ class TextFormatter {
 	 * they don't take effect, but certain spans like spoiler tags don't
 	 * require ending symbols.
 	 */
-	popSpan (end) {
+	popSpan(end) {
 		const span = this.stack.pop();
 		if (!span) return false;
 		this.pushSlice(end);
@@ -158,21 +171,22 @@ class TextFormatter {
 		return true;
 	}
 
-	popAllSpans (end) {
+	popAllSpans(end) {
 		while (this.stack.length) this.popSpan(end);
 		this.pushSlice(end);
 	}
 
-	toUriComponent (html) {
-		const component = html.replace(/&lt;/g, '<')
+	toUriComponent(html) {
+		const component = html
+			.replace(/&lt;/g, '<')
 			.replace(/&gt;/g, '>')
 			.replace(/&quot;/g, '"')
-			.replace(/&apos;/g, '\'')
+			.replace(/&apos;/g, "'")
 			.replace(/&amp;/g, '&');
 		return encodeURIComponent(component);
 	}
 
-	runLookahead (spanType, start) {
+	runLookahead(spanType, start) {
 		switch (spanType) {
 			case '`':
 				{
@@ -231,7 +245,8 @@ class TextFormatter {
 					if (this.slice(i, i + 2) !== ']]') return false;
 					let termEnd = i;
 					let uri = '';
-					if (anglePos >= 0 && this.slice(i - 4, i) === '&gt;') { // `>`
+					if (anglePos >= 0 && this.slice(i - 4, i) === '&gt;') {
+						// `>`
 						uri = this.slice(anglePos + 4, i - 4);
 						termEnd = anglePos;
 						if (this.at(termEnd - 1) === ' ') termEnd--;
@@ -239,7 +254,10 @@ class TextFormatter {
 					}
 					let term = this.slice(start + 2, termEnd).replace(/<\/?a(?: [^>]+)?>/g, '');
 					if (uri && !this.isTrusted) {
-						const shortUri = uri.replace(/^https?:\/\//, '').replace(/^www\./, '').replace(/\/$/, '');
+						const shortUri = uri
+							.replace(/^https?:\/\//, '')
+							.replace(/^www\./, '')
+							.replace(/\/$/, '');
 						term += `<small> &lt;${shortUri}&gt;</small>`;
 						uri += '" rel="noopener';
 					}
@@ -305,7 +323,7 @@ class TextFormatter {
 		return false;
 	}
 
-	get () {
+	get() {
 		let beginningOfLine = this.offset;
 		// main loop! i tracks our position
 		for (let i = beginningOfLine; i < this.str.length; i++) {
@@ -356,15 +374,14 @@ class TextFormatter {
 					break;
 				case ':':
 					if (i < 7) break;
-					if (this.slice(i - 7, i + 1).toLowerCase() === 'spoiler:' ||
-						this.slice(i - 8, i + 1).toLowerCase() === 'spoilers:') {
+					if (this.slice(i - 7, i + 1).toLowerCase() === 'spoiler:' || this.slice(i - 8, i + 1).toLowerCase() === 'spoilers:') {
 						if (this.at(i + 1) === ' ') i++;
 						this.pushSpan('spoiler', i + 1, i + 1);
 					}
 					break;
 				case '&': // escaped '<' or '>'
 					if (i === beginningOfLine && this.slice(i, i + 4) === '&gt;') {
-						if (!"._/=:;".includes(this.at(i + 4)) && !['w&lt;', 'w&gt;'].includes(this.slice(i + 4, i + 9))) {
+						if (!'._/=:;'.includes(this.at(i + 4)) && !['w&lt;', 'w&gt;'].includes(this.slice(i + 4, i + 9))) {
 							this.pushSpan('>', i, i);
 						}
 					} else {
@@ -404,6 +421,6 @@ class TextFormatter {
 /**
  * Takes a string and converts it to HTML by replacing standard chat formatting with the appropriate HTML tags.
  */
-module.exports = function formatText (str, isTrusted = false, replaceLinebreaks = false) {
+module.exports = function formatText(str, isTrusted = false, replaceLinebreaks = false) {
 	return new TextFormatter(str, isTrusted, replaceLinebreaks).get();
 };
