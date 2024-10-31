@@ -90,6 +90,7 @@ type options = {
 	handle?: boolean | ((error: string | Error) => void); // Handling for internal errors. If a function is provided, this will run it with an error / string. The default function logs them to the console. To opt out of error handling (not recommended), set this to false.
 	noFailMessages?: boolean; // Dictates whether messages throw errors by default. Set to 'false' to enable messages throwing errors. Defaults to true.
 	throttle?: number; // The throttle (in milliseconds) for every 'batch' of three messages. PS has a per-message throttle of 25ms for public roombots, 100ms for trusted users, and 600ms for regular users.
+	transformHTML?: (input: any) => string; // A custom HTML processor, applied on all HTML methods. Defaults to no-transform.
 };
 ```
 
@@ -114,7 +115,7 @@ For common purposes and frequently useful methods, a variety of tools have been 
 - `formatText (input: string): string`: Formats a string the way PS does for chat messages (this WILL escape HTML).
 
 Note: This module uses [axios](https://github.com/axios/axios) for POST requests.<br/>
-Note: The various methods that use HTML in the Message / Room / User classes all use the [juice](https://www.npmjs.com/package/juice) library for expanding `<style>` tags into inline CSS.
+Note: You can add a custom HTML processor (like `juice` to hydrate style tags into inline styles, or `ReactDOM.renderToStaticMarkup` to support JSX methods) for all HTML methods under `transformHTML` in client options.
 
 ## Datacenters
 

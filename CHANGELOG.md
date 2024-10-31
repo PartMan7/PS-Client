@@ -1,5 +1,9 @@
 ## What's New
 
+**v4.0.0**
+
+- Removes default `inline-css` HTML processing logic. You may instead pass your own logic to options under `transformHTML`.
+
 **v3.8.2**
 
 - Fixes isTrusted logic and adds an 'activate' event.
