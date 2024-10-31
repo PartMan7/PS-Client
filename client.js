@@ -1,7 +1,7 @@
 'use strict';
 
-const axios = require('axios');
 const EventEmitter = require('events');
+const querystring = require('querystring');
 const wsClient = require('websocket').client;
 
 const customInspectSymbol = Symbol.for('nodejs.util.inspect.custom');
@@ -140,20 +140,17 @@ class Client extends EventEmitter {
 		this.debug('Sending login request...');
 		let res;
 		if (!pass) {
-			res = await axios.get(this.opts.loginServer, {
-				params: { act: 'getassertion', userid: Tools.toID(name), ...this.challstr },
-			});
-		} else {
-			res = await axios.post(
-				this.opts.loginServer,
-				{},
-				{
-					headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-					params: { act: 'login', name: Tools.toID(name), pass, ...this.challstr },
-				}
+			res = await fetch(
+				`${this.opts.loginServer}?${querystring.stringify({ act: 'getassertion', userid: Tools.toID(name), ...this.challstr })}`
 			);
+		} else {
+			res = await fetch(this.opts.loginServer, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+				body: querystring.stringify({ act: 'login', name: Tools.toID(name), pass, ...this.challstr }),
+			});
 		}
-		const response = res.data;
+		const response = await res.text();
 		try {
 			if (response === ';') throw new Error('Username is registered but no password given');
 			else if (response.length < 50) throw new Error(`Failed to login: ${response}`);

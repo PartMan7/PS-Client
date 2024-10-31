@@ -114,7 +114,7 @@ For common purposes and frequently useful methods, a variety of tools have been 
 - `unescapeHTML (input: string): string`: Unescapes HTML sequences into their corresponding characters.
 - `formatText (input: string): string`: Formats a string the way PS does for chat messages (this WILL escape HTML).
 
-Note: This module uses [axios](https://github.com/axios/axios) for POST requests.<br/>
+Note: This module uses `fetch` for network requests.<br/>
 Note: You can add a custom HTML processor (like `juice` to hydrate style tags into inline styles, or `ReactDOM.renderToStaticMarkup` to support JSX methods) for all HTML methods under `transformHTML` in client options.
 
 ## Datacenters
