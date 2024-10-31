@@ -1,5 +1,11 @@
 ## What's New
 
+**v3.9.0**
+
+- Replaces `inline-css` with `juice` for all HTML methods, and returns the juiced HTML from all methods. [#11](https://github.com/PartMan7/PS-Client/pull/11) by [@singiamtel](https://github.com/singiamtel)
+
+_**Warning**: This bumps up Node requirements from v14 to v16._
+
 **v3.8.2**
 
 - Fixes isTrusted logic and adds an 'activate' event.
