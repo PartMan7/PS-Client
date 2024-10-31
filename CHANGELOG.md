@@ -1,5 +1,8 @@
 ## What's New
 
+**v3.8.0**
+* Adds types for `ps-client/data`. Holy shit, this was painful.
+
 **v3.7.0**
 * Adds raw variants for all HTML methods to bypass formatting with inlineCss.
 
