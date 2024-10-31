@@ -15,7 +15,7 @@ type updateType = 'abilities' | 'aliases' | 'config' | 'formatsdata' | 'formats'
 
 
 /**
- * @param text: The input value
+ * @param text The input value
  * @returns The ID of the given input
  */
 export function toID (text: any): string;

@@ -1,4 +1,4 @@
-import * as events from 'events';
+import { EventEmitter } from 'events';
 import Message from './classes/message';
 import Room from './classes/room';
 import User from './classes/user';
@@ -37,7 +37,7 @@ export interface Client {
 	on(event: string, listener: (room: string, line: string, isIntro: boolean) => void): this;
 }
 
-export class Client extends events.EventEmitter {
+export class Client extends EventEmitter {
 	opts: {
 		username: string,
 		password?: string,
@@ -74,12 +74,12 @@ export class Client extends events.EventEmitter {
 	 * Connects to the server
 	 * @param retry Indicates whether this is a reconnect attempt
 	 */
-	connect (retry?: boolean);
+	connect (retry?: boolean): void;
 
 	/**
 	 * Disconnects from the server
 	 */
-	disconnect ();
+	disconnect (): void;
 
 	/**
 	 * Logs in
@@ -93,7 +93,7 @@ export class Client extends events.EventEmitter {
 	 * Sends a text message to the server. Unthrottled; use sendQueue for chat messages
 	 * @param text The text to send
 	 */
-	send (text: string);
+	send (text: string): void;
 
 	/**
 	 * Schedules a message to be sent, while being throttled
@@ -102,7 +102,7 @@ export class Client extends events.EventEmitter {
 	 * @param fail The reject method for a promise
 	 * @returns A promise that resolves when the message is sent successfully
 	 */
-	sendQueue (text: string, sent: (msg: Message) => any, fail: (msg: Message) => any);
+	sendQueue (text: string, sent: (msg: Message) => any, fail: (msg: Message) => any): void;
 
 	/**
 	 * Sends a string to a user (if the user is not already tracked, they are added)
@@ -129,7 +129,7 @@ export class Client extends events.EventEmitter {
 
 	/**
 	 * Queues a request to fetch userdetails
-	 * @param user The user being queried
+	 * @param userid The user being queried
 	 * @returns A promise that resolves with the queried userdetails
 	 */
 	getUserDetails (userid: string): Promise<UserDetails>;
