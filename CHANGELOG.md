@@ -2,6 +2,8 @@
 
 **v4.0.0**
 
+- Minimum version is bumped up to 18.0.0 from 14.0.0.
+- Removes `axios` and replaces all calls with `fetch`.
 - Removes default `inline-css` HTML processing logic. You may instead pass your own logic to options under `transformHTML`.
 - Removes `*RawHTML()` methods from all classes. Use `HTMLopts.notransform` instead.
 - `User#pageHTML` now uses `HTMLopts` instead of just `name`.

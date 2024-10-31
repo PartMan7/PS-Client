@@ -57,7 +57,7 @@ npm install ps-client
 
 If you have it in your package.json, simply run `npm install`. If you have installed it and wish to update your version, run `npm update ps-client`.
 
-PS-Client requires **Node.js v14.0.0 or higher**.
+PS-Client requires **Node.js v18.0.0 or higher**.
 
 ## Configuration
 
