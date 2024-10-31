@@ -6,7 +6,7 @@ CHANGED_FILES="$(git diff --diff-filter=ACMTUXB --name-only --staged)"
 PRETTIER_FILES="$(echo "$CHANGED_FILES" | grep -E -e '\.[jt]sx?$' -e '\.md$' -e '\.html$' -e '\.json$' | tr '\n' ' ')"
 ESLINT_FILES="$(echo "$CHANGED_FILES" | grep -E -e '\.js$' | tr '\n' ' ')"
 
-npm exec prettier -- -w $PRETTIER_FILES
-npm exec eslint -- $ESLINT_FILES
+if [ -n "$PRETTIER_FILES" ]; then npm exec prettier -- -w $PRETTIER_FILES; fi
+if [ -n "$ESLINT_FILES" ]; then npm exec eslint -- $ESLINT_FILES; fi
 
 if [ -z "$SKIP_TESTS" ]; then npm run jest; fi
