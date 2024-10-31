@@ -61,28 +61,16 @@ export default class User {
 	/**
 	 * Sends HTML to the user
 	 * @param html The HTML to send
-	 * @param opts An instance of HTMLopts (name/rank/change)
+	 * @param opts HTML options
 	 */
 	sendHTML(html: string, opts?: HTMLopts): string;
-	/**
-	 * Sends HTML to the user without processing
-	 * @param html The HTML to send
-	 * @param opts An instance of HTMLopts (name/rank/change)
-	 */
-	sendRawHTML(html: string, opts?: HTMLopts): string;
 
 	/**
 	 * Sends an HTML page to the user
 	 * @param html The HTML to send
-	 * @param name The name of the HTML page
+	 * @param opts HTML options
 	 */
-	pageHTML(html: string, name: string): string;
-	/**
-	 * Sends an HTML page to the user without processing the HTML
-	 * @param html The HTML to send
-	 * @param name The name of the HTML page
-	 */
-	pageRawHTML(html: string, name: string): string;
+	pageHTML(html: string, opts?: HTMLopts): string;
 
 	/**
 	 * Waits for the first message in the room that fulfills the given condition

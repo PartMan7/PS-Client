@@ -2,6 +2,7 @@ import { EventEmitter } from 'events';
 import Message from './classes/message';
 import Room from './classes/room';
 import User from './classes/user';
+import { HTMLopts } from './classes/common';
 
 type UserDetails = { userid: string; [key: string]: any };
 
@@ -14,7 +15,7 @@ type ClientOpts = {
 	debug?: boolean;
 	noFailMessages?: boolean;
 	throttle?: number;
-	transformHTML?: (input: any) => string;
+	transformHTML?: (input: any, opts: HTMLopts) => string;
 	retryLogin?: number;
 	autoReconnect?: boolean;
 	autoReconnectDelay?: number;

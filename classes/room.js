@@ -17,41 +17,37 @@ class Room {
 		});
 	}
 	privateSend(user, text) {
-		if (!['*', '#', '&'].includes(this.users.find(u => toID(u) === this.parent.status.userid)?.charAt(0))) return false;
+		if (!['*', '#', '&'].includes(this.users.find(u => toID(u) === this.parent.status.userid)?.charAt(0))) return '';
 		user = this.parent.getUser(user);
-		if (!user) return false;
+		if (!user) return '';
 		const formatted = formatText(text);
 		this.send(`/sendprivatehtmlbox ${user.userid}, ${formatted}`);
 		return formatted;
 	}
-	sendRawHTML(html, opts = {}) {
+	sendHTML(html, opts = {}) {
 		if (!['*', '#', '&'].includes(this.users.find(u => toID(u) === this.parent.status.userid)?.charAt(0))) return false;
 		if (!html) throw new Error('Missing HTML argument');
 		if (typeof opts === 'string') opts = { name: opts };
 		if (!opts || typeof opts !== 'object') throw new TypeError('Options must be an object');
 		if (!opts.name) opts.name = this.parent.status.username + Date.now().toString(36);
+		const formatted = opts.notransform ? this.parent.opts.transformHTML(html, opts) : html;
 		this.send(
 			`/${opts.change ? 'change' : 'add'}${opts.rank ? 'rank' : ''}uhtml` +
-				` ${opts.rank ? `${opts.rank}, ` : ''}${opts.name}, ${html}`
+				` ${opts.rank ? `${opts.rank}, ` : ''}${opts.name}, ${formatted}`
 		);
-		return html;
+		return formatted;
 	}
-	sendHTML(html, opts = {}) {
-		return this.sendRawHTML(this.parent.opts.transformHTML(html), opts);
-	}
-	privateRawHTML(user, html, opts = {}) {
-		if (!['*', '#', '&'].includes(this.users.find(u => toID(u) === this.parent.status.userid)?.charAt(0))) return false;
+	privateHTML(user, html, opts = {}) {
+		if (!['*', '#', '&'].includes(this.users.find(u => toID(u) === this.parent.status.userid)?.charAt(0))) return '';
 		user = this.parent.getUser(user);
-		if (!user) return false;
+		if (!user) return '';
 		if (!html) throw new Error('Missing HTML argument');
 		if (typeof opts === 'string') opts = { name: opts };
 		if (!opts || typeof opts !== 'object') throw new TypeError('Options must be an object');
 		if (!opts.name) opts.name = this.parent.status.username + Date.now().toString(36);
-		this.send(`/${opts.change ? 'change' : 'send'}privateuhtml ${user.userid}, ${opts.name}, ${html}`);
-		return html;
-	}
-	privateHTML(user, html, opts = {}) {
-		return this.privateRawHTML(user, this.parent.opts.transformHTML(html), opts);
+		const formatted = opts.notransform ? this.parent.opts.transformHTML(html, opts) : html;
+		this.send(`/${opts.change ? 'change' : 'send'}privateuhtml ${user.userid}, ${opts.name}, ${formatted}`);
+		return formatted;
 	}
 	waitFor(condition, time) {
 		if (!time && typeof time !== 'number') time = 60 * 1000;

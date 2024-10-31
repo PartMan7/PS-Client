@@ -48,18 +48,10 @@ class Message {
 	sendHTML(html, opts) {
 		return this.target.sendHTML(html, opts);
 	}
-	sendRawHTML(html, opts) {
-		return this.target.sendRawHTML(html, opts);
-	}
 	replyHTML(html, opts) {
 		if (this.target.type === 'pm') return this.target.sendHTML(html, opts);
 		if (this.target.type === 'chat') return this.target.privateHTML(this.author.userid, html, opts);
-		return false;
-	}
-	replyRawHTML(html, opts) {
-		if (this.target.type === 'pm') return this.target.sendRawHTML(html, opts);
-		if (this.target.type === 'chat') return this.target.privateRawHTML(this.author.userid, html, opts);
-		return false;
+		return '';
 	}
 	[customInspectSymbol](depth, options, inspect) {
 		if (depth < 1) return options.stylize(`${this.title} [PS-Message]`, 'special');

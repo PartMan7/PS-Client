@@ -61,8 +61,8 @@ Message has the following methods:
 
 - `reply (text: string): Promise<Message>` sends a message to the target and returns a Promise that is resolved with the sent Message, or is rejected with the message content. This is a shortcut for `Message#target#send`.
 - `privateReply (text: string): true` sends a private response (private HTML message (formatted by `Tools#formatText`) in the room if possible, otherwise a direct message).
-- `sendHTML (html: string, opts?: { name?: string, rank?: string, change?: boolean }): boolean` is an alias for [Room#sendHTML](#room-structure) and [User#sendHTML](#user-structure).
-- `replyHTML (html: string, opts?: { name?: string, rank?: string, change?: boolean }): boolean` is an alias for [Room#privateHTML](#room-structure) and [User#sendHTML](#user-structure).
+- `sendHTML (html: string, opts?: HTMLopts): boolean` is an alias for [Room#sendHTML](#room-structure) and [User#sendHTML](#user-structure).
+- `replyHTML (html: string, opts?: HTMLopts): boolean` is an alias for [Room#privateHTML](#room-structure) and [User#sendHTML](#user-structure).
 
 Note: A message can have `author` and `target` nullish if sent by the `&` account. Handle those accordingly!
 
@@ -86,8 +86,8 @@ Room has the following methods:
 
 - `send (text: string): Promise<Message>` sends a message to the Room and returns a Promise that is resolved with the sent [Message](#message-structure), or is rejected with the message content.
 - `privateSend (user: string | User, text: string): boolean` sends a message in chat that is only visible to the specified user. Returns `false` if the client does not have permissions. Text is formatted using `Tools#formatText`.
-- `sendHTML (html: string, opts?: { name?: string, rank?: string, change?: boolean }): boolean` sends a UHTML box to the room with the specified (optional) options (reusing a name will overwrite the previous box, rank will only show the HTML to the specified ranks and higher, and `change` toggles the overwriting behaviour between changing at the old location and changing at the bottom of chat). For example: `Room.sendHTML('<b>This is an example.</b>', { rank: '+', change: true })`
-- `privateHTML (user: string | User, html: string, opts?: { name?: string, rank?: string, change?: boolean }): boolean` behaves similarly to sendHTML, the difference being that privateHTML only sends the HTML to the specified user.
+- `sendHTML (html: string, opts?: HTMLopts): boolean` sends a UHTML box to the room with the specified (optional) options. For example: `Room.sendHTML('<b>This is an example.</b>', { rank: '+', change: true })`
+- `privateHTML (user: string | User, html: string, opts?: HTMLopts): boolean` behaves similarly to sendHTML, the difference being that privateHTML only sends the HTML to the specified user.
 - `waitFor (condition: (message: Message): boolean, time: number): Promise<Message>` waits for a message in the Room. This is resolved when the Client receives a message from the Room for which `condition` returns true, and is rejected if (time) milliseconds pass without being resolved. By default, time corresponds to 1 minute - you can set it to 0 to disable the time limit.
 - `update (): void` refetches the entire room metadata (as well as all userdetails of users in the room).
 
@@ -115,7 +115,16 @@ User has the following properties:
 User has the following methods:
 
 - `send (text: string): Promise<Message>` sends a message to the User and returns a Promise that is resolved with the sent [Message](#message-structure), or is rejected with the message content.
-- `sendHTML (html: string, opts?: { name?: string, change?: boolean }): boolean` sends a UHTML box to the user with the specified (optional) options (reusing a name will overwrite the previous box and `change` toggles the overwriting behaviour between changing at the old location and changing at the bottom of the PM). For example: `User.sendHTML('<b>This is an example.</b>', { change: true })`
-- `pageHTML (html: string, name?: string): boolean` sends a UHTML box to the user with the specified (optional) name (reusing a name will overwrite the previous page). For example: `User.pageHTML("<b>Let's play chess!</b>", "chess")`
+- `sendHTML (html: string, opts?: HTMLopts): boolean` sends a UHTML box to the user with the specified (optional) options. For example: `User.sendHTML('<b>This is an example.</b>', { change: true })`
+- `pageHTML (html: string, opts?: HTMLopts): boolean` sends a UHTML box to the user with the specified (optional) options (reusing a name will overwrite the previous page). For example: `User.pageHTML("<b>Let's play chess!</b>", { name: "chess" })`
 - `waitFor (condition: (message: Message): boolean, time: number): Promise<Message>` waits for a message from the User. This is resolved when the Client receives a message from the User for which `condition` returns true, and is rejected if (time) milliseconds pass without being resolved. By default, time corresponds to 1 minute - you can set it to 0 to disable the time limit.
 - `update (): Promise<User>` updates and resolves with the current user's information after re-fetching from the server.
+
+### HTML Options
+
+`HTMLopts` has four possible options:
+
+- `name`: The name of the HTML page / UHTML box.
+- `rank`: Minimum rank required to see the HTML.
+- `change`: Whether to add a new entry and remove the old UHTML, or to modify the old UHTML in-place.
+- `notransform`: To skip running `transformHTML` on the given HTML.

@@ -90,7 +90,7 @@ type options = {
 	handle?: boolean | ((error: string | Error) => void); // Handling for internal errors. If a function is provided, this will run it with an error / string. The default function logs them to the console. To opt out of error handling (not recommended), set this to false.
 	noFailMessages?: boolean; // Dictates whether messages throw errors by default. Set to 'false' to enable messages throwing errors. Defaults to true.
 	throttle?: number; // The throttle (in milliseconds) for every 'batch' of three messages. PS has a per-message throttle of 25ms for public roombots, 100ms for trusted users, and 600ms for regular users.
-	transformHTML?: (input: any) => string; // A custom HTML processor, applied on all HTML methods. Defaults to no-transform.
+	transformHTML?: (input: any, opts: HTMLopts) => string; // A custom HTML processor, applied on all HTML methods. Defaults to no-transform. See HTML options for more info on opts.
 };
 ```
 

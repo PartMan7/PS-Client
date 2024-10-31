@@ -16,7 +16,7 @@ class User {
 			user.parent.sendQueue(text, resolve, reject);
 		});
 	}
-	sendRawHTML(html, opts = {}) {
+	sendHTML(html, opts = {}) {
 		if (!html) throw new Error('Missing HTML argument');
 		if (typeof opts === 'string') opts = { name: opts };
 		if (!opts || typeof opts !== 'object') throw new TypeError('Options must be an object');
@@ -27,29 +27,24 @@ class User {
 				rooms[room.visibility] = room;
 		}
 		const room = rooms.public || rooms.hidden || rooms.private;
-		if (!room) return false;
-		room.send(`/pmuhtml${opts.change ? 'change' : ''} ${this.userid}, ${opts.name}, ${html}`);
-		return html;
+		if (!room) return '';
+		const formatted = opts.notransform ? this.parent.opts.transformHTML(html, opts) : html;
+		room.send(`/pmuhtml${opts.change ? 'change' : ''} ${this.userid}, ${opts.name}, ${formatted}`);
+		return formatted;
 	}
-	sendHTML(html, opts = {}) {
-		return this.sendRawHTML(this.parent.opts.transformHTML(html), opts);
-	}
-	pageRawHTML(html, name) {
+	pageHTML(html, opts = {}) {
 		if (!html) throw new Error('Missing HTML argument');
-		if (!name) name = this.parent.status.username + Date.now().toString(36);
-		name = name.toString();
+		if (!opts.name) opts.name = this.parent.status.username + Date.now().toString(36);
 		const rooms = {};
 		for (const room of this.parent.rooms.values()) {
 			if (room.auth?.['*']?.includes(this.parent.status.userid) || room.auth?.['#']?.includes(this.parent.status.userid))
 				rooms[room.visibility] = room;
 		}
 		const room = rooms.public || rooms.hidden || rooms.private;
-		if (!room) return false;
-		room.send(`/sendhtmlpage ${this.userid}, ${name}, ${html}`);
-		return html;
-	}
-	pageHTML(html, name) {
-		return this.pageRawHTML(this.parent.opts.transformHTML(html), name);
+		if (!room) return '';
+		const formatted = opts.notransform ? this.parent.opts.transformHTML(html, opts) : html;
+		room.send(`/sendhtmlpage ${this.userid}, ${opts.name}, ${formatted}`);
+		return formatted;
 	}
 	waitFor(condition, time = 60_000) {
 		if (typeof condition !== 'function') throw new TypeError('Condition must be a function.');
