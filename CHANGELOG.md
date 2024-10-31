@@ -3,6 +3,8 @@
 **v4.0.0**
 
 - Removes default `inline-css` HTML processing logic. You may instead pass your own logic to options under `transformHTML`.
+- Removes `*RawHTML()` methods from all classes. Use `HTMLopts.notransform` instead.
+- `User#pageHTML` now uses `HTMLopts` instead of just `name`.
 
 **v3.8.2**
 
