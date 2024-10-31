@@ -5,8 +5,8 @@
 	"description": "Package for connecting to Pokemon Showdown servers.",
 	"main": "client.js",
 	"scripts": {
-		"lint": "eslint .",
 		"jest": "jest --silent=false --verbose",
+		"lint": "eslint . && prettier --check .",
 		"test": "npm run lint && npm run jest",
 		"debug-tests": "DEBUG=true npm run jest",
 		"prepare": "husky install"
