@@ -23,7 +23,7 @@
 	},
 	"dependencies": {
 		"axios": "^0.28.0",
-		"inline-css": "^3.0.0",
+		"juice": "^11.0.0",
 		"websocket": "^1.0.31"
 	},
 	"devDependencies": {

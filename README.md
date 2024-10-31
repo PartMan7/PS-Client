@@ -114,7 +114,7 @@ For common purposes and frequently useful methods, a variety of tools have been 
 - `formatText (input: string): string`: Formats a string the way PS does for chat messages (this WILL escape HTML).
 
 Note: This module uses [axios](https://github.com/axios/axios) for POST requests.<br/>
-Note: The various methods that use HTML in the Message / Room / User classes all use the [inline-css](https://www.npmjs.com/package/inline-css) library for expanding `<style>` tags into inline CSS.
+Note: The various methods that use HTML in the Message / Room / User classes all use the [juice](https://www.npmjs.com/package/juice) library for expanding `<style>` tags into inline CSS.
 
 ## Datacenters
 

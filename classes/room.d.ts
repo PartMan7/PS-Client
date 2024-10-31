@@ -60,20 +60,20 @@ export default class Room {
 	 * @param user - The user to send the text to
 	 * @param text - The text to privately send
 	 */
-	privateSend(user: User | string, text: string): boolean;
+	privateSend(user: User | string, text: string): string;
 
 	/**
 	 * Sends HTML in the room
 	 * @param html - The HTML to send
 	 * @param opts - An instance of HTMLopts (name/rank/change)
 	 */
-	sendHTML(html: string, opts?: HTMLopts): boolean;
+	sendHTML(html: string, opts?: HTMLopts): string;
 	/**
 	 * Sends HTML in the room without processing
 	 * @param html - The HTML to send
 	 * @param opts - An instance of HTMLopts (name/rank/change)
 	 */
-	sendRawHTML(html: string, opts?: HTMLopts): boolean;
+	sendRawHTML(html: string, opts?: HTMLopts): string;
 
 	/**
 	 * Privately sends HTML in the room
@@ -81,14 +81,14 @@ export default class Room {
 	 * @param html - The HTML to send
 	 * @param opts - An instance of HTMLopts (name/rank/change)
 	 */
-	privateHTML(user: User | string, html: string, opts?: HTMLopts): boolean;
+	privateHTML(user: User | string, html: string, opts?: HTMLopts): string;
 	/**
 	 * Privately sends HTML in the room without processing
 	 * @param user - The user to send the HTML to
 	 * @param html - The HTML to send
 	 * @param opts - An instance of HTMLopts (name/rank/change)
 	 */
-	privateRawHTML(user: User | string, html: string, opts?: HTMLopts): boolean;
+	privateRawHTML(user: User | string, html: string, opts?: HTMLopts): string;
 
 	/**
 	 * Waits for the first message in the room that fulfills the given condition

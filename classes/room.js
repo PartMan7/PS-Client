@@ -1,6 +1,6 @@
 'use strict';
 
-const inlineCss = require('inline-css');
+const inlineCss = require('juice/client');
 const { toID, formatText } = require('../tools.js');
 
 const customInspectSymbol = Symbol.for('nodejs.util.inspect.custom');
@@ -21,8 +21,9 @@ class Room {
 		if (!['*', '#', '&'].includes(this.users.find(u => toID(u) === this.parent.status.userid)?.charAt(0))) return false;
 		user = this.parent.getUser(user);
 		if (!user) return false;
-		this.send(`/sendprivatehtmlbox ${user.userid}, ${formatText(text)}`);
-		return true;
+		const formatted = formatText(text);
+		this.send(`/sendprivatehtmlbox ${user.userid}, ${formatted}`);
+		return formatted;
 	}
 	sendRawHTML(html, opts = {}) {
 		if (!['*', '#', '&'].includes(this.users.find(u => toID(u) === this.parent.status.userid)?.charAt(0))) return false;
@@ -34,11 +35,10 @@ class Room {
 			`/${opts.change ? 'change' : 'add'}${opts.rank ? 'rank' : ''}uhtml` +
 				` ${opts.rank ? `${opts.rank}, ` : ''}${opts.name}, ${html}`
 		);
-		return true;
+		return html;
 	}
 	sendHTML(html, opts = {}) {
-		inlineCss(html, { url: 'filePath' }).then(formatted => this.sendRawHTML(formatted, opts));
-		return true;
+		return this.sendRawHTML(inlineCss(html), opts);
 	}
 	privateRawHTML(user, html, opts = {}) {
 		if (!['*', '#', '&'].includes(this.users.find(u => toID(u) === this.parent.status.userid)?.charAt(0))) return false;
@@ -49,11 +49,10 @@ class Room {
 		if (!opts || typeof opts !== 'object') throw new TypeError('Options must be an object');
 		if (!opts.name) opts.name = this.parent.status.username + Date.now().toString(36);
 		this.send(`/${opts.change ? 'change' : 'send'}privateuhtml ${user.userid}, ${opts.name}, ${html}`);
-		return true;
+		return html;
 	}
 	privateHTML(user, html, opts = {}) {
-		inlineCss(html, { url: 'filePath' }).then(formatted => this.privateRawHTML(user, formatted, opts));
-		return true;
+		return this.privateRawHTML(user, inlineCss(html), opts);
 	}
 	waitFor(condition, time) {
 		if (!time && typeof time !== 'number') time = 60 * 1000;

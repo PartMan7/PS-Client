@@ -1,6 +1,6 @@
 'use strict';
 
-const inlineCss = require('inline-css');
+const inlineCss = require('juice/client');
 
 const customInspectSymbol = Symbol.for('nodejs.util.inspect.custom');
 
@@ -31,11 +31,10 @@ class User {
 		const room = rooms.public || rooms.hidden || rooms.private;
 		if (!room) return false;
 		room.send(`/pmuhtml${opts.change ? 'change' : ''} ${this.userid}, ${opts.name}, ${html}`);
-		return true;
+		return html;
 	}
 	sendHTML(html, opts = {}) {
-		inlineCss(html, { url: 'filePath' }).then(formatted => this.sendRawHTML(formatted, opts));
-		return true;
+		return this.sendRawHTML(inlineCss(html), opts);
 	}
 	pageRawHTML(html, name) {
 		if (!html) throw new Error('Missing HTML argument');
@@ -49,11 +48,10 @@ class User {
 		const room = rooms.public || rooms.hidden || rooms.private;
 		if (!room) return false;
 		room.send(`/sendhtmlpage ${this.userid}, ${name}, ${html}`);
-		return true;
+		return html;
 	}
 	pageHTML(html, name) {
-		inlineCss(html, { url: 'filePath' }).then(formatted => this.pageRawHTML(formatted, name));
-		return true;
+		return this.pageRawHTML(inlineCss(html), name);
 	}
 	waitFor(condition, time = 60_000) {
 		if (typeof condition !== 'function') throw new TypeError('Condition must be a function.');
