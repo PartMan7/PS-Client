@@ -153,3 +153,4 @@ export { Message, Room, User };
 
 export * as Tools from './tools';
 
+export * as Data from './data';
