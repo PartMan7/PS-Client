@@ -1,5 +1,9 @@
 ## What's New
 
+**v3.8.2**
+
+- Fixes isTrusted logic and adds an 'activate' event.
+
 **v3.8.1**
 
 - Adds missing void return values to JSDoc and fixes some parameters.
