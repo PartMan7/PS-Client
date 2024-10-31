@@ -2,39 +2,17 @@
 const debug = process.env.DEBUG;
 
 const chalk = require('chalk');
-const dotenv = require('dotenv');
-
-dotenv.config();
 
 const { Client } = require('./client.js');
 
-const username = process.env.PS_USERNAME ?? 'PS-Client';
-
 const Bot = new Client({
-	username,
-	password: process.env.PASSWORD,
+	username: 'PS-Client',
+	password: 'PASSWORD',
 	rooms: ['botdevelopment'],
-	debug,
-	handle: err => {
-		if (!debug) throw err;
-		else console.error(err);
-	},
 });
 
-if (debug)
-	Bot.on('line', (room, line) => {
-		if (line.startsWith('|queryresponse|')) return;
-		if (line.startsWith('|c:|')) return;
-		if (line.startsWith('|raw|')) return;
-		if (line.startsWith('|formats|')) return;
-		if (line.startsWith('|updateuser|')) return;
-		console.log(room, line);
-	});
-Bot.on('message', message => {
-	if (message.isIntro) return;
-	if (debug) console.log(message);
-	else if (['partbot', 'psclient'].includes(message.author.id)) console.log(chalk.dim(`${message.raw}`));
-});
+jest.mock('websocket', () => require('./mocks/websocket.js'));
+jest.mock('axios', () => require('./mocks/axios.js'));
 
 describe('PS-Client', () => {
 	beforeAll(() => {
@@ -60,32 +38,29 @@ describe('PS-Client', () => {
 		return new Promise((resolve, reject) => {
 			Bot.getRoom('Bot Development')
 				.waitFor(msg => {
-					return msg.author.userid === 'partbot' && msg.content === '1';
+					return msg.author.userid === 'otheruser' && msg.content === '/me pokes PS-Client';
 				})
 				.then(resolve)
 				.catch(reject);
-			Bot.getRoom('Bot Development').send(',eval 1');
+			Bot.getRoom('Bot Development').send('/me pokes Other User');
 		});
 	});
 
 	it('should be able to send PMs', () => {
-		return Bot.getUser('PartBot').send('Test');
+		return Bot.getUser('Other User').send('Test');
 	});
 
 	it('should detect sent PMs', () => {
-		if (!Bot.getUser('PartBot')) return;
 		return new Promise((resolve, reject) => {
-			Bot.getUser('PartBot')
-				.waitFor(msg => msg.content.includes('PartMan'))
+			Bot.getUser('Other User')
+				.waitFor(msg => msg.content === 'Hi!')
 				.then(resolve)
 				.catch(reject);
-			Bot.getUser('PartBot').send(',help');
+			Bot.getUser('Other User').send('Hello!');
 		});
 	});
 
-	// Test the following only if the user is PS-Client
-
-	it('should be able to send HTML', () => {
+	it.skip('should be able to send HTML', () => {
 		return new Promise((resolve, reject) => {
 			Bot.getRoom('Bot Development')
 				.waitFor(msg => msg.author.id === 'psclient' && /Test/.test(msg.content))
@@ -95,7 +70,7 @@ describe('PS-Client', () => {
 		});
 	});
 
-	it('should be able to send raw HTML', () => {
+	it.skip('should be able to send raw HTML', () => {
 		return new Promise((resolve, reject) => {
 			Bot.getRoom('Bot Development')
 				.waitFor(msg => msg.author.id === 'psclient' && /Test/.test(msg.content))

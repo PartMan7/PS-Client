@@ -71,11 +71,11 @@ class Client extends EventEmitter {
 		const webSocket = new wsClient({ maxReceivedFrameSize: 104857600 });
 		this.webSocket = webSocket;
 		this.rooms = new Map();
-		this.rooms[customInspectSymbol] = function (depth, options, inspect) {
+		this.rooms[customInspectSymbol] = function (depth, options) {
 			return `Map(${this.size}) { ${[...this.keys()].map(room => options.stylize(room, 'special')).join(', ')} }`;
 		};
 		this.users = new Map();
-		this.users[customInspectSymbol] = function (depth, options, inspect) {
+		this.users[customInspectSymbol] = function (depth, options) {
 			return `Map(${this.size}) { ${options.stylize('...', 'special')} }`;
 		};
 		webSocket.on('connectFailed', err => {
@@ -161,7 +161,7 @@ class Client extends EventEmitter {
 			let trnData;
 			try {
 				const resData = JSON.parse(response.substr(1));
-				if (!resData.actionsuccess) throw new Error(`Failed to login: ${response}`);
+				if (!resData.assertion) throw new Error(`Failed to login: ${response}`);
 				trnData = resData.assertion;
 				if (trnData.startsWith(';;')) throw new Error(trnData.substr(2));
 			} catch (err) {
