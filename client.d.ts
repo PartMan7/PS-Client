@@ -14,6 +14,7 @@ type ClientOpts = {
 	debug?: boolean;
 	noFailMessages?: boolean;
 	throttle?: number;
+	transformHTML?: (input: any) => string;
 	retryLogin?: number;
 	autoReconnect?: boolean;
 	autoReconnectDelay?: number;
@@ -38,24 +39,7 @@ export interface Client {
 }
 
 export class Client extends EventEmitter {
-	opts: {
-		username: string;
-		password?: string;
-		avatar?: string;
-		status?: string;
-		rooms: string[];
-		debug?: boolean;
-		noFailMessages: boolean;
-		throttle?: number;
-		retryLogin: number;
-		autoReconnect: boolean;
-		autoReconnectDelay: number;
-		connectionTimeout: number;
-		server: string;
-		serverid: string;
-		port: number;
-		loginServer: string;
-	};
+	opts: Required<Omit<ClientOpts, 'password' | 'avatar' | 'status' | 'debug'>> & ClientOpts;
 	status: {
 		connected: boolean;
 		loggedIn: boolean;

@@ -1,7 +1,5 @@
 'use strict';
 
-const inlineCss = require('juice/client');
-
 const customInspectSymbol = Symbol.for('nodejs.util.inspect.custom');
 
 class User {
@@ -34,7 +32,7 @@ class User {
 		return html;
 	}
 	sendHTML(html, opts = {}) {
-		return this.sendRawHTML(inlineCss(html), opts);
+		return this.sendRawHTML(this.parent.opts.transformHTML(html), opts);
 	}
 	pageRawHTML(html, name) {
 		if (!html) throw new Error('Missing HTML argument');
@@ -51,7 +49,7 @@ class User {
 		return html;
 	}
 	pageHTML(html, name) {
-		return this.pageRawHTML(inlineCss(html), name);
+		return this.pageRawHTML(this.parent.opts.transformHTML(html), name);
 	}
 	waitFor(condition, time = 60_000) {
 		if (typeof condition !== 'function') throw new TypeError('Condition must be a function.');

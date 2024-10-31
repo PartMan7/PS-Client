@@ -32,6 +32,7 @@ class Client extends EventEmitter {
 			rooms: [],
 			debug: false,
 			throttle: null,
+			transformHTML: html => html,
 			noFailMessages: false,
 		};
 		Object.assign(this.opts, opts);

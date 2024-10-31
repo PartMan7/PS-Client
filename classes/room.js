@@ -1,6 +1,5 @@
 'use strict';
 
-const inlineCss = require('juice/client');
 const { toID, formatText } = require('../tools.js');
 
 const customInspectSymbol = Symbol.for('nodejs.util.inspect.custom');
@@ -38,7 +37,7 @@ class Room {
 		return html;
 	}
 	sendHTML(html, opts = {}) {
-		return this.sendRawHTML(inlineCss(html), opts);
+		return this.sendRawHTML(this.parent.opts.transformHTML(html), opts);
 	}
 	privateRawHTML(user, html, opts = {}) {
 		if (!['*', '#', '&'].includes(this.users.find(u => toID(u) === this.parent.status.userid)?.charAt(0))) return false;
@@ -52,7 +51,7 @@ class Room {
 		return html;
 	}
 	privateHTML(user, html, opts = {}) {
-		return this.privateRawHTML(user, inlineCss(html), opts);
+		return this.privateRawHTML(user, this.parent.opts.transformHTML(html), opts);
 	}
 	waitFor(condition, time) {
 		if (!time && typeof time !== 'number') time = 60 * 1000;
