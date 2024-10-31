@@ -1,4 +1,3 @@
-const axios = require('axios');
 const Tools = require('./tools.js');
 
 describe('toID', () => {
@@ -24,8 +23,8 @@ describe('uploadToPastie', function () {
 	// TODO: Just check the body instead; no need to actually upload
 	it.skip('should upload the given text', async () => {
 		const paste = await Tools.uploadToPastie('Test');
-		const { data } = await axios.get(paste);
-		expect(data).toBe('Test');
+		const res = await fetch(paste);
+		expect(await res.text()).toBe('Test');
 	});
 });
 

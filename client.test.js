@@ -8,7 +8,7 @@ const Bot = new Client({
 });
 
 jest.mock('websocket', () => require('./mocks/websocket.js'));
-jest.mock('axios', () => require('./mocks/axios.js'));
+jest.spyOn(global, 'fetch').mockImplementation((...args) => require('./mocks/fetch.js')(...args));
 
 describe('PS-Client', () => {
 	beforeAll(() => {
