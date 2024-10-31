@@ -10,8 +10,6 @@ function debugLogger(data, dir) {
 	baseConsole.log(dir === 'out' ? chalk.green('>>') : chalk.yellow('<<'), chalk.dim(msg));
 }
 
-const debug = !!process.env.DEBUG;
-
 const refStamp = Math.round(Date.now() / 1000);
 let timeSinceJoin = 10;
 
