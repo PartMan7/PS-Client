@@ -1,6 +1,5 @@
 'use strict';
 
-const axios = require('axios');
 const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
@@ -23,7 +22,7 @@ exports.HSL = function HSL(name, original) {
 		name = COLORS[name];
 		out.source = name;
 	}
-	const hash = require('crypto').createHash('md5').update(name, 'utf8').digest('hex');
+	const hash = crypto.createHash('md5').update(name, 'utf8').digest('hex');
 	const H = parseInt(hash.substr(4, 4), 16) % 360;
 	const S = (parseInt(hash.substr(0, 4), 16) % 50) + 40;
 	let L = Math.floor((parseInt(hash.substr(8, 4), 16) % 20) + 30);
@@ -133,7 +132,8 @@ exports.update = function update(...types) {
 			url: 'https://play.pokemonshowdown.com/data/pokedex.json',
 			path: './showdown/pokedex.json',
 			name: 'Pokedex',
-			process: data => {
+			process: json => {
+				const data = JSON.parse(json);
 				Object.values(data).forEach(pokemon => {
 					pokemon.id = toID(pokemon.name);
 					pokemon.bst = Object.values(pokemon.baseStats).reduce((a, b) => a + b, 0);
@@ -164,7 +164,7 @@ exports.update = function update(...types) {
 						}
 					}
 				});
-				return data;
+				return JSON.stringify(data);
 			},
 		},
 		typechart: {
@@ -185,22 +185,24 @@ exports.update = function update(...types) {
 				type =>
 					new Promise(res => {
 						if (type.name === 'Colors') {
-							return axios.get('http://play.pokemonshowdown.com/config/colors.json').then(async response => {
-								const configStr = await axios.get('https://play.pokemonshowdown.com/config/config.js');
-								const pairs = configStr.data.match(/(?<=')[a-z0-9]+': '[a-z0-9]*(?=')/g).map(match => match.split(`': '`));
-								const obj = Object.assign(Object.fromEntries(pairs), response.data);
-								fs.writeFile(type.path, JSON.stringify(obj, null, '\t'), err => {
-									if (err) return reject(err.message);
-									delete require.cache[require.resolve(type.path)];
-									COLORS = require(type.path);
-									return res(type.name);
+							return fetch('http://play.pokemonshowdown.com/config/colors.json')
+								.then(res => res.json())
+								.then(async response => {
+									const configStr = await fetch('https://play.pokemonshowdown.com/config/config.js').then(body => body.text());
+									const pairs = configStr.match(/(?<=')[a-z0-9]+': '[a-z0-9]*(?=')/g).map(match => match.split(`': '`));
+									const obj = Object.assign(Object.fromEntries(pairs), response);
+									fs.writeFile(type.path, JSON.stringify(obj, null, '\t'), err => {
+										if (err) return reject(err.message);
+										delete require.cache[require.resolve(type.path)];
+										COLORS = require(type.path);
+										return res(type.name);
+									});
 								});
-							});
 						}
-						axios
-							.get(type.url)
+						fetch(type.url)
+							.then(res => res.text())
 							.then(response => {
-								const data = type.process ? type.process(response.data) : response.data;
+								const data = type.process ? type.process(response) : response;
 								const writeData = (typeof data === 'string' ? data : JSON.stringify(data)) + (type.append || '');
 								fs.writeFile(path.join(__dirname, type.path), writeData, err => {
 									if (err) throw err;
@@ -231,15 +233,17 @@ exports.update = function update(...types) {
 
 exports.uploadToPastie = function uploadToPastie(text, callback) {
 	return new Promise((resolve, reject) => {
-		axios
-			.post('https://pastie.io/documents', String(text), {
-				headers: {
-					'Content-Type': 'text/plain',
-				},
-			})
+		fetch('https://pastie.io/documents', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'text/plain',
+			},
+			body: text,
+		})
+			.then(res => res.json())
 			.then(res => {
-				if (callback && typeof callback === 'function') callback(`https://pastie.io/raw/${res.data.key}`);
-				resolve(`https://pastie.io/raw/${res.data.key}`);
+				if (callback && typeof callback === 'function') callback(`https://pastie.io/raw/${res.key}`);
+				resolve(`https://pastie.io/raw/${res.key}`);
 			})
 			.catch(reject);
 	});
@@ -262,21 +266,23 @@ exports.uploadToPokepaste = function uploadToPokepaste(text, output) {
 				return reject(new Error('Invalid Paste value.'));
 			}
 		}
-		axios
-			.post('https://pokepast.es/create', querystring.stringify(text))
-			.then(res => {
-				if (typeof output === 'function') return output(res.request.res.responseUrl);
+		fetch('https://pokepast.es/create', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+			body: querystring.stringify(text),
+		})
+			.then(res => res.text().then(data => ({ data, url: res.url })))
+			.then(({ data, url }) => {
+				if (typeof output === 'function') return output(url);
 				switch (toID(output)) {
-					case 'raw': {
-						resolve(`https://pokepast.es/raw${res.request.path}`);
+					case 'raw':
+						resolve(url.replace(/(?<=pokepast\.es)/, '/raw'));
 						break;
-					}
-					case 'html': {
-						resolve(res.data);
+					case 'html':
+						resolve(data);
 						break;
-					}
 					default:
-						resolve(res.request.res.responseUrl);
+						resolve(url);
 				}
 			})
 			.catch(reject);

@@ -54,7 +54,7 @@ export function uploadToPastie(text: string, callback?: (url: string) => any): P
  * @param output - An optional string to dictate the resolution value of the promise ('raw' for the URL with the raw text, 'html' for the source HTML). Leave empty for the standard URL.
  * @returns A promise with the value dictated by output
  */
-export function uploadToPokepaste(input: string | pokePaste, output: 'raw' | 'html' | void): Promise<string>;
+export function uploadToPokepaste(input: string | pokePaste, output?: 'raw' | 'html' | void): Promise<string>;
 
 /**
  * @param input - The text to sanitize HTML from
