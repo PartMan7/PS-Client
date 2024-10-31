@@ -1,0 +1,38 @@
+{
+	"root": true,
+	"extends": ["prettier"],
+	"env": {
+		"node": true,
+		"es6": true
+	},
+	"parserOptions": {
+		"ecmaVersion": 14
+	},
+	"ignorePatterns": ["node_modules"],
+	"rules": {
+		"camelcase": "error",
+		"eqeqeq": "error",
+		"max-len": [
+			"error",
+			{
+				"code": 135,
+				"tabWidth": 0,
+				"ignorePattern": "(?:^\\t*(?:let|const) [a-zA-Z]*(?:HTML|[mM]essage) \\+?= (['\"`])[^\\n]*?\\1;$|^\\t*help: (['\"`])[^\\n]*?\\2[;,]$)"
+			}
+		],
+		"no-console": "error",
+		"no-restricted-imports": ["error", { "patterns": [".*"] }],
+		"no-unreachable": "error",
+		"no-unused-expressions": "error",
+		"no-var": "error",
+		"prefer-const": [
+			"error",
+			{
+				"destructuring": "all",
+				"ignoreReadBeforeAssign": true
+			}
+		],
+		"spaced-comment": ["error", "always"],
+		"yoda": ["error", "never"]
+	}
+}
