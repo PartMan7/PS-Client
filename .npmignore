@@ -8,7 +8,7 @@ package-lock.json
 .husky
 
 .eslintignore
-.eslintrc.json
+.eslintrc
 
 **/*.test.js
 
