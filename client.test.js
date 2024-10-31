@@ -81,7 +81,7 @@ describe('PS-Client', () => {
 	});
 
 	afterAll(() => {
-		console.log(chalk.dim(`Disconnecting...`));
+		require('console').log(chalk.red(`Disconnecting...`));
 		Bot.disconnect();
 	});
 });
