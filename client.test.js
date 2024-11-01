@@ -7,7 +7,7 @@ const Bot = new Client({
 	rooms: ['botdevelopment'],
 });
 
-jest.mock('websocket', () => require('./mocks/websocket.js'));
+jest.mock('ws', () => require('./mocks/ws.js'));
 jest.spyOn(global, 'fetch').mockImplementation((...args) => require('./mocks/fetch.js')(...args));
 
 describe('PS-Client', () => {

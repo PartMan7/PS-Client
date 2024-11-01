@@ -30,11 +30,25 @@ class Connection extends EventEmitter {
 	constructor(props) {
 		super(props);
 	}
+}
+class MockSocket extends EventEmitter {
+	constructor(props) {
+		super(props);
+		setTimeout(() => {
+			this.onopen();
+			this.receive([
+				'|updateuser| Guest 42069|0|169|{"context":"not used"}',
+				'|formats|,1|Formats stuff; can ignore',
+				'|challstr|challstr_key|challstr_value',
+			]);
+		}, 1_000);
+	}
 	receive(message) {
 		const msgArray = Array.isArray(message) ? message : [message];
 		msgArray.forEach(msg => debugLogger(msg, 'in'));
-		this.emit('message', { type: 'utf8', utf8Data: `a${JSON.stringify(msgArray)}` });
+		this.onmessage({ data: `a${JSON.stringify(msgArray)}` });
 	}
+
 	send(messages) {
 		JSON.parse(messages).forEach(message => {
 			debugLogger(message, 'out');
@@ -130,21 +144,9 @@ class Connection extends EventEmitter {
 			}
 		});
 	}
-	close() {}
-}
-class MockSocket extends EventEmitter {
-	constructor(props) {
-		super(props);
-	}
-	async connect() {
-		const connection = new Connection();
-		this.emit('connect', connection);
-		connection.receive([
-			'|updateuser| Guest 42069|0|169|{"context":"not used"}',
-			'|formats|,1|Formats stuff; can ignore',
-			'|challstr|challstr_key|challstr_value',
-		]);
+	close() {
+		this.onclose();
 	}
 }
 
-exports.client = MockSocket;
+module.exports = MockSocket;

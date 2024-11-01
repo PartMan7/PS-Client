@@ -2,7 +2,7 @@
 
 const EventEmitter = require('events');
 const querystring = require('querystring');
-const wsClient = require('isomorphic-ws');
+const WebSocket = require('isomorphic-ws');
 
 const customInspectSymbol = Symbol.for('nodejs.util.inspect.custom');
 
@@ -85,15 +85,15 @@ class Client extends EventEmitter {
 		const { server, serverProtocol, port } = this.opts;
 		const websocketUrl = `${serverProtocol}://${server}${port ? `:${port}` : ''}/showdown/${id}/${str}/websocket`;
 		this.debug(`Connecting to ${websocketUrl}`);
-		const websocket = new wsClient(websocketUrl);
-		this.connection = websocket;
+		const connection = new WebSocket(websocketUrl);
+		this.connection = connection;
 
-		websocket.onopen = connection => {
+		connection.onopen = connection => {
 			this.emit('connect', connection);
 			this.debug(`Connected to server: ${this.opts.server}`);
 			this.status.connected = true;
 		};
-		websocket.onerror = err => {
+		connection.onerror = err => {
 			this.debug(`Could not connect to the server ${this.opts.server}`);
 			this.handle(err);
 			this.status.connected = false;
@@ -103,11 +103,11 @@ class Client extends EventEmitter {
 				setTimeout(() => this.connect(true), this.opts.autoReconnectDelay);
 			}
 		};
-		websocket.onmessage = message => {
+		connection.onmessage = message => {
 			this.emit('raw', message.data);
 			this.receive(message.data);
 		};
-		websocket.onclose = () => {
+		connection.onclose = () => {
 			this.debug('Connection closed');
 			this.connection = null;
 			this.status.connected = false;
