@@ -2,7 +2,7 @@
 
 const EventEmitter = require('events');
 const querystring = require('querystring');
-const wsClient = require('websocket').client;
+const wsClient = require('isomorphic-ws');
 
 const customInspectSymbol = Symbol.for('nodejs.util.inspect.custom');
 
@@ -69,8 +69,7 @@ class Client extends EventEmitter {
 		if (retry) this.debug('Retrying...');
 		if (this.status.connected) return this.handle('Already connected');
 		this.closed = false;
-		const webSocket = new wsClient({ maxReceivedFrameSize: 104857600 });
-		this.webSocket = webSocket;
+
 		this.rooms = new Map();
 		this.rooms[customInspectSymbol] = function (depth, options) {
 			return `Map(${this.size}) { ${[...this.keys()].map(room => options.stylize(room, 'special')).join(', ')} }`;
@@ -79,55 +78,45 @@ class Client extends EventEmitter {
 		this.users[customInspectSymbol] = function (depth, options) {
 			return `Map(${this.size}) { ${options.stylize('...', 'special')} }`;
 		};
-		webSocket.on('connectFailed', err => {
+
+		const id = ~~(Math.random() * 900) + 100;
+		const chars = 'abcdefghijklmnopqrstuvwxyz0123456789_'.split('');
+		const str = Array.from({ length: 8 }, () => chars[~~(Math.random() * 36)]).join('');
+		const { server, serverProtocol, port } = this.opts;
+		const websocketUrl = `${serverProtocol}://${server}${port ? `:${port}` : ''}/showdown/${id}/${str}/websocket`;
+		this.debug(`Connecting to ${websocketUrl}`);
+		const websocket = new wsClient(websocketUrl);
+		this.connection = websocket;
+
+		websocket.onopen = connection => {
+			this.emit('connect', connection);
+			this.debug(`Connected to server: ${this.opts.server}`);
+			this.status.connected = true;
+		};
+		websocket.onerror = err => {
 			this.debug(`Could not connect to the server ${this.opts.server}`);
 			this.handle(err);
+			this.status.connected = false;
 			this.emit('disconnect', err);
 			if (this.opts.autoReconnect) {
 				this.debug(`Retrying in ${this.opts.autoReconnectDelay / 1000} seconds`);
 				setTimeout(() => this.connect(true), this.opts.autoReconnectDelay);
 			}
-		});
-		webSocket.on('connect', connection => {
-			this.emit('connect', connection);
-			this.debug(`Connected to server: ${this.opts.server}`);
-			this.status.connected = true;
-			this.connection = connection;
-			connection.on('error', err => {
-				this.handle(err);
-				this.connection = null;
-				this.status.connected = false;
-				this.emit('disconnect', err);
-				if (this.opts.autoReconnect) {
-					this.debug(`Retrying in ${this.opts.autoReconnectDelay / 1000} seconds.`);
-					setTimeout(() => this.connect(true), this.opts.autoReconnectDelay);
-				}
-			});
-			connection.on('close', () => {
-				this.debug('Connection closed');
-				this.connection = null;
-				this.status.connected = false;
-				this.emit('disconnect', 0);
-				// clearInterval(this._spacer);
-				if (!this.closed && this.opts.autoReconnect) {
-					this.debug(`Retrying in ${this.opts.autoReconnectDelay / 1000} seconds.`);
-					setTimeout(() => this.connect(true), this.opts.autoReconnectDelay);
-				}
-			});
-			connection.on('message', message => {
-				if (message.type === 'utf8') {
-					this.emit('raw', message.utf8Data);
-					this.receive(message.utf8Data);
-				}
-			});
-		});
-		const id = ~~(Math.random() * 900) + 100;
-		const chars = 'abcdefghijklmnopqrstuvwxyz0123456789_'.split('');
-		const str = Array.from({ length: 8 }, () => chars[~~(Math.random() * 36)]).join('');
-		const { server, serverProtocol, port } = this.opts;
-		const conStr = `${serverProtocol}://${server}${port ? `:${port}` : ''}/showdown/${id}/${str}/websocket`;
-		this.debug(`Connecting to ${conStr}`);
-		webSocket.connect(conStr);
+		};
+		websocket.onmessage = message => {
+			this.emit('raw', message.data);
+			this.receive(message.data);
+		};
+		websocket.onclose = () => {
+			this.debug('Connection closed');
+			this.connection = null;
+			this.status.connected = false;
+			this.emit('disconnect', 0);
+			if (!this.closed && this.opts.autoReconnect) {
+				this.debug(`Retrying in ${this.opts.autoReconnectDelay / 1000} seconds.`);
+				setTimeout(() => this.connect(true), this.opts.autoReconnectDelay);
+			}
+		};
 	}
 	disconnect() {
 		this.closed = true;
