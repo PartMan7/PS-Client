@@ -22,7 +22,8 @@
 		"url": "https://github.com/PartMan7/PS-Client.git"
 	},
 	"dependencies": {
-		"websocket": "^1.0.31"
+		"isomorphic-ws": "^5.0.0",
+		"ws": "^8.18.0"
 	},
 	"devDependencies": {
 		"chalk": "^4.0.0",
