@@ -1,5 +1,9 @@
 ## What's New
 
+**v4.0.2**
+
+- Fixes notransform logic (was inverted).
+
 **v4.0.1**
 
 - Fixes types for `*HTML` methods to use `any`.
