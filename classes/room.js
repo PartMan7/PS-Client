@@ -30,7 +30,7 @@ class Room {
 		if (typeof opts === 'string') opts = { name: opts };
 		if (!opts || typeof opts !== 'object') throw new TypeError('Options must be an object');
 		if (!opts.name) opts.name = this.parent.status.username + Date.now().toString(36);
-		const formatted = opts.notransform ? this.parent.opts.transformHTML(html, opts) : html;
+		const formatted = opts.notransform ? html : this.parent.opts.transformHTML(html, opts);
 		this.send(
 			`/${opts.change ? 'change' : 'add'}${opts.rank ? 'rank' : ''}uhtml` +
 				` ${opts.rank ? `${opts.rank}, ` : ''}${opts.name}, ${formatted}`
@@ -45,7 +45,7 @@ class Room {
 		if (typeof opts === 'string') opts = { name: opts };
 		if (!opts || typeof opts !== 'object') throw new TypeError('Options must be an object');
 		if (!opts.name) opts.name = this.parent.status.username + Date.now().toString(36);
-		const formatted = opts.notransform ? this.parent.opts.transformHTML(html, opts) : html;
+		const formatted = opts.notransform ? html : this.parent.opts.transformHTML(html, opts);
 		this.send(`/${opts.change ? 'change' : 'send'}privateuhtml ${user.userid}, ${opts.name}, ${formatted}`);
 		return formatted;
 	}

@@ -28,7 +28,7 @@ class User {
 		}
 		const room = rooms.public || rooms.hidden || rooms.private;
 		if (!room) return '';
-		const formatted = opts.notransform ? this.parent.opts.transformHTML(html, opts) : html;
+		const formatted = opts.notransform ? html : this.parent.opts.transformHTML(html, opts);
 		room.send(`/pmuhtml${opts.change ? 'change' : ''} ${this.userid}, ${opts.name}, ${formatted}`);
 		return formatted;
 	}
@@ -42,7 +42,7 @@ class User {
 		}
 		const room = rooms.public || rooms.hidden || rooms.private;
 		if (!room) return '';
-		const formatted = opts.notransform ? this.parent.opts.transformHTML(html, opts) : html;
+		const formatted = opts.notransform ? html : this.parent.opts.transformHTML(html, opts);
 		room.send(`/sendhtmlpage ${this.userid}, ${opts.name}, ${formatted}`);
 		return formatted;
 	}
