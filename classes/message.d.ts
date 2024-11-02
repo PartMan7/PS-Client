@@ -53,14 +53,14 @@ type Message = {
 		 * @param html - The HTML to send
 		 * @param opts - An instance of HTMLopts (name/rank/change)
 		 */
-		sendHTML(html: string, opts?: HTMLopts): boolean;
+		sendHTML(html: any, opts?: HTMLopts): boolean;
 
 		/**
 		 * Privately sends HTML in the message context (chatroom for 'chat', PMs for 'pm')
 		 * @param html - The HTML to send
 		 * @param opts - An instance of HTMLopts (name/rank/change)
 		 */
-		replyHTML(html: string, opts?: HTMLopts): boolean;
+		replyHTML(html: any, opts?: HTMLopts): boolean;
 	};
 
 export default Message;

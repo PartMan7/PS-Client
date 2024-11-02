@@ -67,7 +67,7 @@ export default class Room {
 	 * @param html - The HTML to send
 	 * @param opts - An instance of HTMLopts (name/rank/change)
 	 */
-	sendHTML(html: string, opts?: HTMLopts): string;
+	sendHTML(html: any, opts?: HTMLopts): string;
 
 	/**
 	 * Privately sends HTML in the room
@@ -75,7 +75,7 @@ export default class Room {
 	 * @param html - The HTML to send
 	 * @param opts - An instance of HTMLopts (name/rank/change)
 	 */
-	privateHTML(user: User | string, html: string, opts?: HTMLopts): string;
+	privateHTML(user: User | string, html: any, opts?: HTMLopts): string;
 
 	/**
 	 * Waits for the first message in the room that fulfills the given condition

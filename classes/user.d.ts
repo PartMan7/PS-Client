@@ -63,14 +63,14 @@ export default class User {
 	 * @param html The HTML to send
 	 * @param opts HTML options
 	 */
-	sendHTML(html: string, opts?: HTMLopts): string;
+	sendHTML(html: any, opts?: HTMLopts): string;
 
 	/**
 	 * Sends an HTML page to the user
 	 * @param html The HTML to send
 	 * @param opts HTML options
 	 */
-	pageHTML(html: string, opts?: HTMLopts): string;
+	pageHTML(html: any, opts?: HTMLopts): string;
 
 	/**
 	 * Waits for the first message in the room that fulfills the given condition
