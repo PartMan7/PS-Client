@@ -1,5 +1,9 @@
 ## What's New
 
+**v4.0.1**
+
+- Fixes types for `*HTML` methods to use `any`.
+
 **v4.0.0**
 
 - Minimum version is bumped up to 18.0.0 from 14.0.0.
