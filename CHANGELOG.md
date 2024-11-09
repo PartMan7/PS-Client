@@ -1,5 +1,9 @@
 ## What's New
 
+**v4.0.3**
+
+- Fixes type exports for Message (previously, TypeScript was told it only exported the type and not the value).
+
 **v4.0.2**
 
 - Fixes notransform logic (was inverted).
