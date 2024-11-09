@@ -25,7 +25,7 @@ export default class Message {
 	time: number;
 
 	type: 'chat' | 'pm';
-	target: this['type'] extends 'chat' ? Room : User;
+	target: 'chat' extends this['type'] ? Room : 'pm' extends this['type'] ? User : never;
 
 	constructor(input: MessageOpts);
 
