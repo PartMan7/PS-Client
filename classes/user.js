@@ -21,13 +21,17 @@ class User {
 		if (typeof opts === 'string') opts = { name: opts };
 		if (!opts || typeof opts !== 'object') throw new TypeError('Options must be an object');
 		if (!opts.name) opts.name = this.parent.status.username + Date.now().toString(36);
-		const rooms = {};
-		for (const room of this.parent.rooms.values()) {
-			if (room.auth?.['*']?.includes(this.parent.status.userid) || room.auth?.['#']?.includes(this.parent.status.userid))
-				rooms[room.visibility] = room;
+		let room;
+		if (opts.room) room = typeof opts.room === 'string' ? this.parent.getRoom(opts.room) : opts.room;
+		else {
+			const rooms = {};
+			for (const room of this.parent.rooms.values()) {
+				if (room.auth?.['*']?.includes(this.parent.status.userid) || room.auth?.['#']?.includes(this.parent.status.userid))
+					rooms[room.visibility] = room;
+			}
+			room = rooms.public || rooms.hidden || rooms.secret || rooms.private;
 		}
-		const room = rooms.public || rooms.hidden || rooms.private;
-		if (!room) return '';
+		if (!room) return false;
 		const formatted = opts.notransform ? html : this.parent.opts.transformHTML(html, opts);
 		room.send(`/pmuhtml${opts.change ? 'change' : ''} ${this.userid}, ${opts.name}, ${formatted}`);
 		return formatted;
@@ -35,13 +39,17 @@ class User {
 	pageHTML(html, opts = {}) {
 		if (!html) throw new Error('Missing HTML argument');
 		if (!opts.name) opts.name = this.parent.status.username + Date.now().toString(36);
-		const rooms = {};
-		for (const room of this.parent.rooms.values()) {
-			if (room.auth?.['*']?.includes(this.parent.status.userid) || room.auth?.['#']?.includes(this.parent.status.userid))
-				rooms[room.visibility] = room;
+		let room;
+		if (opts.room) room = typeof opts.room === 'string' ? this.parent.getRoom(opts.room) : opts.room;
+		else {
+			const rooms = {};
+			for (const room of this.parent.rooms.values()) {
+				if (room.auth?.['*']?.includes(this.parent.status.userid) || room.auth?.['#']?.includes(this.parent.status.userid))
+					rooms[room.visibility] = room;
+			}
+			room = rooms.public || rooms.hidden || rooms.secret || rooms.private;
 		}
-		const room = rooms.public || rooms.hidden || rooms.private;
-		if (!room) return '';
+		if (!room) return false;
 		const formatted = opts.notransform ? html : this.parent.opts.transformHTML(html, opts);
 		room.send(`/sendhtmlpage ${this.userid}, ${opts.name}, ${formatted}`);
 		return formatted;
