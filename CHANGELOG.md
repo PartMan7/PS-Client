@@ -1,5 +1,9 @@
 ## What's New
 
+**v4.0.4**
+
+- Fixes bug with TypeScript not inferring across Message's discriminating type union for `type`. 
+
 **v4.0.3**
 
 - Fixes type exports for Message (previously, TypeScript was told it only exported the type and not the value).
