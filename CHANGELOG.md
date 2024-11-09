@@ -1,8 +1,13 @@
 ## What's New
 
+**v4.1.0**
+
+- Includes `type: secret` rooms while determining viable rooms to send HTML to users from.
+- Adds `opts.room` to HTMLOpts, to allow specifying the room for `User#HTML` methods.
+
 **v4.0.4**
 
-- Fixes bug with TypeScript not inferring across Message's discriminating type union for `type`. 
+- Fixes bug with TypeScript not inferring across Message's discriminating type union for `type`.
 
 **v4.0.3**
 
