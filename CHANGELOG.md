@@ -1,5 +1,10 @@
 ## What's New
 
+**v4.2.0**
+
+- Adds handling for `/botmsg` PMs as regular PMs with the relevant command.
+- Adds an `isHidden` property on `Message` if the type is `pm`.
+
 **v4.1.0**
 
 - Includes `type: secret` rooms while determining viable rooms to send HTML to users from.
