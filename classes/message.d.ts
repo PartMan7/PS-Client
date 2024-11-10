@@ -26,6 +26,7 @@ export default class Message {
 
 	type: 'chat' | 'pm';
 	target: 'chat' extends this['type'] ? Room : 'pm' extends this['type'] ? User : never;
+	isHidden: 'pm' extends this['type'] ? boolean : never;
 
 	constructor(input: MessageOpts);
 

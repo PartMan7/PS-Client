@@ -54,6 +54,7 @@ Message has the following properties:
 - `isIntro`: A boolean that indicates whether the message was received as a past message on connection.
 - `time`: The Unix datestamp that indicates when the message was created. This is normally received from PS! wherever possible, but uses `Date.now()` if the data is unavailable.
 - `target`: This can be either a [Room](#room-structure) or a [User](#user-structure), depending on whether the type is `'chat'` or `'pm'`. If the type is `'chat'`, this is the Room in which the message was sent. If the type is `'pm'`, this is the User with which the PM is with - note that this is not always the target of the PM, such as in cases where the Bot receives a PM from another user.
+- `isHidden`: This only applies for PMs, and is `true` when the command is a `botmsg`.
 - `raw`: The original received message (ie, a message of the form `|c|+PartMan|Hi!` would have that as the raw and `Hi!` as the content).
 - `awaited`: A Boolean value indicating whether the message was used to resolve a Room#waitFor or User#waitFor promise.
 

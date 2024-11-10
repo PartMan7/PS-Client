@@ -5,7 +5,7 @@ const { toID } = require('../tools.js');
 
 class Message {
 	constructor(input) {
-		let { by, text, type, target, raw, isIntro, parent, time } = input;
+		let { by, text, type, target, raw, isIntro, parent, time, isHidden } = input;
 		const msgRank = by[0];
 		by = toID(by);
 		if (by && !parent.users.get(by)) {
@@ -30,6 +30,8 @@ class Message {
 				break;
 			case 'pm':
 				this.target = by ? this.parent.users.get(target) : null;
+				this.isHidden = isHidden;
+				if (isHidden && !this.command) this.command = '/botmsg';
 				break;
 			default:
 				this.parent.handle(new Error(`Message: Expected type chat/pm; got ${this.type}`));

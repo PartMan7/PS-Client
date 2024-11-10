@@ -423,14 +423,17 @@ class Client extends EventEmitter {
 			case 'pm': {
 				const by = args[2],
 					to = args[3],
-					value = args.slice(4).join('|'),
 					resolved = [];
+				let value = args.slice(4).join('|');
+				const isHidden = value.startsWith('/botmsg ');
+				if (isHidden) value = value.replace(/^\/botmsg /, '');
 				const chatWith = by.substr(1) === this.status.username ? to : by,
 					comp = `|/pm ${Tools.toID(to)},${value}`;
 				const mssg = new Message({
 					by: by,
 					text: value,
 					type: 'pm',
+					isHidden,
 					target: Tools.toID(chatWith),
 					raw: message,
 					isIntro: isIntro,
