@@ -70,6 +70,7 @@ type ClientOpts = {
 };
 
 export interface Client {
+	on(event: 'packet', listener: (direction: 'in' | 'out', data: string) => void): this;
 	on(event: 'connect', listener: () => void): this;
 	on(event: 'message', listener: (message: Message) => void): this;
 	on(event: 'join', listener: (room: string, user: string, isIntro: boolean) => void): this;

@@ -105,6 +105,7 @@ class Client extends EventEmitter {
 			}
 		};
 		connection.onmessage = message => {
+			this.emit('packet', 'in', message.data);
 			this.emit('raw', message.data);
 			this.receive(message.data);
 		};
@@ -191,6 +192,7 @@ class Client extends EventEmitter {
 		if (!Array.isArray(text)) text = [text];
 		if (text.length > 3) this.handle('The message limit is 3 at a time! Please use Client#sendQueue instead.');
 		text = JSON.stringify(text);
+		this.emit('packet', 'out', text);
 		this.connection.send(text);
 	}
 	sendQueue(text, sent, fail) {
