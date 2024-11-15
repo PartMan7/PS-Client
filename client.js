@@ -515,12 +515,21 @@ class Client extends EventEmitter {
 
 	// Utility
 	addUser(input) {
-		if (!input?.userid) throw new Error('Input must be an object with userid for new User');
-		let user = this.users.get(input.userid);
+		let userid, name;
+		if (typeof input === 'string') {
+			userid = Tools.toID(input);
+			name = input.replace(/^\W/, '');
+		} else {
+			userid = input?.userid;
+			name = input?.name;
+			name ??= userid;
+		}
+		if (!userid) throw new Error('Input must be an object with userid or a string for new User');
+		let user = this.users.get(userid);
 		if (!user) {
-			user = new User(input, this);
-			this.users.set(input.userid, user);
-			this.getUserDetails(input.userid);
+			user = new User({ userid, name }, this);
+			this.users.set(userid, user);
+			this.getUserDetails(userid);
 		}
 		Object.keys(input).forEach(key => (user[key] = input[key]));
 		return user;

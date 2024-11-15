@@ -77,8 +77,7 @@ class User {
 		});
 	}
 	update() {
-		const self = this;
-		return this.parent.getUserDetails(this.userid).then(() => self);
+		return this.parent.getUserDetails(this.userid).then(() => this);
 	}
 	[customInspectSymbol](depth, options, inspect) {
 		if (depth < 1) return options.stylize(`${this.name || '-'} [PS-User]`, 'special');

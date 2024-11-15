@@ -5,14 +5,13 @@ const { toID } = require('../tools.js');
 
 class Message {
 	constructor(input) {
-		let { by, text, type, target, raw, isIntro, parent, time, isHidden } = input;
+		const { by, text, type, target, raw, isIntro, parent, time, isHidden } = input;
 		const msgRank = by[0];
-		by = toID(by);
-		if (by && !parent.users.get(by)) {
-			parent.addUser({ userid: by });
-			parent.getUserDetails(by);
+		const byId = toID(by);
+		if (byId && !parent.users.get(byId)) {
+			parent.addUser(by);
 		}
-		this.author = by ? parent.users.get(by) : null;
+		this.author = byId ? parent.users.get(byId) : null;
 		this.content = text;
 		const match = text.match(/^[/!][^ ]+/);
 		if (match) this.command = match[0];
@@ -29,7 +28,7 @@ class Message {
 				this.target = this.parent.rooms.get(target);
 				break;
 			case 'pm':
-				this.target = by ? this.parent.users.get(target) : null;
+				this.target = byId ? this.parent.users.get(target) : null;
 				this.isHidden = isHidden;
 				if (isHidden && !this.command) this.command = '/botmsg';
 				break;

@@ -98,10 +98,10 @@ export class Client extends EventEmitter {
 
 	/**
 	 * Adds a user to the list of tracked users on the Bot. Starts fetching userdetails in the background
-	 * @param details The details of the user to add
+	 * @param details The details of the user to add, or the full username of the user.
 	 * @returns The added User
 	 */
-	addUser(details: UserDetails): User;
+	addUser(details: string | UserDetails): User;
 
 	/**
 	 * Gets the specified user (or their current user, if they were seen on an alt)
