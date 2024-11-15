@@ -5,6 +5,7 @@ const customInspectSymbol = Symbol.for('nodejs.util.inspect.custom');
 class User {
 	constructor(init, parent) {
 		Object.keys(init).forEach(key => (this[key] = init[key]));
+		this.id ??= init.userid;
 		this.parent = parent;
 		this._waits = [];
 		this.alts = new Set();

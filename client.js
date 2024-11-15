@@ -26,6 +26,7 @@ class Client extends EventEmitter {
 			password: null,
 			avatar: null,
 			status: null,
+			sparse: false,
 			retryLogin: 4 * 1000,
 			autoReconnect: true,
 			autoReconnectDelay: 5 * 1000,
@@ -353,7 +354,7 @@ class Client extends EventEmitter {
 						}
 						if (!this.rooms.get(roominfo.roomid)) break;
 						Object.keys(roominfo).forEach(key => (this.rooms.get(roominfo.roomid)[key] = roominfo[key]));
-						roominfo.users.forEach(user => this.getUserDetails(user).catch(this.handle));
+						if (!this.opts.sparse) roominfo.users.forEach(user => this.getUserDetails(user).catch(this.handle));
 						break;
 					}
 					case 'userdetails': {
@@ -501,7 +502,7 @@ class Client extends EventEmitter {
 				this.users[old].alts.add(yng);
 				this.users[yng] = this.users[old];
 				delete this.users[old];
-				this.getUserDetails(yng);
+				if (!this.opts.sparse) this.getUserDetails(yng);
 				break;
 			}
 			case 'error': {
@@ -529,7 +530,7 @@ class Client extends EventEmitter {
 		if (!user) {
 			user = new User({ userid, name }, this);
 			this.users.set(userid, user);
-			this.getUserDetails(userid);
+			if (!this.opts.sparse) this.getUserDetails(userid);
 		}
 		Object.keys(input).forEach(key => (user[key] = input[key]));
 		return user;

@@ -27,6 +27,11 @@ type ClientOpts = {
 	 * The default function logs them to the console. To opt out of error handling (not recommended), set this to false.
 	 */
 	handle?: boolean | ((error: string | Error) => void);
+	/**
+	 * Does not populate userdetails automatically. Use `Client#getUserDetails` or `User#update` to populate a user.
+	 * @warning * Users will not have any properties other than id, userid, name, and alts.
+	 * @warning * `User#sendHTML` and `User#pageHTML` will be disabled. Use `Room#pmHTML` or `Room#pageHTML` instead.
+	 */
 	sparse?: boolean;
 	/**
 	 * Dictates whether messages throw errors by default. Set to 'false' to enable messages throwing errors.

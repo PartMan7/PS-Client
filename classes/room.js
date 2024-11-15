@@ -4,6 +4,18 @@ const { toID, formatText } = require('../tools.js');
 
 const customInspectSymbol = Symbol.for('nodejs.util.inspect.custom');
 
+function getUserIds(userList) {
+	const arr = Array.isArray(userList) ? userList : [userList];
+	return arr
+		.map(user => {
+			const clientUser = this.parent.getUser(user);
+			if (clientUser) return clientUser.userid;
+			if (typeof user === 'object') return user.userid;
+			if (typeof user === 'string') return toID(user);
+		})
+		.filter(Boolean);
+}
+
 class Room {
 	constructor(name, parent) {
 		this.roomid = name.toLowerCase().replace(/[^a-z0-9-]/g, '');
@@ -37,7 +49,7 @@ class Room {
 	}
 	privateHTML(userList, html, opts = {}) {
 		if (!['*', '#', '&'].includes(this.users.find(u => toID(u) === this.parent.status.userid)?.charAt(0))) return false;
-		const users = (Array.isArray(userList) ? userList : [userList]).map(user => this.parent.getUser(user));
+		const users = getUserIds.bind(this)(userList);
 		if (!users.length) return false;
 		if (!html) throw new Error('Missing HTML argument');
 		if (typeof opts === 'string') opts = { name: opts };
@@ -45,24 +57,24 @@ class Room {
 		const fallbackName = this.parent.status.username + Date.now().toString(36);
 		const formatted = opts.notransform ? html : this.parent.opts.transformHTML(html, opts);
 		const command = `${opts.change ? 'change' : 'send'}privateuhtml`;
-		this.send(`/${command} ${users.map(user => user.userid).join('|')}, ${opts.name ?? fallbackName}, ${formatted}`);
+		this.send(`/${command} ${users.join('|')}, ${opts.name ?? fallbackName}, ${formatted}`);
 		return formatted;
 	}
 	pageHTML(userList, html, opts = {}) {
 		if (!['*', '#', '&'].includes(this.users.find(u => toID(u) === this.parent.status.userid)?.charAt(0))) return false;
-		const users = (Array.isArray(userList) ? userList : [userList]).map(user => this.parent.getUser(user));
+		const users = getUserIds.bind(this)(userList);
 		if (!users.length) return false;
 		if (!html) throw new Error('Missing HTML argument');
 		if (typeof opts === 'string') opts = { name: opts };
 		if (!opts || typeof opts !== 'object') throw new TypeError('Options must be an object');
 		const fallbackName = this.parent.status.username + Date.now().toString(36);
 		const formatted = opts.notransform ? html : this.parent.opts.transformHTML(html, opts);
-		this.send(`/sendhtmlpage ${users.map(user => user.userid).join('|')}, ${opts.name ?? fallbackName}, ${formatted}`);
+		this.send(`/sendhtmlpage ${users.join('|')}, ${opts.name ?? fallbackName}, ${formatted}`);
 		return formatted;
 	}
 	pmHTML(user, html, opts = {}) {
 		if (typeof opts === 'string') opts = { name: opts };
-		user = this.parent.getUser(user);
+		user = this.parent.addUser(user);
 		return user?.sendHTML(html, { ...opts, room: this });
 	}
 	waitFor(condition, time) {
