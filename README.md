@@ -97,7 +97,7 @@ type options = {
 Note: There are four main reasons to ignore an incoming message:
 
 1. `message.isIntro`: Messages in the history of the chat are usually not parsed as commands on logging in.
-2. `!message.author.userid`: Messages from the `&Staff` and `&` accounts (formerly `~Staff` and `~`) in DMs usually can't be replied to.
+2. `!message.author.userid`: Messages from the `~Staff` and `~` accounts (formerly `&Staff` and `&` (formerly `~Staff` and `~`)) in DMs usually can't be replied to.
 3. `!message.target`: 'Ghost' messages (used as communication from the server to set up info) should be ignored.
 4. `message.author.userid === message.parent.status.userid`: It is highly recommended to avoid parsing your own messages as commands, since that's an easy recipe for Botception.
 
