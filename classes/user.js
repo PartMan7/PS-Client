@@ -9,7 +9,7 @@ class User {
 		this._waits = [];
 		this.alts = new Set();
 	}
-	#validateHTML(opts = {}) {
+	#validateOpts(opts = {}) {
 		if (typeof opts === 'string') opts = { name: opts };
 		if (!opts || typeof opts !== 'object') throw new TypeError('Options must be an object');
 		const fallbackName = this.parent.status.username + Date.now().toString(36);
@@ -34,7 +34,7 @@ class User {
 	}
 	sendHTML(html, _opts = {}) {
 		if (!html) throw new Error('Missing HTML argument');
-		const { opts, room } = this.#validateHTML(_opts);
+		const { opts, room } = this.#validateOpts(_opts);
 		if (!room) return false;
 		const formatted = opts.notransform ? html : this.parent.opts.transformHTML(html, opts);
 		room.send(`/pmuhtml${opts.change ? 'change' : ''} ${this.userid}, ${opts.name}, ${formatted}`);
@@ -42,7 +42,7 @@ class User {
 	}
 	pageHTML(html, _opts = {}) {
 		if (!html) throw new Error('Missing HTML argument');
-		const { opts, room } = this.#validateHTML(_opts);
+		const { opts, room } = this.#validateOpts(_opts);
 		if (!room) return false;
 		const formatted = opts.notransform ? html : this.parent.opts.transformHTML(html, opts);
 		room.send(`/sendhtmlpage ${this.userid}, ${opts.name}, ${formatted}`);
