@@ -39,7 +39,7 @@ export default class User {
 	/**
 	 * Known list of usernames with a direct rename to/from this user
 	 */
-	alts: string[];
+	alts: Set<string>;
 	/**
 	 * List of rooms the user is currently in
 	 */

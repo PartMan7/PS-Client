@@ -17,7 +17,7 @@ class Room {
 		});
 	}
 	privateSend(user, text) {
-		if (!['*', '#', '&'].includes(this.users.find(u => toID(u) === this.parent.status.userid)?.charAt(0))) return '';
+		if (!['*', '#', '&'].includes(this.users.find(u => toID(u) === this.parent.status.userid)?.charAt(0))) return false;
 		user = this.parent.getUser(user);
 		if (!user) return '';
 		const formatted = formatText(text);
@@ -38,9 +38,9 @@ class Room {
 		return formatted;
 	}
 	privateHTML(user, html, opts = {}) {
-		if (!['*', '#', '&'].includes(this.users.find(u => toID(u) === this.parent.status.userid)?.charAt(0))) return '';
+		if (!['*', '#', '&'].includes(this.users.find(u => toID(u) === this.parent.status.userid)?.charAt(0))) return false;
 		user = this.parent.getUser(user);
-		if (!user) return '';
+		if (!user) return false;
 		if (!html) throw new Error('Missing HTML argument');
 		if (typeof opts === 'string') opts = { name: opts };
 		if (!opts || typeof opts !== 'object') throw new TypeError('Options must be an object');
@@ -48,6 +48,10 @@ class Room {
 		const formatted = opts.notransform ? html : this.parent.opts.transformHTML(html, opts);
 		this.send(`/${opts.change ? 'change' : 'send'}privateuhtml ${user.userid}, ${opts.name}, ${formatted}`);
 		return formatted;
+	}
+	pmHTML(user, html, opts = {}) {
+		user = this.parent.getUser(user);
+		return user?.sendHTML(html, { ...opts, room: this });
 	}
 	waitFor(condition, time) {
 		if (!time && typeof time !== 'number') time = 60 * 1000;
