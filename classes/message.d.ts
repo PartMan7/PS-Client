@@ -32,28 +32,28 @@ export default class Message {
 
 	/**
 	 * Responds to the message
-	 * @param text - The text to respond (to the message) with
+	 * @param text The text to respond (to the message) with
 	 * @returns A promise that resolves when the message is sent successfully
 	 */
 	reply(text: string): Promise<Message>;
 
 	/**
 	 * Privately responds to the message
-	 * @param text - The text to privately respond (to the message) with
+	 * @param text The text to privately respond (to the message) with
 	 */
 	privateReply(text: string): void;
 
 	/**
 	 * Sends HTML in the message context (chatroom for 'chat', PMs for 'pm')
-	 * @param html - The HTML to send
-	 * @param opts - An instance of HTMLopts (name/rank/change)
+	 * @param html The HTML to send
+	 * @param opts HTML options. If a string is passed, it is used as HTMLopts.name.
 	 */
-	sendHTML(html: any, opts?: HTMLopts): boolean;
+	sendHTML(html: any, opts?: HTMLopts | string): boolean;
 
 	/**
 	 * Privately sends HTML in the message context (chatroom for 'chat', PMs for 'pm')
-	 * @param html - The HTML to send
-	 * @param opts - An instance of HTMLopts (name/rank/change)
+	 * @param html The HTML to send
+	 * @param opts HTML options. If a string is passed, it is used as HTMLopts.name.
 	 */
-	replyHTML(html: any, opts?: HTMLopts): boolean;
+	replyHTML(html: any, opts?: HTMLopts | string): boolean;
 }

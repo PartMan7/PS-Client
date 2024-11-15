@@ -61,16 +61,16 @@ export default class User {
 	/**
 	 * Sends HTML to the user
 	 * @param html The HTML to send
-	 * @param opts HTML options
+	 * @param opts HTML options. If a string is passed, it is used as HTMLopts.name.
 	 */
-	sendHTML(html: any, opts?: HTMLopts): string;
+	sendHTML(html: any, opts?: HTMLopts | string): string;
 
 	/**
 	 * Sends an HTML page to the user
 	 * @param html The HTML to send
-	 * @param opts HTML options
+	 * @param opts HTML options. If a string is passed, it is used as HTMLopts.name.
 	 */
-	pageHTML(html: any, opts?: HTMLopts): string;
+	pageHTML(html: any, opts?: HTMLopts | string): string;
 
 	/**
 	 * Waits for the first message in the room that fulfills the given condition

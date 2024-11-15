@@ -9,6 +9,22 @@ class User {
 		this._waits = [];
 		this.alts = new Set();
 	}
+	#validateHTML(opts = {}) {
+		if (typeof opts === 'string') opts = { name: opts };
+		if (!opts || typeof opts !== 'object') throw new TypeError('Options must be an object');
+		const fallbackName = this.parent.status.username + Date.now().toString(36);
+		let room;
+		if (opts.room) room = typeof opts.room === 'string' ? this.parent.getRoom(opts.room) : opts.room;
+		else {
+			const rooms = {};
+			for (const room of this.parent.rooms.values()) {
+				if (room.auth?.['*']?.includes(this.parent.status.userid) || room.auth?.['#']?.includes(this.parent.status.userid))
+					rooms[room.visibility] = room;
+			}
+			room = rooms.public || rooms.hidden || rooms.secret || rooms.private;
+		}
+		return { opts: opts.name ? opts : { ...opts, name: fallbackName }, room };
+	}
 	send(text) {
 		const user = this;
 		return new Promise(function (resolve, reject) {
@@ -16,39 +32,17 @@ class User {
 			user.parent.sendQueue(text, resolve, reject);
 		});
 	}
-	sendHTML(html, opts = {}) {
+	sendHTML(html, _opts = {}) {
 		if (!html) throw new Error('Missing HTML argument');
-		if (typeof opts === 'string') opts = { name: opts };
-		if (!opts || typeof opts !== 'object') throw new TypeError('Options must be an object');
-		if (!opts.name) opts.name = this.parent.status.username + Date.now().toString(36);
-		let room;
-		if (opts.room) room = typeof opts.room === 'string' ? this.parent.getRoom(opts.room) : opts.room;
-		else {
-			const rooms = {};
-			for (const room of this.parent.rooms.values()) {
-				if (room.auth?.['*']?.includes(this.parent.status.userid) || room.auth?.['#']?.includes(this.parent.status.userid))
-					rooms[room.visibility] = room;
-			}
-			room = rooms.public || rooms.hidden || rooms.secret || rooms.private;
-		}
+		const { opts, room } = this.#validateHTML(_opts);
 		if (!room) return false;
 		const formatted = opts.notransform ? html : this.parent.opts.transformHTML(html, opts);
 		room.send(`/pmuhtml${opts.change ? 'change' : ''} ${this.userid}, ${opts.name}, ${formatted}`);
 		return formatted;
 	}
-	pageHTML(html, opts = {}) {
+	pageHTML(html, _opts = {}) {
 		if (!html) throw new Error('Missing HTML argument');
-		if (!opts.name) opts.name = this.parent.status.username + Date.now().toString(36);
-		let room;
-		if (opts.room) room = typeof opts.room === 'string' ? this.parent.getRoom(opts.room) : opts.room;
-		else {
-			const rooms = {};
-			for (const room of this.parent.rooms.values()) {
-				if (room.auth?.['*']?.includes(this.parent.status.userid) || room.auth?.['#']?.includes(this.parent.status.userid))
-					rooms[room.visibility] = room;
-			}
-			room = rooms.public || rooms.hidden || rooms.secret || rooms.private;
-		}
+		const { opts, room } = this.#validateHTML(_opts);
 		if (!room) return false;
 		const formatted = opts.notransform ? html : this.parent.opts.transformHTML(html, opts);
 		room.send(`/sendhtmlpage ${this.userid}, ${opts.name}, ${formatted}`);
