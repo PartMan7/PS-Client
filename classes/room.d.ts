@@ -75,7 +75,7 @@ export default class Room {
 	 * @param html - The HTML to send
 	 * @param opts - An instance of HTMLopts (name/rank/change)
 	 */
-	privateHTML(user: User | string, html: any, opts?: HTMLopts): string | false;
+	privateHTML(user: User | string | (User | string)[], html: any, opts?: HTMLopts): string | false;
 
 	/**
 	 * Alias for User#sendHTML() that passes opts.room

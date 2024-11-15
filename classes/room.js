@@ -28,25 +28,24 @@ class Room {
 		if (!['*', '#', '&'].includes(this.users.find(u => toID(u) === this.parent.status.userid)?.charAt(0))) return false;
 		if (!html) throw new Error('Missing HTML argument');
 		if (typeof opts === 'string') opts = { name: opts };
-		if (!opts || typeof opts !== 'object') throw new TypeError('Options must be an object');
-		if (!opts.name) opts.name = this.parent.status.username + Date.now().toString(36);
+		if (typeof opts !== 'object') throw new TypeError('Options must be an object');
+		const fallbackName = this.parent.status.username + Date.now().toString(36);
 		const formatted = opts.notransform ? html : this.parent.opts.transformHTML(html, opts);
-		this.send(
-			`/${opts.change ? 'change' : 'add'}${opts.rank ? 'rank' : ''}uhtml` +
-				` ${opts.rank ? `${opts.rank}, ` : ''}${opts.name}, ${formatted}`
-		);
+		const command = `${opts.change ? 'change' : 'add'}${opts.rank ? 'rank' : ''}uhtml`;
+		this.send(`/${command} ${opts.rank ? `${opts.rank}, ` : ''}${opts.name ?? fallbackName}, ${formatted}`);
 		return formatted;
 	}
-	privateHTML(user, html, opts = {}) {
+	privateHTML(userList, html, opts = {}) {
 		if (!['*', '#', '&'].includes(this.users.find(u => toID(u) === this.parent.status.userid)?.charAt(0))) return false;
-		user = this.parent.getUser(user);
-		if (!user) return false;
+		const users = (Array.isArray(userList) ? userList : [userList]).map(user => this.parent.getUser(user));
+		if (!users.length) return false;
 		if (!html) throw new Error('Missing HTML argument');
 		if (typeof opts === 'string') opts = { name: opts };
 		if (!opts || typeof opts !== 'object') throw new TypeError('Options must be an object');
-		if (!opts.name) opts.name = this.parent.status.username + Date.now().toString(36);
+		const fallbackName = this.parent.status.username + Date.now().toString(36);
 		const formatted = opts.notransform ? html : this.parent.opts.transformHTML(html, opts);
-		this.send(`/${opts.change ? 'change' : 'send'}privateuhtml ${user.userid}, ${opts.name}, ${formatted}`);
+		const command = `${opts.change ? 'change' : 'send'}privateuhtml`;
+		this.send(`/${command} ${userList.map(user => user.userid).join('|')}, ${opts.name ?? fallbackName}, ${formatted}`);
 		return formatted;
 	}
 	pmHTML(user, html, opts = {}) {
