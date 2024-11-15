@@ -1,5 +1,11 @@
 ## What's New
 
+**v4.3.0**
+
+- Adds `Room#pmHTML` and `Room#pageHTML`.
+- Adds support for sending HTML to multiple users simultaneously via `Room#pageHTML` and `Room#privateHTML`.
+- Updates documentation and JSDoc comments.
+
 **v4.2.0**
 
 - Adds handling for `/botmsg` PMs as regular PMs with the relevant command.
