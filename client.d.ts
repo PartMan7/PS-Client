@@ -7,23 +7,60 @@ import { HTMLopts } from './classes/common';
 type UserDetails = { userid: string; [key: string]: any };
 
 type ClientOpts = {
+	// The username you wish to connect to. Required parameter.
 	username: string;
+	// The password for the username you're connecting to. Leave this blank if the account is unregistered.
 	password?: string;
-	avatar?: string;
+	// The avatar your Bot will have on connection. If not specified, PS will set one randomly.
+	avatar?: string | number;
+	// The status your Bot will have on connection.
 	status?: string;
+	// An array with the strings of the rooms you want the Bot to join.
 	rooms: string[];
-	debug?: boolean;
+	/**
+	 * The function you would like to run on debugs. If this is a falsy value, debug messages will not be displayed.
+	 * If a true value is given which is not a function, the Bot simply logs messages to the console.
+	 */
+	debug?: boolean | ((details: string) => void);
+	/**
+	 * Handling for internal errors. If a function is provided, this will run it with an error / string.
+	 * The default function logs them to the console. To opt out of error handling (not recommended), set this to false.
+	 */
+	handle?: boolean | ((error: string | Error) => void);
+	sparse?: boolean;
+	/**
+	 * Dictates whether messages throw errors by default. Set to 'false' to enable messages throwing errors.
+	 * Defaults to true.
+	 */
 	noFailMessages?: boolean;
+	/**
+	 * The throttle (in milliseconds) for every 'batch' of three messages. PS has a per-message throttle of
+	 * 25ms for public roombots, 100ms for trusted users, and 600ms for regular users.
+	 */
 	throttle?: number;
+	// A custom HTML processor, applied on all HTML methods. Defaults to no-transform. See HTML options for more info on opts.
 	transformHTML?: (input: any, opts: HTMLopts) => string;
+	/**
+	 * The time, in milliseconds, that your Bot will wait before attempting to login again after failing.
+	 * If this is 0, it will not attempt to login again. Defaults to 10 seconds.
+	 */
 	retryLogin?: number;
+	/**
+	 * The time, in milliseconds, that your Bot will wait before attempting to reconnect after a disconnect.
+	 * If this is 0, it will not attempt to reconnect. Defaults to 30 seconds.
+	 */
 	autoReconnect?: boolean;
 	autoReconnectDelay?: number;
+	// The time, in milliseconds, after which your connection times out. Defaults to 20s.
 	connectionTimeout?: number;
+	// The server to which you wish to connect to - defaults to 'sim3.psim.us'.
 	server?: string;
 	serverid?: string;
+	// The port on which you're connecting to. Can also be specified in server as `url:port`, in which case leave this field blank.
 	port?: number;
+	// The protocol used for the websocket connection. Defaults to wss, but can be changed to ws (insecure).
 	serverProtocol?: string;
+	// The login server. Defaults to 'https://play.pokemonshowdown.com/~~showdown/action.php'.
 	loginServer?: string;
 };
 

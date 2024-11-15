@@ -129,3 +129,4 @@ User has the following methods:
 - `rank`: Minimum rank required to see the HTML.
 - `change`: Whether to add a new entry and remove the old UHTML, or to modify the old UHTML in-place.
 - `notransform`: To skip running `transformHTML` on the given HTML.
+- `room`: For User HTML methods, this will force the HTML to be sent through the specified room.
