@@ -1,5 +1,10 @@
 ## What's New
 
+**v4.4.0**
+
+- Adds a `sparse` option for clients. Sparse clients will fetch userdetails and roominfo minimally.
+- Adds a `packet` event for logging all websocket packets.
+
 **v4.3.0**
 
 - Adds `Room#pmHTML` and `Room#pageHTML`.
