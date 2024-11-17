@@ -481,30 +481,48 @@ class Client extends EventEmitter {
 			case 'j':
 			case 'J':
 			case 'join': {
-				this.send(`|/cmd roominfo ${room}`);
-				this.addUser({ userid: Tools.toID(args.slice(2).join('|')) });
-				this.emit('join', room, args.slice(2).join('|'), isIntro);
+				const username = args.slice(2).join('|');
+				if (this.opts.sparse) {
+					const cacheRoom = this.getRoom(room);
+					if (cacheRoom?.users) {
+						cacheRoom.users.push(username);
+					}
+				} else this.send(`|/cmd roominfo ${room}`);
+				this.addUser({ userid: Tools.toID(username) });
+				this.emit('join', room, username, isIntro);
 				break;
 			}
 			case 'l':
 			case 'L':
 			case 'leave': {
-				this.send(`|/cmd roominfo ${room}`);
-				this.emit('leave', room, args.slice(2).join('|'), isIntro);
+				const username = args.slice(2).join('|');
+				if (this.opts.sparse) {
+					const cacheRoom = this.getRoom(room);
+					if (cacheRoom?.users) {
+						cacheRoom.users = cacheRoom.users.filter(user => user !== username);
+					}
+				} else this.send(`|/cmd roominfo ${room}`);
+				this.emit('leave', room, username, isIntro);
 				break;
 			}
 			case 'n':
 			case 'N':
 			case 'name': {
-				this.send(`|/cmd roominfo ${room}`);
 				this.emit('name', room, args[2], args[3], isIntro); // Nicks are stored in logs for stuff like battlerooms
-				const old = Tools.toID(args[3]),
-					yng = Tools.toID(args[2]);
-				if (!this.users[old]) break;
-				this.users[old].alts.add(yng);
-				this.users[yng] = this.users[old];
-				delete this.users[old];
-				if (!this.opts.sparse) this.getUserDetails(yng);
+				const newName = args[2];
+				const oldId = Tools.toID(args[3]);
+				const newId = Tools.toID(newName);
+				if (this.opts.sparse) {
+					const cacheRoom = this.getRoom(room);
+					if (cacheRoom?.users) {
+						cacheRoom.users = cacheRoom.users.map(user => (Tools.toID(user) === oldId ? newName : user));
+					}
+				} else this.send(`|/cmd roominfo ${room}`);
+				if (!this.users[oldId]) break;
+				this.users[oldId].alts.add(newId);
+				this.users[newId] = this.users[oldId];
+				delete this.users[oldId];
+				if (!this.opts.sparse) this.getUserDetails(newId);
 				break;
 			}
 			case 'error': {
