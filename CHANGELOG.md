@@ -1,5 +1,10 @@
 ## What's New
 
+**v4.5.0**
+
+- Adds `Tools.toRoomID` for getting room IDs from text.
+- Uses `toRoomID` over `toID` for rooms in `Client#joinRoom` and `Client#getRoom`, supporting joining groupchats.
+
 **v4.4.1**
 
 - Bugfixes for `Message#replyHTML` not working in DMs.
