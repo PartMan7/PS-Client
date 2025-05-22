@@ -576,11 +576,11 @@ class Client extends EventEmitter {
 		});
 	}
 	getRoom(room) {
-		const roomid = Tools.toID(room);
+		const roomid = Tools.toRoomID(room);
 		return this.rooms.get(roomid); // Sadly there's no easy way to update aliases
 	}
 	joinRoom(room) {
-		room = Tools.toID(room);
+		room = Tools.toRoomID(room);
 		return new Promise((resolve, reject) => {
 			this._pendingRoomJoins.push({
 				room,
