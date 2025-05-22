@@ -1,5 +1,9 @@
 ## What's New
 
+**v4.4.1**
+
+- Bugfixes for `Message#replyHTML` not working in DMs.
+
 **v4.4.0**
 
 - Adds a `sparse` option for clients. Sparse clients will fetch userdetails and roominfo minimally.
