@@ -40,7 +40,7 @@ class Message {
 		return this.target.send(text);
 	}
 	privateReply(text) {
-		if (this.target.type !== 'chat') this.reply(text);
+		if (this.type !== 'chat') this.reply(text);
 		else {
 			const privateSend = this.target.privateSend(this.author.userid, text);
 			if (privateSend === false) this.author.send(text);
@@ -50,8 +50,8 @@ class Message {
 		return this.target.sendHTML(html, opts);
 	}
 	replyHTML(html, opts) {
-		if (this.target.type === 'pm') return this.target.sendHTML(html, opts);
-		if (this.target.type === 'chat') return this.target.privateHTML(this.author.userid, html, opts);
+		if (this.type === 'pm') return this.target.sendHTML(html, opts);
+		if (this.type === 'chat') return this.target.privateHTML(this.author.userid, html, opts);
 		return '';
 	}
 	[customInspectSymbol](depth, options, inspect) {
