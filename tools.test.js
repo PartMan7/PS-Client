@@ -1,7 +1,16 @@
 const Tools = require('./tools.js');
 
 describe('toID', () => {
-	it('should return IDs properly', () => expect(Tools.toID('PartMan!')).toBe('partman'));
+	it('should return IDs properly', () => {
+		expect(Tools.toID('PartMan!')).toBe('partman');
+		expect(Tools.toID('groupchat-test-test')).toBe('groupchattesttest');
+	});
+});
+describe('toRoomID', () => {
+	it('should return room IDs properly', () => {
+		expect(Tools.toRoomID('PartMan!')).toBe('partman');
+		expect(Tools.toRoomID('groupchat-test-test')).toBe('groupchat-test-test');
+	});
 });
 
 describe('HSL', () => {

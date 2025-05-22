@@ -14,6 +14,13 @@ function toID(text) {
 }
 exports.toID = toID;
 
+function toRoomID(text) {
+	return String(text)
+		.toLowerCase()
+		.replace(/[^a-z0-9-]/g, '');
+}
+exports.toRoomID = toRoomID;
+
 exports.HSL = function HSL(name, original) {
 	name = toID(name);
 	const out = { source: name, hsl: null };
