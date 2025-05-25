@@ -1,5 +1,9 @@
 ## What's New
 
+**v4.5.1**
+
+- Fixes types for `Tools.update`.
+
 **v4.5.0**
 
 - Adds `Tools.toRoomID` for getting room IDs from text.
