@@ -1,17 +1,17 @@
-type namecolour = {
+type Namecolour = {
 	source: string;
 	hsl: [number, number, number];
-	base?: Omit<namecolour, 'base'>;
+	base?: Omit<Namecolour, 'base'>;
 };
 
-type pokePaste = {
+type PokePaste = {
 	title: string;
 	author: string;
 	notes: string;
 	paste: string;
 };
 
-type updateType =
+type UpdateType =
 	| 'abilities'
 	| 'aliases'
 	| 'config'
@@ -34,13 +34,14 @@ export function toID(text: any): string;
  * @param original - Whether the username's original colour should override the custom colour (optional)
  * @returns An object with the required details (HSL values in namecolour.hsl)
  */
-export function HSL(name: string, original?: boolean): namecolour;
+export function HSL(name: string, original?: boolean): Namecolour;
 
 /**
- * @param type - A string ('abilities' | 'aliases' | 'config' | 'formatsdata' | 'formats' | 'items' | 'learnsets' | 'moves' | 'pokedex' | 'typechart') corresponding to the datacenter you wish to update
+ * @param types - A string corresponding to the datacenter you wish to update.
+ * If nothing is passed, this updates all available datacenters.
  * @returns A promise with the name(s) of the updated datacenter(s)
  */
-export function update(type: updateType[]): Promise<updateType[]>;
+export function update(...types: UpdateType[]): Promise<UpdateType[]>;
 
 /**
  * @param text - The text to upload
@@ -54,7 +55,7 @@ export function uploadToPastie(text: string, callback?: (url: string) => any): P
  * @param output - An optional string to dictate the resolution value of the promise ('raw' for the URL with the raw text, 'html' for the source HTML). Leave empty for the standard URL.
  * @returns A promise with the value dictated by output
  */
-export function uploadToPokepaste(input: string | pokePaste, output?: 'raw' | 'html' | void): Promise<string>;
+export function uploadToPokepaste(input: string | PokePaste, output?: 'raw' | 'html' | void): Promise<string>;
 
 /**
  * @param input - The text to sanitize HTML from
