@@ -1,5 +1,9 @@
 ## What's New
 
+**v4.5.2**
+
+- Fixes update path logic for `Tools.update` (uses \_\_dirname instead of relative fs resolutions).
+
 **v4.5.1**
 
 - Fixes types for `Tools.update`.
