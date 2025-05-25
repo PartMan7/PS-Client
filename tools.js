@@ -91,53 +91,53 @@ exports.update = function update(...types) {
 	const links = {
 		abilities: {
 			url: 'https://play.pokemonshowdown.com/data/abilities.js',
-			path: './showdown/abilities.js',
+			path: path.join(__dirname, 'showdown', 'abilities.js'),
 			name: 'Abilities',
 			expo: 'BattleAbilities',
 		},
 		aliases: {
 			url: 'https://play.pokemonshowdown.com/data/aliases.js',
-			path: './showdown/aliases.js',
+			path: path.join(__dirname, 'showdown', 'aliases.js'),
 			name: 'Aliases',
 			expo: 'BattleAliases',
 		},
 		colors: {
-			path: './showdown/colors.json',
+			path: path.join(__dirname, 'showdown', 'colors.json'),
 			name: 'Colors',
 		},
 		formatsdata: {
 			url: 'https://play.pokemonshowdown.com/data/formats-data.js',
-			path: './showdown/formats-data.js',
+			path: path.join(__dirname, 'showdown', 'formats-data.js'),
 			name: 'Formats Data',
 			key: 'formatsData',
 			expo: 'BattleFormatsData',
 		},
 		formats: {
 			url: 'https://play.pokemonshowdown.com/data/formats.js',
-			path: './showdown/formats.js',
+			path: path.join(__dirname, 'showdown', 'formats.js'),
 			name: 'Formats',
 			expo: 'BattleFormats',
 		},
 		items: {
 			url: 'https://play.pokemonshowdown.com/data/items.js',
-			path: './showdown/items.js',
+			path: path.join(__dirname, 'showdown', 'items.js'),
 			name: 'Items',
 			expo: 'BattleItems',
 		},
 		learnsets: {
 			url: 'https://play.pokemonshowdown.com/data/learnsets.js',
-			path: './showdown/learnsets.js',
+			path: path.join(__dirname, 'showdown', 'learnsets.js'),
 			name: 'Learnsets',
 			expo: 'BattleLearnsets',
 		},
 		moves: {
 			url: 'https://play.pokemonshowdown.com/data/moves.json',
-			path: './showdown/moves.json',
+			path: path.join(__dirname, 'showdown', 'moves.json'),
 			name: 'Moves',
 		},
 		pokedex: {
 			url: 'https://play.pokemonshowdown.com/data/pokedex.json',
-			path: './showdown/pokedex.json',
+			path: path.join(__dirname, 'showdown', 'pokedex.json'),
 			name: 'Pokedex',
 			process: json => {
 				const data = JSON.parse(json);
@@ -176,7 +176,7 @@ exports.update = function update(...types) {
 		},
 		typechart: {
 			url: 'https://play.pokemonshowdown.com/data/typechart.js',
-			path: './showdown/typechart.js',
+			path: path.join(__dirname, 'showdown', 'typechart.js'),
 			name: 'Typechart',
 			expo: 'BattleTypeChart',
 		},
@@ -211,7 +211,7 @@ exports.update = function update(...types) {
 							.then(response => {
 								const data = type.process ? type.process(response) : response;
 								const writeData = (typeof data === 'string' ? data : JSON.stringify(data)) + (type.append || '');
-								fs.writeFile(path.join(__dirname, type.path), writeData, err => {
+								fs.writeFile(type.path, writeData, err => {
 									if (err) throw err;
 									try {
 										delete require.cache[require.resolve(type.path)];
