@@ -28,6 +28,11 @@ type UpdateType =
  * @returns The ID of the given input
  */
 export function toID(text: any): string;
+/**
+ * @param text The input value
+ * @returns The room ID of the given input (preserves '-')
+ */
+export function toRoomID(text: any): string;
 
 /**
  * @param name - The username whose HSL value is to be calculated

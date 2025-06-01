@@ -14,7 +14,8 @@ describe('PS-Client', () => {
 	beforeAll(() => {
 		return new Promise(resolve => {
 			Bot.connect();
-			Bot.on('activate', () => resolve());
+			// Wait for sendQueue to start
+			Bot.on('activate', () => setTimeout(() => resolve(), 1_000));
 		});
 	});
 

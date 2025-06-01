@@ -196,7 +196,7 @@ class Client extends EventEmitter {
 		this.connection.send(text);
 	}
 	sendQueue(text, sent, fail) {
-		if (!this.status.connected) return fail({ cause: 'Not connected.', message: text });
+		if (!this.status.connected) return fail?.({ cause: 'Not connected.', message: text });
 		const multiTest = text.match(/^([a-z0-9-]*?\|(?:\/pm [^,]*?, ?)?)[^/!].*?\n/);
 		if (multiTest) {
 			// Multi-line messages
@@ -214,9 +214,9 @@ class Client extends EventEmitter {
 				.then(messages => {
 					const message = messages[messages.length - 1];
 					message.content = text;
-					sent(message);
+					sent?.(message);
 				})
-				.catch(error => fail(error));
+				.catch(error => fail?.(error));
 		} else this._queue.push({ content: text, sent, fail });
 	}
 	sendUser(user, text) {
@@ -412,10 +412,10 @@ class Client extends EventEmitter {
 							while (this._queued.length) {
 								const msg = this._queued.shift();
 								if (msg.content === checkVal) {
-									msg.sent(mssg);
+									msg.sent?.(mssg);
 									break;
 								}
-								if (this.opts.noFailMessages) msg.fail(msg.content);
+								if (this.opts.noFailMessages) msg.fail?.(msg.content);
 							}
 						}
 					}
@@ -442,7 +442,7 @@ class Client extends EventEmitter {
 					isIntro: isIntro,
 					parent: this,
 				});
-				if (mssg.command && mssg.command === 'error') mssg.target._waits.shift().fail(mssg.content.substr(7));
+				if (mssg.command && mssg.command === 'error') mssg.target._waits.shift().fail?.(mssg.content.substr(7));
 				if (mssg.target) {
 					mssg.target._waits.forEach(wait => {
 						if (wait.condition(mssg)) {
@@ -457,10 +457,10 @@ class Client extends EventEmitter {
 						while (this._queued.length) {
 							const msg = this._queued.shift();
 							if (msg.content === comp) {
-								msg.sent(mssg);
+								msg.sent?.(mssg);
 								break;
 							}
-							if (this.opts.noFailMessages) msg.fail(msg.content);
+							if (this.opts.noFailMessages) msg.fail?.(msg.content);
 							// eslint-disable-next-line max-len
 							if (/^\/error (?:User .*? is offline\.|User .*? not found\. Did you misspell their name\?)$/.test(value)) break;
 						}
@@ -587,7 +587,7 @@ class Client extends EventEmitter {
 				resolve,
 				reject,
 			});
-			this.send(`|/join ${room}`);
+			this.sendQueue(`|/join ${room}`);
 		});
 	}
 
