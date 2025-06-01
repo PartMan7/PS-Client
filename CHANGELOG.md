@@ -1,5 +1,10 @@
 ## What's New
 
+**v4.5.3**
+
+- Use `sendQueue` over `send` for `rooms` to auto-join.
+- Add types for `Tools.toRoomId`.
+
 **v4.5.2**
 
 - Fixes update path logic for `Tools.update` (uses \_\_dirname instead of relative fs resolutions).
