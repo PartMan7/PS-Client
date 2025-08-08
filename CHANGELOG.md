@@ -1,5 +1,10 @@
 ## What's New
 
+**v5.0.0.**
+
+- Adds `scrollback` as a client option.
+  - Clients will now be opted out of scrollback by default! Set to true to opt back in.
+
 **v4.5.3**
 
 - Use `sendQueue` over `send` for `rooms` to auto-join.
