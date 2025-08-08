@@ -35,6 +35,7 @@ class Client extends EventEmitter {
 			throttle: null,
 			transformHTML: html => html,
 			noFailMessages: false,
+			scrollback: false,
 		};
 		Object.assign(this.opts, opts);
 		this.opts[customInspectSymbol] = (depth, options, inspect) => {
@@ -241,31 +242,34 @@ class Client extends EventEmitter {
 			}
 		}
 	}
+
+	/**
+	 *
+	 * @param {string} message
+	 */
 	receiveMsg(message) {
 		if (!message) return;
 		if (message.includes('\n')) {
-			const spl = message.split('\n');
+			const split = message.split('\n');
 			let room = 'lobby';
-			if (spl[0].charAt(0) === '>') {
-				room = spl.shift().substr(1);
+			if (split[0].charAt(0) === '>') {
+				room = split.shift().substr(1);
 				if (room === '') room = 'lobby';
-				// Is this deprecated now?
 			}
+			let isIntro = false;
 
-			for (let i = 0, len = spl.length; i < len; i++) {
-				if (spl[i].split('|')[1] === 'init') {
-					for (let j = i; j < len; j++) this.receiveLine(room, spl[j], true).catch(this.handle);
-					break;
-				} else this.receiveLine(room, spl[i]).catch(this.handle);
+			for (const batch of split) {
+				if (batch.split('|')[1] === 'init') isIntro = true;
+				this.receiveLine(room, batch, isIntro).catch(this.handle);
 			}
 		} else this.receiveLine('lobby', message).catch(this.handle);
 	}
 	async receiveLine(room, message, isIntro) {
-		this.emit('line', room, message, isIntro);
+		if (!isIntro || this.opts.scrollback) this.emit('line', room, message, isIntro);
 		const args = message.split('|');
 		switch (args[1]) {
 			case 'formats': {
-				this.emit('formats', room, args.slice(2).join('|'), isIntro);
+				if (!isIntro || this.opts.scrollback) this.emit('formats', room, args.slice(2).join('|'), isIntro);
 				break;
 			}
 			case 'updateuser': {
@@ -287,7 +291,7 @@ class Client extends EventEmitter {
 					}
 					this.inited = true;
 				}
-				this.emit('updateuser', room, args.slice(2).join('|'), isIntro);
+				if (!isIntro || this.opts.scrollback) this.emit('updateuser', room, args.slice(2).join('|'), isIntro);
 				break;
 			}
 			case 'challstr': {
@@ -342,7 +346,7 @@ class Client extends EventEmitter {
 				break;
 			}
 			case 'html': {
-				this.emit('html', room, args.slice(2).join('|'), isIntro);
+				if (!isIntro || this.opts.scrollback) this.emit('html', room, args.slice(2).join('|'), isIntro);
 				break;
 			}
 			case 'queryresponse': {
@@ -376,7 +380,7 @@ class Client extends EventEmitter {
 						break;
 					}
 				}
-				this.emit('queryresponse', room, args.slice(2).join('|'), isIntro);
+				if (!isIntro || this.opts.scrollback) this.emit('queryresponse', room, args.slice(2).join('|'), isIntro);
 				break;
 			}
 			case 'chat':
@@ -420,7 +424,7 @@ class Client extends EventEmitter {
 						}
 					}
 				}
-				this.emit('message', mssg);
+				if (!isIntro || this.opts.scrollback) this.emit('message', mssg);
 				break;
 			}
 			case 'pm': {
@@ -475,7 +479,7 @@ class Client extends EventEmitter {
 						}
 					}
 				}
-				this.emit('message', mssg);
+				if (!isIntro || this.opts.scrollback) this.emit('message', mssg);
 				break;
 			}
 			case 'j':
@@ -489,7 +493,7 @@ class Client extends EventEmitter {
 					}
 				} else this.send(`|/cmd roominfo ${room}`);
 				this.addUser({ userid: Tools.toID(username) });
-				this.emit('join', room, username, isIntro);
+				if (!isIntro || this.opts.scrollback) this.emit('join', room, username, isIntro);
 				break;
 			}
 			case 'l':
@@ -502,13 +506,16 @@ class Client extends EventEmitter {
 						cacheRoom.users = cacheRoom.users.filter(user => user !== username);
 					}
 				} else this.send(`|/cmd roominfo ${room}`);
-				this.emit('leave', room, username, isIntro);
+				if (!isIntro || this.opts.scrollback) this.emit('leave', room, username, isIntro);
 				break;
 			}
 			case 'n':
 			case 'N':
 			case 'name': {
-				this.emit('name', room, args[2], args[3], isIntro); // Nicks are stored in logs for stuff like battlerooms
+				if (!isIntro || this.opts.scrollback) {
+					// Nicks are stored in logs for stuff like battlerooms
+					this.emit('name', room, args[2], args[3], isIntro);
+				}
 				const newName = args[2];
 				const oldId = Tools.toID(args[3]);
 				const newId = Tools.toID(newName);
@@ -526,11 +533,11 @@ class Client extends EventEmitter {
 				break;
 			}
 			case 'error': {
-				this.emit('chatError', room, args.slice(2).join('|'), isIntro);
+				if (!isIntro || this.opts.scrollback) this.emit('chatError', room, args.slice(2).join('|'), isIntro);
 				break;
 			}
 			default:
-				this.emit(args[1], room, args.slice(2).join('|'), isIntro);
+				if (!isIntro || this.opts.scrollback) this.emit(args[1], room, args.slice(2).join('|'), isIntro);
 		}
 	}
 

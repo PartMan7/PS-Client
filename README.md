@@ -89,6 +89,7 @@ type options = {
 	debug?: boolean | ((details: string) => void); // The function you would like to run on debugs. If this is a falsey value, debug messages will not be displayed. If a true value is given which is not a function, the Bot simply logs messages to the console.
 	handle?: boolean | ((error: string | Error) => void); // Handling for internal errors. If a function is provided, this will run it with an error / string. The default function logs them to the console. To opt out of error handling (not recommended), set this to false.
 	noFailMessages?: boolean; // Dictates whether messages throw errors by default. Set to 'false' to enable messages throwing errors. Defaults to true.
+	scrollback?: boolean; // Enables scrollback messages (from chat history).
 	throttle?: number; // The throttle (in milliseconds) for every 'batch' of three messages. PS has a per-message throttle of 25ms for public roombots, 100ms for trusted users, and 600ms for regular users.
 	transformHTML?: (input: any, opts: HTMLopts) => string; // A custom HTML processor, applied on all HTML methods. Defaults to no-transform. See HTML options for more info on opts.
 };
@@ -96,10 +97,10 @@ type options = {
 
 Note: There are four main reasons to ignore an incoming message:
 
-1. `message.isIntro`: Messages in the history of the chat are usually not parsed as commands on logging in.
-2. `!message.author.userid`: Messages from the `~Staff` and `~` accounts (formerly `&Staff` and `&` (formerly `~Staff` and `~`)) in DMs usually can't be replied to.
-3. `!message.target`: 'Ghost' messages (used as communication from the server to set up info) should be ignored.
-4. `message.author.userid === message.parent.status.userid`: It is highly recommended to avoid parsing your own messages as commands, since that's an easy recipe for Botception.
+1. `!message.author.userid`: Messages from the `~Staff` and `~` accounts (formerly `&Staff` and `&` (formerly `~Staff` and `~`)) in DMs usually can't be replied to.
+2. `!message.target`: 'Ghost' messages (used as communication from the server to set up info) should be ignored.
+3. `message.author.userid === message.parent.status.userid`: It is highly recommended to avoid parsing your own messages as commands, since that's an easy recipe for Botception.
+4. `message.isIntro`: Messages in the history of the chat are usually not parsed as commands on logging in. This only needs to be checked if you have scrollback enabled.
 
 ## Tools
 
