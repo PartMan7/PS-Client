@@ -51,6 +51,7 @@ class Client extends EventEmitter {
 			loggedIn: false,
 			username: null,
 			userid: null,
+			inited: false,
 		};
 		this.closed = true;
 		this._queue = [];
@@ -67,7 +68,6 @@ class Client extends EventEmitter {
 
 	// Websocket
 	connect(retry) {
-		if (this.status.connected) return;
 		if (retry) this.debug('Retrying...');
 		if (this.status.connected) return this.handle('Already connected');
 		this.closed = false;
@@ -98,7 +98,7 @@ class Client extends EventEmitter {
 		connection.onerror = err => {
 			this.debug(`Could not connect to the server ${this.opts.server}`);
 			this.handle(err);
-			this.status.connected = false;
+			this._resetStatus();
 			this.emit('disconnect', err);
 			if (this.opts.autoReconnect) {
 				this.debug(`Retrying in ${this.opts.autoReconnectDelay / 1000} seconds`);
@@ -113,7 +113,7 @@ class Client extends EventEmitter {
 		connection.onclose = () => {
 			this.debug('Connection closed');
 			this.connection = null;
-			this.status.connected = false;
+			this._resetStatus();
 			this.emit('disconnect', 0);
 			if (!this.closed && this.opts.autoReconnect) {
 				this.debug(`Retrying in ${this.opts.autoReconnectDelay / 1000} seconds.`);
@@ -124,10 +124,19 @@ class Client extends EventEmitter {
 	disconnect() {
 		this.closed = true;
 		this.ready = false;
-		this.inited = false;
 		clearInterval(this.queueTimer);
 		this.connection?.close();
 	}
+	_resetStatus() {
+		this.status = {
+			connected: false,
+			loggedIn: false,
+			username: null,
+			userid: null,
+			inited: false,
+		};
+	}
+
 	async login(name, pass) {
 		this.debug('Sending login request...');
 		let res;
@@ -285,11 +294,11 @@ class Client extends EventEmitter {
 						this.ready = true;
 						this.emit('ready');
 					}
-					if (!this.inited) {
+					if (!this.status.inited) {
 						this.opts.rooms.forEach(room => this.joinRoom(room).catch(this.handle));
 						if (this.opts.avatar) this.send(`|/avatar ${this.opts.avatar}`);
 					}
-					this.inited = true;
+					this.status.inited = true;
 				}
 				if (!isIntro || this.opts.scrollback) this.emit('updateuser', room, args.slice(2).join('|'), isIntro);
 				break;

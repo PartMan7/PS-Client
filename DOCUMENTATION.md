@@ -10,7 +10,7 @@ Client has the following properties:
 - `isTrusted`: A boolean that indicates whether the Bot is running on a trusted account. Until this is received, this value is null.
 - `rooms`: A Map containing all the rooms the Bot is in. The keys are the room IDs, while the values are [Room](#room-structure) instances.
 - `users`: A Map containing all the users the Bot is aware of. The keys are the user IDs, while the values are [User](#user-structure) instances.
-- `status`: An object containing four keys regarding the status of the connection. These are: `connected`, which is a Boolean that indicates whether the Bot is currently connected, `loggedIn`: a boolean that indicates whether the Bot has logged in successfully, `username`, which is the username the Bot has connected under, and `userid`, the corresponding user ID.
+- `status`: An object containing five keys regarding the status of the connection. These are: `connected`, which is a Boolean that indicates whether the Bot is currently connected, `loggedIn`, a boolean that indicates whether the Bot has logged in successfully, `inited`, which indicates whether the client has joined the rooms and set other config, `username`, which is the username the Bot has connected under, and `userid`, the corresponding user ID.
 - `closed`: A boolean that indicates whether the connection is currently closed.
 - `debug`, `handle`: These are where the debug and handler functions are stored.
 

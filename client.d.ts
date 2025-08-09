@@ -68,12 +68,12 @@ type ClientOpts = {
 	 * @default 10_000
 	 */
 	retryLogin?: number;
+	autoReconnect?: boolean;
 	/**
 	 * The time, in milliseconds, that your Bot will wait before attempting to reconnect after a disconnect.
 	 * If this is 0, it will not attempt to reconnect.
 	 * @default 30_000
 	 */
-	autoReconnect?: boolean;
 	autoReconnectDelay?: number;
 	/**
 	 * The time, in milliseconds, after which your connection times out.
@@ -118,10 +118,20 @@ export interface Client {
 export class Client extends EventEmitter {
 	opts: Required<Omit<ClientOpts, 'password' | 'avatar' | 'status' | 'debug'>> & ClientOpts;
 	status: {
+		/**
+		 * Whether the socket is connected.
+		 */
 		connected: boolean;
+		/**
+		 * Whether the client is authenticated on PS.
+		 */
 		loggedIn: boolean;
-		username?: string;
-		userid?: string;
+		/**
+		 * Whether the client has inited with rooms and whatnot.
+		 */
+		inited: boolean;
+		username?: string | null;
+		userid?: string | null;
 	};
 	isTrusted?: boolean;
 	closed: boolean;
