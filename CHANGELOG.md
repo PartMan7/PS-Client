@@ -1,5 +1,9 @@
 ## What's New
 
+**v5.0.1**
+
+- Fixes `reconnect` handling (rejoins rooms, updates avatar, etc).
+
 **v5.0.0.**
 
 - Adds `scrollback` as a client option.
