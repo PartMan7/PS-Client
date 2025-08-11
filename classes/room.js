@@ -1,9 +1,24 @@
+// @ts-check
 'use strict';
 
-const { toID, formatText } = require('../tools.js');
+const { toID, toRoomID, formatText } = require('../tools.js');
 
 const customInspectSymbol = Symbol.for('nodejs.util.inspect.custom');
 
+/**
+ * @import { HTMLOpts, HTML } from '../types/common.d.ts';
+ * @import { Message } from './message.js';
+ * @import { User } from './user.js';
+ * @import { Client } from '../client.js';
+ */
+
+/** @typedef {User[] | string[] | User | string} Users */
+
+/**
+ * Maps an array to user IDs.
+ * @param userList {Users}
+ * @returns {string[]}
+ */
 function getUserIds(userList) {
 	const arr = Array.isArray(userList) ? userList : [userList];
 	return arr
@@ -17,26 +32,98 @@ function getUserIds(userList) {
 }
 
 class Room {
+	/**
+	 * Formatted name of the room.
+	 * @type string
+	 * @example Bot Development
+	 */
+	title;
+	/**
+	 * Room ID.
+	 * @type string
+	 * @example 'botdevelopment'
+	 */
+	roomid;
+	/**
+	 * Room ID.
+	 * @type string
+	 * @example 'botdevelopment'
+	 */
+	id;
+	/**
+	 * The Bot that this room is registered to.
+	 * @type Client
+	 */
+	parent;
+	/**
+	 * Whether the room is a chatroom or a battleroom.
+	 * @type {'chat' | 'battle'}
+	 */
+	type;
+	/**
+	 * Room visibility.
+	 * @type {'public' | 'hidden' | 'secret' | 'private'}
+	 */
+	visibility;
+	/**
+	 * Current modchat level.
+	 * @type {?string}
+	 */
+	modchat;
+	/**
+	 * Can be undefined if no auth is defined in the room.
+	 * @type {Record<string, string[]> | undefined}
+	 * @example { '*': ['partbot'] }
+	 */
+	auth;
+	/**
+	 * List of all users currently online, formatted as shown in chat.
+	 * @type string[]
+	 * @example ['#PartMan@!', '*PartBot']
+	 */
+	users;
+	/**
+	 * @param name {string} Name of the room.
+	 * @param parent {Client} Client associated with the room.
+	 */
 	constructor(name, parent) {
-		this.roomid = name.toLowerCase().replace(/[^a-z0-9-]/g, '');
+		this.roomid = toRoomID(name);
 		this.parent = parent;
 		this._waits = [];
+		this.users = [];
 	}
+	/**
+	 * Sends a message to the room.
+	 * @param text {string} The text to send.
+	 * @returns {Promise<Message>} A promise that resolves when the message is sent successfully.
+	 */
 	send(text) {
 		return new Promise((resolve, reject) => {
 			text = `${this.roomid}|${text?.toString() || String(text)}`;
 			this.parent.sendQueue(text, resolve, reject);
 		});
 	}
+	/**
+	 * Privately sends a message to a user in the room.
+	 * @param user {User | string} The user to send the text to.
+	 * @param text {string} The text to privately send.
+	 * @returns {string | false}
+	 */
 	privateSend(user, text) {
 		if (!['*', '#', '&'].includes(this.users.find(u => toID(u) === this.parent.status.userid)?.charAt(0))) return false;
-		user = this.parent.getUser(user);
-		if (!user) return '';
+		const target = typeof user === 'string' ? this.parent.getUser(user) : user;
+		if (!target) return '';
 		const formatted = formatText(text);
-		this.send(`/sendprivatehtmlbox ${user.userid}, ${formatted}`);
+		this.send(`/sendprivatehtmlbox ${target.userid}, ${formatted}`);
 		return formatted;
 	}
-	sendHTML(html, opts = {}) {
+	/**
+	 * Sends HTML in the room.
+	 * @param html {HTML} The HTML to send.
+	 * @param opts {HTMLOpts=} HTML options. If a string is passed, it is used as HTMLOpts.name.
+	 * @returns {string | HTML} Returns HTML only if `opts.notransform` is true.
+	 */
+	sendHTML(html, opts) {
 		if (!['*', '#', '&'].includes(this.users.find(u => toID(u) === this.parent.status.userid)?.charAt(0))) return false;
 		if (!html) throw new Error('Missing HTML argument');
 		if (typeof opts === 'string') opts = { name: opts };
@@ -47,6 +134,13 @@ class Room {
 		this.send(`/${command} ${opts.rank ? `${opts.rank}, ` : ''}${opts.name ?? fallbackName}, ${formatted}`);
 		return formatted;
 	}
+	/**
+	 * Privately sends HTML in the room
+	 * @param userList {Users} The user to send the HTML to.
+	 * @param html {HTML} The HTML to send.
+	 * @param opts {HTMLOpts} HTML options. If a string is passed, it is used as HTMLOpts.name.
+	 * @returns {string | HTML} Returns HTML only if `opts.notransform` is true.
+	 */
 	privateHTML(userList, html, opts = {}) {
 		if (!['*', '#', '&'].includes(this.users.find(u => toID(u) === this.parent.status.userid)?.charAt(0))) return false;
 		const users = getUserIds.bind(this)(userList);
@@ -60,6 +154,13 @@ class Room {
 		this.send(`/${command} ${users.join('|')}, ${opts.name ?? fallbackName}, ${formatted}`);
 		return formatted;
 	}
+	/**
+	 * Sends HTML pages to multiple users from the room.
+	 * @param userList {Users} The user to send the HTML to
+	 * @param html {HTML} The HTML to send
+	 * @param opts {HTMLOpts} HTML options. If a string is passed, it is used as HTMLOpts.name.
+	 * @returns {string | HTML} Returns HTML only if `opts.notransform` is true.
+	 */
 	pageHTML(userList, html, opts = {}) {
 		if (!['*', '#', '&'].includes(this.users.find(u => toID(u) === this.parent.status.userid)?.charAt(0))) return false;
 		const users = getUserIds.bind(this)(userList);
@@ -72,13 +173,26 @@ class Room {
 		this.send(`/sendhtmlpage ${users.join('|')}, ${opts.name ?? fallbackName}, ${formatted}`);
 		return formatted;
 	}
+	/**
+	 * Alias for User#sendHTML() that passes opts.room.
+	 * @param user {User | string} The user to send the HTML to.
+	 * @param html {HTML} The HTML to send.
+	 * @param opts {HTMLOpts} HTML options. If a string is passed, it is used as HTMLOpts.name.
+	 * @returns {string | HTML} Returns HTML only if `opts.notransform` is true.
+	 */
 	pmHTML(user, html, opts = {}) {
 		if (typeof opts === 'string') opts = { name: opts };
-		user = this.parent.addUser(user);
-		return user?.sendHTML(html, { ...opts, room: this });
+		const target = this.parent.addUser(user);
+		return target?.sendHTML(html, { ...opts, room: this });
 	}
-	waitFor(condition, time) {
-		if (!time && typeof time !== 'number') time = 60 * 1000;
+	/**
+	 * Waits for the first message in the room that fulfills the given condition.
+	 * @param condition {(message: Message) => boolean} A function to run on the message. Return a truthy value to satisfy.
+	 * @param time {number=} The time (in ms) to wait before rejecting as a timeout. Defaults to 60s.
+	 * @throws Error If timed out.
+	 * @return Promise<Message>
+	 */
+	waitFor(condition, time = 60 * 1000) {
 		if (typeof condition !== 'function') throw new TypeError('Condition must be a function.');
 		const room = this;
 		return new Promise((resolve, reject) => {
@@ -100,6 +214,10 @@ class Room {
 			room._waits.push(waitObj);
 		});
 	}
+	/**
+	 * Re-fetch the room's details from the server.
+	 * @returns void
+	 */
 	update() {
 		this.parent.send(`|/cmd roominfo ${this.roomid}`);
 	}
@@ -133,4 +251,4 @@ class Room {
 	}
 }
 
-module.exports = Room;
+exports.Room = Room;

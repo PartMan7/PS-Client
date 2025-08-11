@@ -32,6 +32,12 @@ class Connection extends EventEmitter {
 	}
 }
 class MockSocket extends EventEmitter {
+	/** @type {() => void} */
+	onopen;
+	/** @type {(packet: { data: string }) => void} */
+	onmessage;
+	/** @type {() => void} */
+	onclose;
 	constructor(props) {
 		super(props);
 		setTimeout(() => {

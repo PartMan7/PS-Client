@@ -1,6 +1,6 @@
 const querystring = require('querystring');
 
-module.exports = (url, params) => {
+module.exports = async (url, params) => {
 	if (url === 'https://play.pokemonshowdown.com/action.php') {
 		expect(querystring.parse(params.body)).toEqual({
 			act: 'login',
@@ -9,6 +9,6 @@ module.exports = (url, params) => {
 			challengekeyid: 'challstr_key', // This is actually supposed to be a number
 			challstr: 'challstr_value',
 		});
-		return { text: async () => ']{"assertion":"challstr_value_then_other_stuff","username":"psclient"}' };
+		return /** @type Response */ ({ text: async () => ']{"assertion":"challstr_value_then_other_stuff","username":"psclient"}' });
 	}
 };

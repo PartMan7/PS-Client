@@ -1,3 +1,4 @@
+// @ts-check
 'use strict';
 
 const crypto = require('crypto');
@@ -5,8 +6,13 @@ const fs = require('fs');
 const path = require('path');
 const querystring = require('querystring');
 
-let COLORS = require('./showdown/colors.json');
+const baseColors = require('./showdown/colors.json');
+let COLORS = baseColors;
 
+/**
+ * @param text {string} The input value
+ * @returns {string} The ID of the given input
+ */
 function toID(text) {
 	return String(text)
 		.toLowerCase()
@@ -14,6 +20,10 @@ function toID(text) {
 }
 exports.toID = toID;
 
+/**
+ * @param text {string} The input value
+ * @returns {string} The room ID of the given input (preserves '-')
+ */
 function toRoomID(text) {
 	return String(text)
 		.toLowerCase()
@@ -21,6 +31,18 @@ function toRoomID(text) {
 }
 exports.toRoomID = toRoomID;
 
+/**
+ * @typedef {{
+ * 	source: string;
+ * 	hsl: [number, number, number];
+ * 	base?: Omit<NameColor, 'base'>;
+ * }} NameColor
+ */
+/**
+ * @param name {string} The username whose HSL value is to be calculated
+ * @param original {boolean=} Whether the username's original colour should override the custom colour (optional)
+ * @returns {NameColor} An object with the required details (HSL values in namecolour.hsl)
+ */
 exports.HSL = function HSL(name, original) {
 	name = toID(name);
 	const out = { source: name, hsl: null };
@@ -87,7 +109,33 @@ exports.HSL = function HSL(name, original) {
 	return out;
 };
 
+/**
+ * @typedef {
+ * | 'abilities'
+ * | 'aliases'
+ * | 'formatsdata'
+ * | 'formats'
+ * | 'items'
+ * | 'learnsets'
+ * | 'moves'
+ * | 'pokedex'
+ * | 'typechart'
+ * | 'colors'
+ * } Updates
+ */
+/**
+ * @deprecated This (along with PS data) will be removed in a future release!
+ * @param types {Updates[]} A string corresponding to the datacenter you wish to update.
+ * If nothing is passed, this updates all available datacenters.
+ * @returns {Promise<Updates[]>} A promise with the name(s) of the updated datacenter(s)
+ */
 exports.update = function update(...types) {
+	/**
+	 * @typedef {{ url: string, path: string, name: string, key?: string; expo?: string, process?: (data: string) => string }} UpdateEntry
+	 */
+	/**
+	 * @type {Record<Updates, UpdateEntry>}
+	 */
 	const links = {
 		abilities: {
 			url: 'https://play.pokemonshowdown.com/data/abilities.js',
@@ -104,6 +152,7 @@ exports.update = function update(...types) {
 		colors: {
 			path: path.join(__dirname, 'showdown', 'colors.json'),
 			name: 'Colors',
+			url: 'custom handling',
 		},
 		formatsdata: {
 			url: 'https://play.pokemonshowdown.com/data/formats-data.js',
@@ -181,14 +230,15 @@ exports.update = function update(...types) {
 			expo: 'BattleTypeChart',
 		},
 	};
-	types = types
+	/** @type UpdateEntry[] */
+	let typeData = types
 		.map(toID)
 		.map(type => links[type])
 		.filter(type => type);
-	if (!types.length) types = Object.values(links);
+	if (!typeData.length) typeData = Object.values(links);
 	return new Promise((resolve, reject) => {
 		Promise.all(
-			types.map(
+			typeData.map(
 				type =>
 					new Promise(res => {
 						if (type.name === 'Colors') {
@@ -210,7 +260,7 @@ exports.update = function update(...types) {
 							.then(res => res.text())
 							.then(response => {
 								const data = type.process ? type.process(response) : response;
-								const writeData = (typeof data === 'string' ? data : JSON.stringify(data)) + (type.append || '');
+								const writeData = typeof data === 'string' ? data : JSON.stringify(data);
 								fs.writeFile(type.path, writeData, err => {
 									if (err) throw err;
 									try {
@@ -227,7 +277,7 @@ exports.update = function update(...types) {
 		).then(res => {
 			if (require.cache[require.resolve('./client.js')]) {
 				const main = require('./client.js');
-				types.forEach(type => {
+				typeData.forEach(type => {
 					const key = type.key || toID(type.name);
 					if (type.expo) main.Data[key] = require(type.path)[type.expo];
 					else main.Data[key] = require(type.path);
@@ -238,67 +288,94 @@ exports.update = function update(...types) {
 	});
 };
 
-exports.uploadToPastie = function uploadToPastie(text, callback) {
-	return new Promise((resolve, reject) => {
-		fetch('https://pastie.io/documents', {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'text/plain',
-			},
-			body: text,
-		})
-			.then(res => res.json())
-			.then(res => {
-				if (callback && typeof callback === 'function') callback(`https://pastie.io/raw/${res.key}`);
-				resolve(`https://pastie.io/raw/${res.key}`);
-			})
-			.catch(reject);
+/**
+ * @param text {string} The text to upload.
+ * @param callback {((url: string) => void)=} An optional callback to run with the returned URL.
+ * @returns {Promise<string>} A promise that resolves with the uploaded URL.
+ */
+exports.uploadToPastie = async function uploadToPastie(text, callback) {
+	const res = await fetch('https://pastie.io/documents', {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'text/plain',
+		},
+		body: text,
 	});
+	/** @type {{ key: string }} */
+	const data = await res.json();
+
+	if (callback && typeof callback === 'function') callback(`https://pastie.io/raw/${data.key}`);
+	return `https://pastie.io/raw/${data.key}`;
 };
 
-exports.uploadToPokepaste = function uploadToPokepaste(text, output) {
-	return new Promise((resolve, reject) => {
-		switch (typeof text) {
-			case 'string': {
-				text = {
-					title: 'Untitled',
-					author: 'Anonymous',
-					notes: '',
-					paste: text.replace(/\r?\n/g, '\r\n'),
-				};
-				break;
-			}
-			default: {
-				if (text.paste) break;
-				return reject(new Error('Invalid Paste value.'));
-			}
+/** @typedef {{ title: string; author: string; notes: string; paste: string }} PokePasteConfig */
+/** @typedef {PokePasteConfig | string} PokePasteInput */
+/**
+ * @overload
+ * @param input {PokePasteInput}
+ * @param output {'' | undefined | void}
+ * @returns {Promise<string>} The uploaded URL.
+ */
+/**
+ * @overload
+ * @param input {PokePasteInput}
+ * @param output {'raw'}
+ * @returns {Promise<string>} The 'raw' version of the uploaded URL.
+ */
+/**
+ * @overload
+ * @param input {PokePasteInput}
+ * @param output {'html'}
+ * @returns {Promise<string>} The returned HTML for the uploaded URL.
+ */
+/**
+ * @param input {PokePasteInput}
+ * The input to upload (can be an object or a string).
+ * @param output {?'' | 'raw' | 'html' | void} An optional string to dictate the resolution value of the promise
+ * ('raw' for the URL with the raw text, 'html' for the source HTML). Leave empty for the standard URL.
+ * @returns {Promise<string>} The requested type of info.
+ */
+exports.uploadToPokepaste = async function uploadToPokepaste(input, output) {
+	/** @type {PokePasteConfig} */
+	let data;
+	switch (typeof input) {
+		case 'string': {
+			data = {
+				title: 'Untitled',
+				author: 'Anonymous',
+				notes: '',
+				paste: input.replace(/\r?\n/g, '\r\n'),
+			};
+			break;
 		}
-		fetch('https://pokepast.es/create', {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-			body: querystring.stringify(text),
-		})
-			.then(res => res.text().then(data => ({ data, url: res.url })))
-			.then(({ data, url }) => {
-				if (typeof output === 'function') return output(url);
-				switch (toID(output)) {
-					case 'raw':
-						resolve(url.replace(/(?<=pokepast\.es)/, '/raw'));
-						break;
-					case 'html':
-						resolve(data);
-						break;
-					default:
-						resolve(url);
-				}
-			})
-			.catch(reject);
-	});
+		default: {
+			if (input.paste) break;
+			throw new Error('Invalid Paste value.');
+		}
+	}
+	const { content, url } = await fetch('https://pokepast.es/create', {
+		method: 'POST',
+		headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+		body: querystring.stringify(data),
+	}).then(res => res.text().then(content => ({ content, url: res.url })));
+
+	switch (output) {
+		case 'raw':
+			return url.replace(/(?<=pokepast\.es)/, '/raw');
+		case 'html':
+			return content;
+		default:
+			return url;
+	}
 };
 
-exports.escapeHTML = function escapeHTML(str) {
-	if (!str) return '';
-	return String(str)
+/**
+ * @param input {string} The text to sanitize HTML from.
+ * @returns {string} The HTML-sanitized text.
+ */
+exports.escapeHTML = function escapeHTML(input) {
+	if (!input) return '';
+	return String(input)
 		.replace(/&/g, '&amp;')
 		.replace(/</g, '&lt;')
 		.replace(/>/g, '&gt;')
@@ -307,9 +384,13 @@ exports.escapeHTML = function escapeHTML(str) {
 		.replace(/\//g, '&#x2f;');
 };
 
-exports.unescapeHTML = function unescapeHTML(str) {
-	if (!str) return '';
-	return String(str)
+/**
+ * @param input {string} The text to desanitize HTML from
+ * @returns {string} The HTML-desanitized text
+ */
+exports.unescapeHTML = function unescapeHTML(input) {
+	if (!input) return '';
+	return String(input)
 		.replace(/&amp;/g, '&')
 		.replace(/&lt;/g, '<')
 		.replace(/&gt;/g, '>')
@@ -318,4 +399,8 @@ exports.unescapeHTML = function unescapeHTML(str) {
 		.replace(/&#x2f;/g, '/');
 };
 
-exports.formatText = require('./chat.js');
+/**
+ * @param input {string} The text to format.
+ * @returns {string} The formatted text.
+ */
+exports.formatText = require('./chat.js').formatText;

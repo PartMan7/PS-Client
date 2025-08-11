@@ -68,16 +68,6 @@ describe('PS-Client', () => {
 		});
 	});
 
-	it.skip('should be able to send raw HTML', () => {
-		return new Promise((resolve, reject) => {
-			Bot.getRoom('Bot Development')
-				.waitFor(msg => msg.author.id === 'psclient' && /Test/.test(msg.content))
-				.then(resolve)
-				.catch(reject);
-			Bot.getRoom('Bot Development').sendRawHTML('<div style="font-weight: bold">Test</div>');
-		});
-	});
-
 	afterAll(() => {
 		require('console').log(chalk.red('xx'), chalk.dim('Disconnecting...'), '\n');
 		Bot.disconnect();
