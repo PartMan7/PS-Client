@@ -14,6 +14,7 @@ type PokePaste = {
 type UpdateType =
 	| 'abilities'
 	| 'aliases'
+	| 'colors'
 	| 'config'
 	| 'formatsdata'
 	| 'formats'

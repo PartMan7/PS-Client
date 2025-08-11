@@ -14,19 +14,68 @@ type MessageOpts = {
 	time: void | number;
 };
 
-export default class Message {
+export default class Message<Type extends 'chat' | 'pm' = 'chat'> {
+	/**
+	 * Author of the message.
+	 * @example User(PartMan)
+	 */
 	author: User;
+	/**
+	 * Full message content.
+	 * @example 'Hi!'
+	 */
 	content: string;
+	/**
+	 * Message string, as-received from the server.
+	 * @example '|c|+PartMan|Hi!'
+	 */
 	raw: string;
+	/**
+	 * Client that received the message.
+	 */
 	parent: Client;
+	/**
+	 * The rank of the author that sent the message.
+	 * @example '+'
+	 */
 	msgRank: HTMLopts['rank'] | ' ';
+	/**
+	 * The command of the message. '/botmsg' will only be set as the command if no other command was used.
+	 * @example '!dt'
+	 */
+	command: string | null;
+	/**
+	 * Whether the message was received before joining (eg: via history). These messages
+	 * will not be emitted if scrollback is not explicitly enabled.
+	 */
 	isIntro: boolean;
+	/**
+	 * Whether this message fulfilled a waiting condition. See User/Room's `waitFor` for more info.
+	 * @see {User.waitFor}
+	 * @see {Room.waitFor}
+	 * @type boolean
+	 */
 	awaited: boolean;
+	/**
+	 * UNIX timestamp that the message was received at.
+	 * @type number
+	 */
 	time: number;
 
-	type: 'chat' | 'pm';
-	target: 'chat' extends this['type'] ? Room : 'pm' extends this['type'] ? User : never;
-	isHidden: 'pm' extends this['type'] ? boolean : never;
+	/**
+	 * Chatrooms have 'chat', while PMs have 'pm'. Some methods/properties change accordingly.
+	 */
+	type: Type;
+	/**
+	 * The room / DM in which the message was sent. For PMs, this is always the non-client
+	 * User, not necessarily the author of the message!
+	 * @type { Room | User | never }
+	 */
+	target: 'chat' extends Type ? Room : 'pm' extends Type ? User : never;
+	/**
+	 * Whether the message is a hidden message (from botmsg).
+	 */
+	isHidden: 'pm' extends Type ? boolean : never;
 
 	constructor(input: MessageOpts);
 

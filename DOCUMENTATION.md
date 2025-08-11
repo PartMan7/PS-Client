@@ -86,11 +86,11 @@ Room has the following properties:
 Room has the following methods:
 
 - `send (text: string): Promise<Message>` sends a message to the Room and returns a Promise that is resolved with the sent [Message](#message-structure), or is rejected with the message content.
-- `privateSend (user: string | User, text: string): string | false` sends a message in chat that is only visible to the specified user. Returns `false` if the client does not have permissions. Text is formatted using `Tools#formatText`.
-- `sendHTML (html: string, opts?: HTMLopts): string | false` sends a UHTML box to the room with the specified (optional) options. For example: `Room.sendHTML('<b>This is an example.</b>', { rank: '+', change: true })`
-- `privateHTML (user: string | User | (string | User)[], html: string, opts?: HTMLopts): string | false` behaves similarly to sendHTML, the difference being that privateHTML only sends the HTML to the specified user(s).
-- `pageHTML (user: string | User | (string | User)[], html: string, opts?: HTMLopts): string | false` sends HTML pages to the given user(s).
-- `pmHTML (user: string | User, html: string, opts?: HTMLopts): string | false` pms HTML to the given user.
+- `privateSend (user: string | User, text: string): string | null` sends a message in chat that is only visible to the specified user. Returns `null` if the client does not have permissions. Text is formatted using `Tools#formatText`.
+- `sendHTML (html: string, opts?: HTMLopts): string | null` sends a UHTML box to the room with the specified (optional) options. For example: `Room.sendHTML('<b>This is an example.</b>', { rank: '+', change: true })`
+- `privateHTML (user: string | User | (string | User)[], html: string, opts?: HTMLopts): string | null` behaves similarly to sendHTML, the difference being that privateHTML only sends the HTML to the specified user(s).
+- `pageHTML (user: string | User | (string | User)[], html: string, opts?: HTMLopts): string | null` sends HTML pages to the given user(s).
+- `pmHTML (user: string | User, html: string, opts?: HTMLopts): string | null` pms HTML to the given user.
 - `waitFor (condition: (message: Message): boolean, time: number): Promise<Message>` waits for a message in the Room. This is resolved when the Client receives a message from the Room for which `condition` returns true, and is rejected if (time) milliseconds pass without being resolved. By default, time corresponds to 1 minute - you can set it to 0 to disable the time limit.
 - `update (): void` refetches the entire room metadata (as well as all userdetails of users in the room).
 

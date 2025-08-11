@@ -15,7 +15,7 @@ class Message {
 		this.content = text;
 		const match = text.match(/^[/!][^ ]+/);
 		if (match) this.command = match[0];
-		else this.command = false;
+		else this.command = null;
 		this.msgRank = msgRank;
 		this.raw = raw;
 		this.parent = parent;

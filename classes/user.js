@@ -36,7 +36,7 @@ class User {
 	sendHTML(html, _opts = {}) {
 		if (!html) throw new Error('Missing HTML argument');
 		const { opts, room } = this.#validateOpts(_opts);
-		if (!room) return false;
+		if (!room) return null;
 		const formatted = opts.notransform ? html : this.parent.opts.transformHTML(html, opts);
 		room.send(`/pmuhtml${opts.change ? 'change' : ''} ${this.userid}, ${opts.name}, ${formatted}`);
 		return formatted;
@@ -44,7 +44,7 @@ class User {
 	pageHTML(html, _opts = {}) {
 		if (!html) throw new Error('Missing HTML argument');
 		const { opts, room } = this.#validateOpts(_opts);
-		if (!room) return false;
+		if (!room) return null;
 		const formatted = opts.notransform ? html : this.parent.opts.transformHTML(html, opts);
 		room.send(`/sendhtmlpage ${this.userid}, ${opts.name}, ${formatted}`);
 		return formatted;
@@ -71,8 +71,9 @@ class User {
 			user._waits.push(waitObj);
 		});
 	}
-	update() {
-		return this.parent.getUserDetails(this.userid).then(() => this);
+	async update() {
+		await this.parent.getUserDetails(this.userid);
+		return this;
 	}
 	[customInspectSymbol](depth, options, inspect) {
 		if (depth < 1) return options.stylize(`${this.name || '-'} [PS-User]`, 'special');

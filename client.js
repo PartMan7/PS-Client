@@ -28,8 +28,7 @@ class Client extends EventEmitter {
 			status: null,
 			sparse: false,
 			retryLogin: 4 * 1000,
-			autoReconnect: true,
-			autoReconnectDelay: 5 * 1000,
+			autoReconnect: 5 * 1000,
 			rooms: [],
 			debug: false,
 			throttle: null,
@@ -91,7 +90,7 @@ class Client extends EventEmitter {
 		this.connection = connection;
 
 		connection.onopen = connection => {
-			this.emit('connect', connection);
+			this.emit('connect');
 			this.debug(`Connected to server: ${this.opts.server}`);
 			this.status.connected = true;
 		};
@@ -101,8 +100,8 @@ class Client extends EventEmitter {
 			this._resetStatus();
 			this.emit('disconnect', err);
 			if (this.opts.autoReconnect) {
-				this.debug(`Retrying in ${this.opts.autoReconnectDelay / 1000} seconds`);
-				setTimeout(() => this.connect(true), this.opts.autoReconnectDelay);
+				this.debug(`Retrying in ${this.opts.autoReconnect / 1000} seconds`);
+				setTimeout(() => this.connect(true), this.opts.autoReconnect);
 			}
 		};
 		connection.onmessage = message => {
@@ -116,8 +115,8 @@ class Client extends EventEmitter {
 			this._resetStatus();
 			this.emit('disconnect', 0);
 			if (!this.closed && this.opts.autoReconnect) {
-				this.debug(`Retrying in ${this.opts.autoReconnectDelay / 1000} seconds.`);
-				setTimeout(() => this.connect(true), this.opts.autoReconnectDelay);
+				this.debug(`Retrying in ${this.opts.autoReconnect / 1000} seconds.`);
+				setTimeout(() => this.connect(true), this.opts.autoReconnect);
 			}
 		};
 	}
@@ -244,7 +243,7 @@ class Client extends EventEmitter {
 		const flag = message.substr(0, 1);
 		switch (flag) {
 			case 'a': {
-				const data = JSON.parse(message.substr(1));
+				const data = JSON.parse(message.substring(1));
 				if (Array.isArray(data)) data.forEach(piece => this.receiveMsg(piece));
 				else this.receiveMsg(message);
 				break;
@@ -267,9 +266,9 @@ class Client extends EventEmitter {
 			}
 			let isIntro = false;
 
-			for (const batch of split) {
-				if (batch.split('|')[1] === 'init') isIntro = true;
-				this.receiveLine(room, batch, isIntro).catch(this.handle);
+			for (const line of split) {
+				if (line.split('|')[1] === 'init') isIntro = true;
+				this.receiveLine(room, line, isIntro).catch(this.handle);
 			}
 		} else this.receiveLine('lobby', message).catch(this.handle);
 	}
@@ -282,7 +281,7 @@ class Client extends EventEmitter {
 				break;
 			}
 			case 'updateuser': {
-				this.status.username = args[2].substr(1);
+				this.status.username = args[2].substring(1);
 				this.status.userid = Tools.toID(this.status.username);
 				if (!args[2].startsWith(' Guest')) {
 					this.debug(`Successfully logged in as '${args[2]}.'`);
@@ -309,12 +308,8 @@ class Client extends EventEmitter {
 					challstr: args[3],
 				};
 				if (this.opts.username) {
-					try {
-						this.debug('Logging in');
-						await this.login(this.opts.username, this.opts.password);
-					} catch (e) {
-						this.handle(e);
-					}
+					this.debug('Logging in');
+					this.login(this.opts.username, this.opts.password).catch(e => this.handle(e));
 				}
 				break;
 			}
@@ -568,7 +563,7 @@ class Client extends EventEmitter {
 			this.users.set(userid, user);
 			if (!this.opts.sparse) this.getUserDetails(userid);
 		}
-		Object.keys(input).forEach(key => (user[key] = input[key]));
+		if (typeof input === 'object') Object.keys(input).forEach(key => (user[key] = input[key]));
 		return user;
 	}
 	getUser(str, deep = false) {

@@ -1,6 +1,6 @@
 'use strict';
 
-const { toID, formatText } = require('../tools.js');
+const { toID, toRoomID, formatText } = require('../tools.js');
 
 const customInspectSymbol = Symbol.for('nodejs.util.inspect.custom');
 
@@ -18,9 +18,10 @@ function getUserIds(userList) {
 
 class Room {
 	constructor(name, parent) {
-		this.roomid = name.toLowerCase().replace(/[^a-z0-9-]/g, '');
+		this.roomid = toRoomID(name);
 		this.parent = parent;
 		this._waits = [];
+		this.users = [];
 	}
 	send(text) {
 		return new Promise((resolve, reject) => {
@@ -29,7 +30,7 @@ class Room {
 		});
 	}
 	privateSend(user, text) {
-		if (!['*', '#', '&'].includes(this.users.find(u => toID(u) === this.parent.status.userid)?.charAt(0))) return false;
+		if (!['*', '#', '&'].includes(this.users.find(u => toID(u) === this.parent.status.userid)?.charAt(0))) return null;
 		user = this.parent.getUser(user);
 		if (!user) return '';
 		const formatted = formatText(text);
@@ -37,7 +38,7 @@ class Room {
 		return formatted;
 	}
 	sendHTML(html, opts = {}) {
-		if (!['*', '#', '&'].includes(this.users.find(u => toID(u) === this.parent.status.userid)?.charAt(0))) return false;
+		if (!['*', '#', '&'].includes(this.users.find(u => toID(u) === this.parent.status.userid)?.charAt(0))) return null;
 		if (!html) throw new Error('Missing HTML argument');
 		if (typeof opts === 'string') opts = { name: opts };
 		if (typeof opts !== 'object') throw new TypeError('Options must be an object');
@@ -48,9 +49,9 @@ class Room {
 		return formatted;
 	}
 	privateHTML(userList, html, opts = {}) {
-		if (!['*', '#', '&'].includes(this.users.find(u => toID(u) === this.parent.status.userid)?.charAt(0))) return false;
+		if (!['*', '#', '&'].includes(this.users.find(u => toID(u) === this.parent.status.userid)?.charAt(0))) return null;
 		const users = getUserIds.bind(this)(userList);
-		if (!users.length) return false;
+		if (!users.length) return null;
 		if (!html) throw new Error('Missing HTML argument');
 		if (typeof opts === 'string') opts = { name: opts };
 		if (!opts || typeof opts !== 'object') throw new TypeError('Options must be an object');
@@ -61,9 +62,9 @@ class Room {
 		return formatted;
 	}
 	pageHTML(userList, html, opts = {}) {
-		if (!['*', '#', '&'].includes(this.users.find(u => toID(u) === this.parent.status.userid)?.charAt(0))) return false;
+		if (!['*', '#', '&'].includes(this.users.find(u => toID(u) === this.parent.status.userid)?.charAt(0))) return null;
 		const users = getUserIds.bind(this)(userList);
-		if (!users.length) return false;
+		if (!users.length) return null;
 		if (!html) throw new Error('Missing HTML argument');
 		if (typeof opts === 'string') opts = { name: opts };
 		if (!opts || typeof opts !== 'object') throw new TypeError('Options must be an object');

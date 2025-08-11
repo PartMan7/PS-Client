@@ -238,22 +238,18 @@ exports.update = function update(...types) {
 	});
 };
 
-exports.uploadToPastie = function uploadToPastie(text, callback) {
-	return new Promise((resolve, reject) => {
-		fetch('https://pastie.io/documents', {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'text/plain',
-			},
-			body: text,
-		})
-			.then(res => res.json())
-			.then(res => {
-				if (callback && typeof callback === 'function') callback(`https://pastie.io/raw/${res.key}`);
-				resolve(`https://pastie.io/raw/${res.key}`);
-			})
-			.catch(reject);
+exports.uploadToPastie = async function uploadToPastie(text, callback) {
+	const res = await fetch('https://pastie.io/documents', {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'text/plain',
+		},
+		body: text,
 	});
+	const data = await res.json();
+
+	if (callback && typeof callback === 'function') callback(`https://pastie.io/raw/${data.key}`);
+	return `https://pastie.io/raw/${data.key}`;
 };
 
 exports.uploadToPokepaste = function uploadToPokepaste(text, output) {

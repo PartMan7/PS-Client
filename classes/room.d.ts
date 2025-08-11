@@ -30,7 +30,7 @@ export default class Room {
 	/**
 	 * Room visibility.
 	 */
-	visibility: 'public' | 'secret';
+	visibility: 'public' | 'hidden' | 'secret' | 'private';
 	/**
 	 * Current modchat level
 	 */
@@ -60,14 +60,14 @@ export default class Room {
 	 * @param user The user to send the text to
 	 * @param text The text to privately send
 	 */
-	privateSend(user: User | string, text: string): string | false;
+	privateSend(user: User | string, text: string): string | null;
 
 	/**
 	 * Sends HTML in the room.
 	 * @param html The HTML to send
 	 * @param opts HTML options. If a string is passed, it is used as HTMLopts.name.
 	 */
-	sendHTML(html: any, opts?: HTMLopts | string): string | false;
+	sendHTML(html: any, opts?: HTMLopts | string): string | null;
 
 	/**
 	 * Privately sends HTML in the room
@@ -75,7 +75,7 @@ export default class Room {
 	 * @param html The HTML to send
 	 * @param opts HTML options. If a string is passed, it is used as HTMLopts.name.
 	 */
-	privateHTML(user: User | string | (User | string)[], html: any, opts?: HTMLopts | string): string | false;
+	privateHTML(user: User | string | (User | string)[], html: any, opts?: HTMLopts | string): string | null;
 
 	/**
 	 * Sends HTML pages to multiple users from the room.
@@ -83,7 +83,7 @@ export default class Room {
 	 * @param html The HTML to send
 	 * @param opts HTML options. If a string is passed, it is used as HTMLopts.name.
 	 */
-	pageHTML(user: User | string | (User | string)[], html: any, opts?: HTMLopts | string): string | false;
+	pageHTML(user: User | string | (User | string)[], html: any, opts?: HTMLopts | string): string | null;
 
 	/**
 	 * Alias for User#sendHTML() that passes opts.room.
@@ -91,7 +91,7 @@ export default class Room {
 	 * @param html The HTML to send
 	 * @param opts HTML options. If a string is passed, it is used as HTMLopts.name.
 	 */
-	pmHTML(user: User | string, html: any, opts?: HTMLopts | string): string | false;
+	pmHTML(user: User | string, html: any, opts?: HTMLopts | string): string | null;
 
 	/**
 	 * Waits for the first message in the room that fulfills the given condition.

@@ -68,13 +68,12 @@ type ClientOpts = {
 	 * @default 10_000
 	 */
 	retryLogin?: number;
-	autoReconnect?: boolean;
 	/**
 	 * The time, in milliseconds, that your Bot will wait before attempting to reconnect after a disconnect.
 	 * If this is 0, it will not attempt to reconnect.
 	 * @default 30_000
 	 */
-	autoReconnectDelay?: number;
+	autoReconnect?: number;
 	/**
 	 * The time, in milliseconds, after which your connection times out.
 	 * @default 20_000
@@ -103,16 +102,46 @@ type ClientOpts = {
 };
 
 export interface Client {
+	/**
+	 * Any incoming or outgoing line of content between the server and client.
+	 */
 	on(event: 'packet', listener: (direction: 'in' | 'out', data: string) => void): this;
+	/**
+	 * Emitted whenever the client connects to the server.
+	 */
 	on(event: 'connect', listener: () => void): this;
-	on(event: 'message', listener: (message: Message) => void): this;
+	/**
+	 * Emitted on any chat/PM message from the server/client.
+	 */
+	on(event: 'message', listener: (message: Message<'chat' | 'pm'>) => void): this;
+	/**
+	 * Emitted whenever a user joins a room.
+	 */
 	on(event: 'join', listener: (room: string, user: string, isIntro: boolean) => void): this;
+	/**
+	 * Emitted whenever a user leaves a room.
+	 */
 	on(event: 'leave', listener: (room: string, user: string, isIntro: boolean) => void): this;
+	/**
+	 * Emitted whenever a user renames.
+	 */
 	on(event: 'name', listener: (room: string, newName: string, oldName: string, isIntro: boolean) => void): this;
+	/**
+	 * Emitted whenever the client joins a room.
+	 */
 	on(event: 'joinRoom', listener: (room: string) => void): this;
+	/**
+	 * Emitted whenever the client leaves a room.
+	 */
 	on(event: 'leaveRoom', listener: (room: string) => void): this;
+	/**
+	 * Emitted whenever an error is shown in chat. This does not necessarily have to be from the user's input.
+	 */
 	on(event: 'chatError', listener: (room: string, error: string, isIntro: boolean) => void): this;
-	on(event: string, listener: (room: string, line: string, isIntro: boolean) => void): this;
+	/**
+	 * Emitted for all other types of events.
+	 */
+	on(event: 'tour' | string, listener: (room: string, line: string, isIntro: boolean) => void): this;
 }
 
 export class Client extends EventEmitter {
@@ -195,7 +224,7 @@ export class Client extends EventEmitter {
 	 * @param deepSearch Whether to also look for direct alts
 	 * @returns The user if found, otherwise false
 	 */
-	getUser(user: string, deepSearch?: boolean): User | false;
+	getUser(user: string, deepSearch?: boolean): User | false | null;
 
 	/**
 	 * Queues a request to fetch userdetails
