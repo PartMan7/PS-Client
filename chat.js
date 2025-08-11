@@ -9,6 +9,8 @@
  * @license MIT
  */
 
+const toID = text => text.toLowerCase().replace(/[^a-z0-9]/g, '');
+
 const linkRegex =
 	/(?:(?:https?:\/\/[a-z0-9-]+(?:\.[a-z0-9-]+)*|www\.[a-z0-9-]+(?:\.[a-z0-9-]+)+|\b[a-z0-9-]+(?:\.[a-z0-9-]+)*\.(?:(?:com?|org|net|edu|info|us|jp)\b|[a-z]{2,3}(?=:[0-9]|\/)))(?::[0-9]+)?(?:\/(?:(?:[^\s()&<>]|&amp;|&quot;|\((?:[^\\s()<>&]|&amp;)*\))*(?:[^\s()[\]{}".,!?;:&<>*`^~\\]|\((?:[^\s()<>&]|&amp;)*\)))?)?|[a-z0-9.]+@[a-z0-9-]+(?:\.[a-z0-9-]+)*\.[a-z]{2,})(?![^ ]*&gt;)/gi;
 
@@ -420,7 +422,12 @@ class TextFormatter {
 
 /**
  * Takes a string and converts it to HTML by replacing standard chat formatting with the appropriate HTML tags.
+ * @warning Use `formatText` from Tools instead!
+ * @param str {string}
+ * @param isTrusted {boolean=}
+ * @param replaceLinebreaks {boolean=}
+ * @returns string
  */
-module.exports = function formatText(str, isTrusted = false, replaceLinebreaks = false) {
+exports.formatText = function formatText(str, isTrusted = false, replaceLinebreaks = false) {
 	return new TextFormatter(str, isTrusted, replaceLinebreaks).get();
 };

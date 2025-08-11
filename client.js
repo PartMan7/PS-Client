@@ -1,20 +1,63 @@
+// @ts-check
 'use strict';
 
 const EventEmitter = require('events');
 const querystring = require('querystring');
 const WebSocket = require('isomorphic-ws');
+/** @import { ClientOpts, ClientEvents } from './types/client-opts.d.ts'; */
 
 const customInspectSymbol = Symbol.for('nodejs.util.inspect.custom');
 
-const User = require('./classes/user.js');
-const Room = require('./classes/room.js');
-const Message = require('./classes/message.js');
+const { User } = require('./classes/user.js');
+const { Room } = require('./classes/room.js');
+const { Message } = require('./classes/message.js');
 const Tools = require('./tools.js');
 
 const Data = require('./data.js');
 
+/** @typedef {{ userid: string; [key: string]: any }} UserDetails */
+
+/**
+ * The client that will connect to Showdown.
+ * @class Client
+ * @implements {ClientEvents}
+ */
 class Client extends EventEmitter {
-	constructor(opts = {}) {
+	/**
+	 * Final client options after applying defaults.
+	 * @type {ClientOpts}
+	 */
+	opts;
+	/**
+	 * Information about the connection status.
+	 * @type {{ connected: boolean; loggedIn: boolean; inited: boolean; username?: (string|null); userid?: (string|null) }}
+	 */
+	status;
+	/**
+	 * Whether the client is trusted.
+	 * @type {boolean}
+	 */
+	isTrusted;
+	/**
+	 * Whether the connection is currently closed.
+	 * @type {boolean}
+	 */
+	closed;
+	/**
+	 * Collection of rooms.
+	 * @type {Map<string, Room>}
+	 */
+	rooms;
+	/**
+	 * Collection of users.
+	 * @type {Map<string, User>}
+	 */
+	users;
+	/**
+	 * @constructor
+	 * @param opts {ClientOpts}
+	 */
+	constructor(opts) {
 		super();
 		this.opts = {
 			server: 'sim3.psim.us',
@@ -28,7 +71,6 @@ class Client extends EventEmitter {
 			status: null,
 			sparse: false,
 			retryLogin: 4 * 1000,
-			autoReconnect: true,
 			autoReconnectDelay: 5 * 1000,
 			rooms: [],
 			debug: false,
@@ -67,6 +109,11 @@ class Client extends EventEmitter {
 	}
 
 	// Websocket
+	/**
+	 * Connects to the server.
+	 * @param retry {boolean=} Indicates whether this is a reconnect attempt.
+	 * @returns void
+	 */
 	connect(retry) {
 		if (retry) this.debug('Retrying...');
 		if (this.status.connected) return this.handle('Already connected');
@@ -90,8 +137,8 @@ class Client extends EventEmitter {
 		const connection = new WebSocket(websocketUrl);
 		this.connection = connection;
 
-		connection.onopen = connection => {
-			this.emit('connect', connection);
+		connection.onopen = () => {
+			this.emit('connect');
 			this.debug(`Connected to server: ${this.opts.server}`);
 			this.status.connected = true;
 		};
@@ -100,7 +147,7 @@ class Client extends EventEmitter {
 			this.handle(err);
 			this._resetStatus();
 			this.emit('disconnect', err);
-			if (this.opts.autoReconnect) {
+			if (this.opts.autoReconnectDelay) {
 				this.debug(`Retrying in ${this.opts.autoReconnectDelay / 1000} seconds`);
 				setTimeout(() => this.connect(true), this.opts.autoReconnectDelay);
 			}
@@ -115,18 +162,27 @@ class Client extends EventEmitter {
 			this.connection = null;
 			this._resetStatus();
 			this.emit('disconnect', 0);
-			if (!this.closed && this.opts.autoReconnect) {
+			if (!this.closed && this.opts.autoReconnectDelay) {
 				this.debug(`Retrying in ${this.opts.autoReconnectDelay / 1000} seconds.`);
 				setTimeout(() => this.connect(true), this.opts.autoReconnectDelay);
 			}
 		};
 	}
+	/**
+	 * Disconnects from the server.
+	 * @returns void
+	 */
 	disconnect() {
 		this.closed = true;
 		this.ready = false;
 		clearInterval(this.queueTimer);
 		this.connection?.close();
 	}
+	/**
+	 * Reset status after a disconnect.
+	 * @private
+	 * @returns void
+	 */
 	_resetStatus() {
 		this.status = {
 			connected: false,
@@ -137,18 +193,24 @@ class Client extends EventEmitter {
 		};
 	}
 
-	async login(name, pass) {
+	/**
+	 * Logs in.
+	 * @param username {string} The username to use to log in.
+	 * @param password {string} The password for the username. Leave blank if unregistered.
+	 * @returns {Promise<void>} A promise that resolves when the login message is sent.
+	 */
+	async login(username, password) {
 		this.debug('Sending login request...');
 		let res;
-		if (!pass) {
+		if (!password) {
 			res = await fetch(
-				`${this.opts.loginServer}?${querystring.stringify({ act: 'getassertion', userid: Tools.toID(name), ...this.challstr })}`
+				`${this.opts.loginServer}?${querystring.stringify({ act: 'getassertion', userid: Tools.toID(username), ...this.challstr })}`
 			);
 		} else {
 			res = await fetch(this.opts.loginServer, {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-				body: querystring.stringify({ act: 'login', name: Tools.toID(name), pass, ...this.challstr }),
+				body: querystring.stringify({ act: 'login', name: Tools.toID(username), pass: password, ...this.challstr }),
 			});
 		}
 		const response = await res.text();
@@ -169,20 +231,24 @@ class Client extends EventEmitter {
 				// POST (registered) login uses JSON, GET (unregistered) login uses the string directly;
 			}
 			this.debug('Sending login trn...');
-			this.send(`|/trn ${name},0,${trnData}`);
-			return Promise.resolve('Received assertion successfully');
+			this.send(`|/trn ${username},0,${trnData}`);
 		} catch (err) {
 			this.debug('Login error');
 			this.handle(err);
 			if (this.opts.retryLogin) {
 				this.debug(`Retrying login in ${this.opts.retryLogin / 1000} seconds...`);
-				setTimeout(() => this.login(name, pass), this.opts.retryLogin);
+				setTimeout(() => this.login(username, password), this.opts.retryLogin);
 			}
 			this.emit('loginfailure', err);
 		}
 	}
 
 	// Sending data
+	/**
+	 * Starts sending messages in queue once the throttle is known.
+	 * @private
+	 * @returns void
+	 */
 	_activateQueue() {
 		const throttle = this.opts.throttle || (this.isTrusted ? 300 : 1800);
 		if (this.activatedQueue && this.throttle === throttle) return; // No need to adjust throttle
@@ -196,6 +262,11 @@ class Client extends EventEmitter {
 			this.send(Object.values(messages).map(message => message.content));
 		}, throttle);
 	}
+	/**
+	 * Sends a text message to the server. Unthrottled; use sendQueue for chat messages.
+	 * @param text {string | string[]} The text to send.
+	 * @returns void
+	 */
 	send(text) {
 		if (!text.length) return;
 		if (!this.connection) return this.handle('Not connected!');
@@ -205,6 +276,13 @@ class Client extends EventEmitter {
 		this.emit('packet', 'out', text);
 		this.connection.send(text);
 	}
+	/**
+	 * Schedules a message to be sent, while being throttled.
+	 * @param text {string} The message to send.
+	 * @param sent {((msg: Message) => void)=} The resolve method for a promise.
+	 * @param fail {((err: { cause: string, message: string }) => void)=} The reject method for a promise.
+	 * @returns void
+	 */
 	sendQueue(text, sent, fail) {
 		if (!this.status.connected) return fail?.({ cause: 'Not connected.', message: text });
 		const multiTest = text.match(/^([a-z0-9-]*?\|(?:\/pm [^,]*?, ?)?)[^/!].*?\n/);
@@ -229,6 +307,12 @@ class Client extends EventEmitter {
 				.catch(error => fail?.(error));
 		} else this._queue.push({ content: text, sent, fail });
 	}
+	/**
+	 * Sends a string to a user (if the user is not already tracked, they are added).
+	 * @param user {User | string} The user to send to.
+	 * @param text {string} The message to send.
+	 * @returns {Promise<Message>} A promise that resolves when the message is sent successfully.
+	 */
 	sendUser(user, text) {
 		let userid;
 		if (user instanceof User) userid = user.userid;
@@ -239,6 +323,12 @@ class Client extends EventEmitter {
 	}
 
 	// Receiving data
+	/**
+	 * Maps the incoming packets into data.
+	 * @private
+	 * @param message {string} The received packet.
+	 * @returns void
+	 */
 	receive(message) {
 		this.lastMessage = Date.now();
 		const flag = message.substr(0, 1);
@@ -251,10 +341,11 @@ class Client extends EventEmitter {
 			}
 		}
 	}
-
 	/**
-	 *
-	 * @param {string} message
+	 * Maps the incoming data into individual lines.
+	 * @private
+	 * @param message {string}
+	 * @returns void
 	 */
 	receiveMsg(message) {
 		if (!message) return;
@@ -262,18 +353,34 @@ class Client extends EventEmitter {
 			const split = message.split('\n');
 			let room = 'lobby';
 			if (split[0].charAt(0) === '>') {
-				room = split.shift().substr(1);
+				room = split.shift().substring(1);
 				if (room === '') room = 'lobby';
 			}
 			let isIntro = false;
 
-			for (const batch of split) {
-				if (batch.split('|')[1] === 'init') isIntro = true;
-				this.receiveLine(room, batch, isIntro).catch(this.handle);
+			for (const line of split) {
+				if (line.split('|')[1] === 'init') isIntro = true;
+				try {
+					this.receiveLine(room, line, isIntro);
+				} catch (e) {
+					this.handle(e);
+				}
 			}
-		} else this.receiveLine('lobby', message).catch(this.handle);
+		} else
+			try {
+				this.receiveLine('lobby', message);
+			} catch (e) {
+				this.handle(e);
+			}
 	}
-	async receiveLine(room, message, isIntro) {
+
+	/**
+	 * Runs on each received line of input and emits events accordingly.
+	 * @param room {string} The room the line was received in.
+	 * @param message {string} The raw content of the message.
+	 * @param isIntro {boolean=} Whether the line was received as part of an `|init|`.
+	 */
+	receiveLine(room, message, isIntro) {
 		if (!isIntro || this.opts.scrollback) this.emit('line', room, message, isIntro);
 		const args = message.split('|');
 		switch (args[1]) {
@@ -282,7 +389,7 @@ class Client extends EventEmitter {
 				break;
 			}
 			case 'updateuser': {
-				this.status.username = args[2].substr(1);
+				this.status.username = args[2].substring(1);
 				this.status.userid = Tools.toID(this.status.username);
 				if (!args[2].startsWith(' Guest')) {
 					this.debug(`Successfully logged in as '${args[2]}.'`);
@@ -309,12 +416,8 @@ class Client extends EventEmitter {
 					challstr: args[3],
 				};
 				if (this.opts.username) {
-					try {
-						this.debug('Logging in');
-						await this.login(this.opts.username, this.opts.password);
-					} catch (e) {
-						this.handle(e);
-					}
+					this.debug('Logging in');
+					this.login(this.opts.username, this.opts.password).catch(e => this.handle(e));
 				}
 				break;
 			}
@@ -551,14 +654,19 @@ class Client extends EventEmitter {
 	}
 
 	// Utility
-	addUser(input) {
+	/**
+	 * Adds a user to the list of tracked users on the Bot. Starts fetching userdetails in the background.
+	 * @param details {UserDetails | string} The details of the user to add, or the full username of the user.
+	 * @returns {User} The added User.
+	 */
+	addUser(details) {
 		let userid, name;
-		if (typeof input === 'string') {
-			userid = Tools.toID(input);
-			name = input.replace(/^\W/, '');
+		if (typeof details === 'string') {
+			userid = Tools.toID(details);
+			name = details.replace(/^\W/, '');
 		} else {
-			userid = input?.userid;
-			name = input?.name;
+			userid = details?.userid;
+			name = details?.name;
 			name ??= userid;
 		}
 		if (!userid) throw new Error('Input must be an object with userid or a string for new User');
@@ -568,21 +676,35 @@ class Client extends EventEmitter {
 			this.users.set(userid, user);
 			if (!this.opts.sparse) this.getUserDetails(userid);
 		}
-		Object.keys(input).forEach(key => (user[key] = input[key]));
+		if (typeof details === 'object') Object.keys(details).forEach(key => (user[key] = details[key]));
 		return user;
 	}
-	getUser(str, deep = false) {
-		if (str instanceof User) str = str.userid;
+	/**
+	 * Gets the specified user (or their current user, if they were seen on an alt).
+	 * @param input {User | string} The user to find.
+	 * @param deepSearch {boolean=} Whether to also look for direct alts.
+	 * @returns {User | null} The user if found, otherwise null.
+	 */
+	getUser(input, deepSearch = false) {
+		/** @type {string} */
+		let str;
+		if (typeof input === 'object' && input instanceof User) str = input.userid;
+		else str = input;
 		if (typeof str !== 'string') return null;
 		str = Tools.toID(str);
 		if (this.users.get(str)) return this.users.get(str);
-		if (deep) {
+		if (deepSearch) {
 			for (const user of this.users.values()) {
 				if (user.alts?.has(str)) return user;
 			}
 		}
-		return false;
+		return null;
 	}
+	/**
+	 * Queues a request to fetch userdetails
+	 * @param userid {string} The user being queried
+	 * @returns {Promise<UserDetails>} A promise that resolves with the queried userdetails
+	 */
 	getUserDetails(userid) {
 		userid = Tools.toID(userid);
 		const client = this;
@@ -591,10 +713,20 @@ class Client extends EventEmitter {
 			client._userdetailsQueue.push({ id: userid, resolve: resolve });
 		});
 	}
+	/**
+	 * Gets a (cached) room from its name (aliases not supported).
+	 * @param room {string} The name of the room being fetched.
+	 * @returns {Room | null} The room being fetched.
+	 */
 	getRoom(room) {
 		const roomid = Tools.toRoomID(room);
 		return this.rooms.get(roomid); // Sadly there's no easy way to update aliases
 	}
+	/**
+	 * Joins a room.
+	 * @param room {string} The room to join.
+	 * @returns A promise that resolves when the room is joined.
+	 */
 	joinRoom(room) {
 		room = Tools.toRoomID(room);
 		return new Promise((resolve, reject) => {
