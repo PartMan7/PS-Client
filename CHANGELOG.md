@@ -1,5 +1,16 @@
 ## What's New
 
+**v5.1.0**
+
+Pushing this as a minor change instead of a major one; just pretend this was shipped with 5.0.0.
+* `autoReconnectDelay` was merged into `autoReconnect`.
+* Improved docs for client events, `Message` and other stuff.
+* Added missing props (eg: `message.command`).
+* `Message` is now a generic that accepts `'chat'` or `'pm'` to disambiguate between the types. Defaults to `'chat'`.
+* Initializers added for props on `Room` (eg: `users=[]`) so there aren't any errors before the room is hydrated.
+* A lot of helpers that previously returned `false` now return `null` instead to represent the error state.
+* Some internal code cleanup.
+
 **v5.0.1**
 
 - Fixes `reconnect` handling (rejoins rooms, updates avatar, etc).
