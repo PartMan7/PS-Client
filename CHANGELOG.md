@@ -2,8 +2,8 @@
 
 **v5.1.1**
 
-* Initializes Room/User instances with roomid/userid as well as id.
-* Fixed Message inspection title.
+- Initializes Room/User instances with roomid/userid as well as id.
+- Fixed Message inspection title.
 
 **v5.1.0**
 
