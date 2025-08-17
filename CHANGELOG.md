@@ -1,5 +1,10 @@
 ## What's New
 
+**v5.1.1**
+
+* Initializes Room/User instances with roomid/userid as well as id.
+* Fixed Message inspection title.
+
 **v5.1.0**
 
 Pushing this as a minor change instead of a major one; just pretend this was shipped with 5.0.0.
