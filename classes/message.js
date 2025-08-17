@@ -55,7 +55,7 @@ class Message {
 		return '';
 	}
 	[customInspectSymbol](depth, options, inspect) {
-		if (depth < 1) return options.stylize(`${this.title} [PS-Message]`, 'special');
+		if (depth < 1) return options.stylize(`${this.content} [PS-Message]`, 'special');
 		const logObj = {};
 		const keys = ['content', 'type', 'raw', 'time', 'author', 'target', 'command', 'parent', 'isIntro', 'awaited'];
 		keys.forEach(key => (logObj[key] = this[key]));

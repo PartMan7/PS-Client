@@ -6,6 +6,7 @@ class User {
 	constructor(init, parent) {
 		Object.keys(init).forEach(key => (this[key] = init[key]));
 		this.id ??= init.userid;
+		this.userid ??= this.id;
 		this.parent = parent;
 		this._waits = [];
 		this.alts = new Set();

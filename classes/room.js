@@ -19,6 +19,7 @@ function getUserIds(userList) {
 class Room {
 	constructor(name, parent) {
 		this.roomid = toRoomID(name);
+		this.id = this.roomid;
 		this.parent = parent;
 		this._waits = [];
 		this.users = [];
