@@ -68,7 +68,7 @@ class Client extends EventEmitter {
 	// Websocket
 	connect(retry) {
 		if (retry) this.debug('Retrying...');
-		if (this.status.connected) return this.handle('Already connected');
+		if (this.status?.connected) return this.handle('Already connected');
 		this.closed = false;
 
 		this.rooms = new Map();
@@ -205,7 +205,7 @@ class Client extends EventEmitter {
 		this.connection.send(text);
 	}
 	sendQueue(text, sent, fail) {
-		if (!this.status.connected) return fail?.({ cause: 'Not connected.', message: text });
+		if (!this.status?.connected) return fail?.({ cause: 'Not connected.', message: text });
 		const multiTest = text.match(/^([a-z0-9-]*?\|(?:\/pm [^,]*?, ?)?)[^/!].*?\n/);
 		if (multiTest) {
 			// Multi-line messages
@@ -414,7 +414,7 @@ class Client extends EventEmitter {
 						}
 					});
 					mssg.target._waits = mssg.target._waits.filter(wait => !resolved.includes(wait.id));
-					if (mssg.author.userid === this.status.userid && !isIntro) {
+					if (mssg.author.userid === this.status?.userid && !isIntro) {
 						const checkVal = `${room}|${value}`;
 						if (this._queued.some(msg => msg.content === checkVal)) {
 							while (this._queued.length) {
@@ -438,7 +438,7 @@ class Client extends EventEmitter {
 				let value = args.slice(4).join('|');
 				const isHidden = value.startsWith('/botmsg ');
 				if (isHidden) value = value.replace(/^\/botmsg /, '');
-				const chatWith = by.substr(1) === this.status.username ? to : by,
+				const chatWith = by.substr(1) === this.status?.username ? to : by,
 					comp = `|/pm ${Tools.toID(to)},${value}`;
 				const mssg = new Message({
 					by: by,
@@ -461,7 +461,7 @@ class Client extends EventEmitter {
 						}
 					});
 					mssg.target._waits = mssg.target._waits.filter(wait => !resolved.includes(wait.id));
-					if (!isIntro && by.substr(1) === this.status.username && this._queued.map(msg => msg.content).includes(comp)) {
+					if (!isIntro && by.substr(1) === this.status?.username && this._queued.map(msg => msg.content).includes(comp)) {
 						while (this._queued.length) {
 							const msg = this._queued.shift();
 							if (msg.content === comp) {
@@ -603,7 +603,7 @@ class Client extends EventEmitter {
 	}
 
 	[customInspectSymbol](depth, options, inspect) {
-		if (depth < 1) return options.stylize(`${this.status.username || '-'} [PS-Client]`, 'special');
+		if (depth < 1) return options.stylize(`${this.status?.username || '-'} [PS-Client]`, 'special');
 		const outKeys = ['opts', 'status', 'rooms', 'users', 'isTrusted', 'closed'];
 		const logObj = {};
 		outKeys.forEach(key => (logObj[key] = this[key]));
