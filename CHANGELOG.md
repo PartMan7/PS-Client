@@ -1,5 +1,9 @@
 ## What's New
 
+**v5.1.2**
+
+- Checks `null` cases for `Client.status` in methods like `Client#send` when the client might be forcefully disconnected.
+
 **v5.1.1**
 
 - Initializes Room/User instances with roomid/userid as well as id.
