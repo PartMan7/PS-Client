@@ -414,7 +414,7 @@ class Client extends EventEmitter {
 						}
 					});
 					mssg.target._waits = mssg.target._waits.filter(wait => !resolved.includes(wait.id));
-					if (mssg.author.userid === this.status?.userid && !isIntro) {
+					if (mssg.author?.userid && mssg.author.userid === this.status?.userid && !isIntro) {
 						const checkVal = `${room}|${value}`;
 						if (this._queued.some(msg => msg.content === checkVal)) {
 							while (this._queued.length) {
