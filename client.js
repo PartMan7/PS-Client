@@ -120,7 +120,7 @@ class Client extends EventEmitter {
 			this.emit('disconnect', 0);
 			if (!this.closed && this.opts.autoReconnect) {
 				// Only back off if the connection was opened within the last second
-				if (this.status.lastConnected && Date.now() - this.status.lastConnected > 1_000) this.status.backoff = 0; 
+				if (this.status.lastConnected && Date.now() - this.status.lastConnected > 1_000) this.status.backoff = 0;
 				const delay = this.opts.autoReconnect * 2 ** this.status.backoff;
 				this.status.backoff++;
 				this.debug(`Retrying in ${delay / 1000} seconds.`);
