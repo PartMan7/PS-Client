@@ -161,6 +161,12 @@ export class Client extends EventEmitter {
 		inited: boolean;
 		username?: string | null;
 		userid?: string | null;
+		/**
+		 * The backoff exponent for reconnects.
+		 * The reconnect delay doubles for each attempt.
+		 */
+		backoff: number;
+		lastConnected: number | null;
 	};
 	isTrusted?: boolean;
 	closed: boolean;

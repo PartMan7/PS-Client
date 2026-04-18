@@ -51,6 +51,8 @@ class Client extends EventEmitter {
 			username: null,
 			userid: null,
 			inited: false,
+			backoff: 0,
+			lastConnected: null,
 		};
 		this.closed = true;
 		this._queue = [];
@@ -93,15 +95,18 @@ class Client extends EventEmitter {
 			this.emit('connect');
 			this.debug(`Connected to server: ${this.opts.server}`);
 			this.status.connected = true;
+			this.status.lastConnected = Date.now();
 		};
 		connection.onerror = err => {
 			this.debug(`Could not connect to the server ${this.opts.server}`);
 			this.handle(err);
 			this._resetStatus();
+			this.status.backoff++;
 			this.emit('disconnect', err);
 			if (this.opts.autoReconnect) {
-				this.debug(`Retrying in ${this.opts.autoReconnect / 1000} seconds`);
-				setTimeout(() => this.connect(true), this.opts.autoReconnect);
+				const delay = this.opts.autoReconnect * 2 ** this.status.backoff;
+				this.debug(`Retrying in ${delay / 1000} seconds`);
+				setTimeout(() => this.connect(true), delay);
 			}
 		};
 		connection.onmessage = message => {
@@ -112,12 +117,17 @@ class Client extends EventEmitter {
 		connection.onclose = () => {
 			this.debug('Connection closed');
 			this.connection = null;
-			this._resetStatus();
 			this.emit('disconnect', 0);
 			if (!this.closed && this.opts.autoReconnect) {
-				this.debug(`Retrying in ${this.opts.autoReconnect / 1000} seconds.`);
-				setTimeout(() => this.connect(true), this.opts.autoReconnect);
+				// Only back off if the connection was opened within the last second
+				if (this.status.lastConnected && Date.now() - this.status.lastConnected > 1_000) this.status.backoff = 0; 
+				const delay = this.opts.autoReconnect * 2 ** this.status.backoff;
+				this.status.backoff++;
+				this.debug(`Retrying in ${delay / 1000} seconds.`);
+				setTimeout(() => this.connect(true), delay);
 			}
+			this._resetStatus();
+			this.status.lastConnected = null;
 		};
 	}
 	disconnect() {
@@ -127,12 +137,15 @@ class Client extends EventEmitter {
 		this.connection?.close();
 	}
 	_resetStatus() {
+		const prevBackoff = this.status.backoff;
 		this.status = {
 			connected: false,
 			loggedIn: false,
 			username: null,
 			userid: null,
 			inited: false,
+			backoff: prevBackoff,
+			lastConnected: null,
 		};
 	}
 

@@ -1,5 +1,9 @@
 ## What's New
 
+**v5.3.0**
+
+- Implements reconnect backoffs (doubles the time before each reconnection attempt).
+
 **v5.2.0**
 
 - Supports the new `Species#isCosmeticForme` prop on Pokédex Species.
