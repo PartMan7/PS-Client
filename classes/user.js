@@ -20,10 +20,12 @@ class User {
 		else {
 			const rooms = {};
 			for (const room of this.parent.rooms.values()) {
-				if (room.auth?.['*']?.includes(this.parent.status.userid) || room.auth?.['#']?.includes(this.parent.status.userid))
-					rooms[room.visibility] = room;
+				if (room.auth?.['*']?.includes(this.parent.status.userid) || room.auth?.['#']?.includes(this.parent.status.userid)) {
+					if (room.id.startsWith('groupchat-')) rooms.groupchat = room;
+					else rooms[room.visibility] = room;
+				}
 			}
-			room = rooms.public || rooms.hidden || rooms.secret || rooms.private;
+			room = rooms.public || rooms.hidden || rooms.secret || rooms.private || rooms.groupchat;
 		}
 		return { opts: opts.name ? opts : { ...opts, name: fallbackName }, room };
 	}
