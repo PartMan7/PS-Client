@@ -1,5 +1,9 @@
 ## What's New
 
+**v5.3.1**
+
+- Avoid using groupchats to send HTML.
+
 **v5.3.0**
 
 - Implements reconnect backoffs (doubles the time before each reconnection attempt).
