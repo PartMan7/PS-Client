@@ -71,8 +71,7 @@ export type Item = {
 	isChoice?: boolean;
 	itemUser?: string[];
 	forcedForme?: string;
-	megaStone?: string;
-	megaEvolves?: string;
+	megaStone?: Record<string, string>;
 	zMove?: string | boolean;
 	zMoveType?: Types;
 	zMoveFrom?: string;
