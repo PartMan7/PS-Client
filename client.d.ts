@@ -228,9 +228,9 @@ export class Client extends EventEmitter {
 	 * Gets the specified user (or their current user, if they were seen on an alt)
 	 * @param user The user to find
 	 * @param deepSearch Whether to also look for direct alts
-	 * @returns The user if found, otherwise false
+	 * @returns The user if found, `undefined` if not tracked, or `null` for invalid input
 	 */
-	getUser(user: string, deepSearch?: boolean): User | false | null;
+	getUser(user: string | User, deepSearch?: boolean): User | null | undefined;
 
 	/**
 	 * Queues a request to fetch userdetails

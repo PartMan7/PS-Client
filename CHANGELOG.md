@@ -1,5 +1,9 @@
 ## What's New
 
+**v5.4.0**
+
+- `Client#getUser` now returns `undefined` instead of `false` when the user is not tracked.
+
 **v5.3.1**
 
 - Avoid using groupchats to send HTML.

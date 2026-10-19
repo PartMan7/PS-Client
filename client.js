@@ -589,7 +589,7 @@ class Client extends EventEmitter {
 				if (user.alts?.has(str)) return user;
 			}
 		}
-		return false;
+		return undefined;
 	}
 	getUserDetails(userid) {
 		userid = Tools.toID(userid);

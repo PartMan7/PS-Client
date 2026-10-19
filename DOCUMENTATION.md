@@ -19,7 +19,7 @@ Client also has the following methods:
 - `connect (reconnect: boolean): void` - Creates the websocket to connect to the server, then logs in. `reconnect` has no significance besides logging the attempt as a reconnection attempt.
 - `disconnect: void` - Closes the connection.
 - `login (username: string, password: string | undefined): void` - Logs in with the given credentials. Requires the websocket to have been created.
-- `getUser (username: string | User, deep: boolean): User | false | null` - Finds a user among tracked users. Returns the user instance (in case deep is true and the user has been tracked while renaming, it returns the new User instance). Returns `null` for an invalid input and `false` if the user is not tracked.
+- `getUser (username: string | User, deep: boolean): User | null | undefined` - Finds a user among tracked users. Returns the user instance (in case deep is true and the user has been tracked while renaming, it returns the new User instance). Returns `null` for an invalid input and `undefined` if the user is not tracked.
 - `sendUser (username: string | User, text: string): Promise<Message>` - Sends the provided string to the specified user.
 - `send (text: string): void` - Sends the provided string to the server. This bypasses the queue, and can cause the Bot to exceed the throttle. **Using Room#send or User#send instead is highly recommended.**
 
@@ -47,7 +47,7 @@ Message has the following properties:
 
 - `author`: The User object of the author of the message.
 - `content`: The string of the message content.
-- `command`: Represents the command that the message has (!dt, for example). If this is not a command, this is `false`.
+- `command`: Represents the command that the message has (!dt, for example). If this is not a command, this is `null`.
 - `msgRank`: The rank of the author as shown in the message.
 - `parent`: The Client that received the message.
 - `type`: The type of the message being received. Can be either `'pm'` or `'chat'`.
