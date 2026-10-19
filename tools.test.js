@@ -14,17 +14,23 @@ describe('toRoomID', () => {
 });
 
 describe('HSL', () => {
+	let customColors;
+
+	beforeAll(async () => {
+		({ colors: customColors } = await Tools.fetch('colors'));
+	});
+
 	it('should return the right non-custom HSL', () => {
 		expect(Tools.HSL('PartBot')).toEqual({ source: 'partbot', hsl: [265, 50, 57.86516676840277] });
 	});
 	it('should return the right custom HSL', () => {
-		expect(Tools.HSL('PartMan').hsl).toEqual([21, 88, 49]);
+		expect(Tools.HSL('PartMan', { customColors }).hsl).toEqual([21, 88, 49]);
 	});
 	it('should return the right original HSL', () => {
-		expect(Tools.HSL('PartMan', true).hsl).toEqual([162, 84, 33]);
+		expect(Tools.HSL('PartMan', { original: true, customColors }).hsl).toEqual([162, 84, 33]);
 	});
 	it('should also import new custom colors', () => {
-		expect(Tools.HSL('style.css').hsl).toEqual([258, 62, 56.12230272578728]);
+		expect(Tools.HSL('style.css', { customColors }).hsl).toEqual([258, 62, 56.12230272578728]);
 	});
 });
 
@@ -83,8 +89,8 @@ describe('formatText', () => {
 	});
 });
 
-describe('update', () => {
-	it('should be able to update the datacenters', () => {
-		return Tools.update();
+describe('fetch', () => {
+	it('should be able to fetch the datacenters', () => {
+		return Tools.fetch();
 	});
 });

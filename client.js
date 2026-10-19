@@ -11,8 +11,6 @@ const Room = require('./classes/room.js');
 const Message = require('./classes/message.js');
 const Tools = require('./tools.js');
 
-const Data = require('./data.js');
-
 class Client extends EventEmitter {
 	constructor(opts = {}) {
 		super();
@@ -630,5 +628,4 @@ module.exports = {
 	User,
 	Room,
 	Tools,
-	Data,
 };

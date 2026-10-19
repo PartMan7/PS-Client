@@ -1,5 +1,10 @@
 ## What's New
 
+**v6.0.0**
+
+- Datacenter files are no longer shipped in the package or tracked in git. Use `Tools.fetch` to load data from play.pokemonshowdown.com at runtime.
+- `Tools.HSL` now accepts `{ original?, customColors? }` instead of a boolean `original` argument; pass `customColors` from `fetch('colors')` when you need PS custom name colours.
+
 **v5.4.0**
 
 - `Client#getUser` now returns `undefined` instead of `false` when the user is not tracked.

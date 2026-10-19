@@ -1,3 +1,5 @@
+import type { Datacenters } from './data';
+
 type Namecolour = {
 	source: string;
 	hsl: [number, number, number];
@@ -11,11 +13,10 @@ type PokePaste = {
 	paste: string;
 };
 
-type UpdateType =
+type FetchType =
 	| 'abilities'
 	| 'aliases'
 	| 'colors'
-	| 'config'
 	| 'formatsdata'
 	| 'formats'
 	| 'items'
@@ -23,6 +24,11 @@ type UpdateType =
 	| 'moves'
 	| 'pokedex'
 	| 'typechart';
+
+type HSLOptions = {
+	original?: boolean;
+	customColors?: Record<string, string>;
+};
 
 /**
  * @param text The input value
@@ -37,17 +43,16 @@ export function toRoomID(text: any): string;
 
 /**
  * @param name - The username whose HSL value is to be calculated
- * @param original - Whether the username's original colour should override the custom colour (optional)
+ * @param opts - Optional original colour override and PS custom colour map
  * @returns An object with the required details (HSL values in namecolour.hsl)
  */
-export function HSL(name: string, original?: boolean): Namecolour;
+export function HSL(name: string, opts?: HSLOptions): Namecolour;
 
 /**
- * @param types - A string corresponding to the datacenter you wish to update.
- * If nothing is passed, this updates all available datacenters.
- * @returns A promise with the name(s) of the updated datacenter(s)
+ * @param types - Datacenter(s) to fetch from play.pokemonshowdown.com. Fetches all when omitted.
+ * @returns A promise with the requested datacenter data
  */
-export function update(...types: UpdateType[]): Promise<UpdateType[]>;
+export function fetch(...types: FetchType[]): Promise<Partial<Datacenters>>;
 
 /**
  * @param text - The text to upload

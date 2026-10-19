@@ -106,9 +106,9 @@ Note: There are four main reasons to ignore an incoming message:
 
 For common purposes and frequently useful methods, a variety of tools have been made available. Tools can be accessed from `require('ps-client').Tools`. It has the following functions:
 
-- `HSL (name: string, original: boolean): { source: string, hsl: number[], original?: { source: string, hsl: number[] } }`: This function calculates the HSL values of the namecolours of the given username as calculated by PS! (S and L are in percentages). If the provided username has an associated custom colour, and `original` is not set to `true`, the function also generates an identical object keyed as original with the original colours, while hashing the custom one.
+- `HSL (name: string, opts?: { original?: boolean, customColors?: Record<string, string> }): { source: string, hsl: number[], base?: { source: string, hsl: number[] } }`: Calculates the HSL values of the namecolours of the given username as PS does (S and L are in percentages). Pass `customColors` (e.g. from `Tools.fetch('colors')`) to resolve PS custom colours; set `original: true` to hash the userid instead of the custom colour name.
 - `toID (name: string): string`: Converts a username into their userid.
-- `update (...data?: string[]): string[]`: Updates the corresponding datacenters in the module. If no parameters are passed, updates all datacenters. Valid inputs are: `abilities`, `aliases`, `colors`, `formatsdata`, `formats`, `items`, `learnsets`, `moves`, `pokedex`, and `typechart`. Resolves with an array containing the names of all the updated centers, or rejects with any errors.
+- `fetch (...data?: string[]): Promise<object>`: Fetches datacenters from play.pokemonshowdown.com. If no parameters are passed, fetches all datacenters. Valid inputs are: `abilities`, `aliases`, `colors`, `formatsdata`, `formats`, `items`, `learnsets`, `moves`, `pokedex`, and `typechart`. Resolves with an object containing the requested data (keys use camelCase, e.g. `formatsData`).
 - `uploadToPastie (text: string, callback?: (url: string)): Promise<string>`: Uploads the given text to Pastie.io. Resolves with the raw link to the uploaded text. A callback may also be used.
 - `uploadToPokepaste (sets: string, output?: (url: string) => {} | 'raw' | 'html'): Promise<string>`: Uploads a string containing sets to pokepast.es. Resolves with the URL to the uploaded paste. If `output` is a callback, the callback is instead run. `output` may also be set to `'html'` to resolve with the received HTML, or `'raw'` to resolve with the link to the raw paste.
 - `escapeHTML (input: string): string`: Escapes special characters with their HTML sequences.
@@ -120,21 +120,19 @@ Note: You can add a custom HTML processor (like `juice` to hydrate style tags in
 
 ## Datacenters
 
-Since this module is for Pokémon Showdown, it also contains references to data from Pokémon Showdown. All the data in this module is sourced from play.pokemonshowdown.com, and can be updated via Tools#update. This data is exported under `require('ps-client').Data`.
+Showdown dex data is not bundled with this package. Fetch it at runtime with `Tools.fetch` and keep the returned object in your app; call `fetch` again when you need fresher data.
 
-Data has the following entries:
+Example:
 
-- `abilities`: Contains the data for abilities.
-- `aliases`: Contains the list of aliases.
-- `colors`: Contains the custom colors for users on PS.
-- `formats-data`: Contains tiers and Randoms moves.
-- `formats`: Contains the clauses for various tiers.
-- `items`: Contains the data for items.
-- `learnsets`: Contains the data for Pokémon learnsets.
-- `moves`: Contains the data for moves.
-- `pokedex`: Contains the basic Pokédex info.
-- `typechart`: Contains type matchup data.
-  More information on how to use these can be found [here](https://github.com/smogon/pokemon-showdown/tree/master/data).
+```js
+const { Tools } = require('ps-client');
+const data = await Tools.fetch('moves', 'pokedex');
+// data.moves, data.pokedex
+```
+
+`fetch` accepts: `abilities`, `aliases`, `colors`, `formatsdata`, `formats`, `items`, `learnsets`, `moves`, `pokedex`, and `typechart`. TypeScript types for the payloads live in `data.d.ts` (`Datacenters`).
+
+More information on the data itself can be found [here](https://github.com/smogon/pokemon-showdown/tree/master/data).
 
 ## What's New
 

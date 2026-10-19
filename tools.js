@@ -1,11 +1,10 @@
 'use strict';
 
 const crypto = require('crypto');
-const fs = require('fs');
-const path = require('path');
 const querystring = require('querystring');
 
-let COLORS = require('./showdown/colors.json');
+const { fetch: fetchDatacenters } = require('./datacenters.js');
+exports.fetch = fetchDatacenters;
 
 function toID(text) {
 	return String(text)
@@ -21,12 +20,14 @@ function toRoomID(text) {
 }
 exports.toRoomID = toRoomID;
 
-exports.HSL = function HSL(name, original) {
+exports.HSL = function HSL(name, opts) {
+	const original = opts && typeof opts === 'object' ? opts.original : undefined;
+	const customColors = opts && typeof opts === 'object' ? opts.customColors : undefined;
 	name = toID(name);
 	const out = { source: name, hsl: null };
-	if (COLORS[name] && name !== 'constructor' && !original) {
-		out.base = exports.HSL(name, true);
-		name = COLORS[name];
+	if (customColors?.[name] && name !== 'constructor' && !original) {
+		out.base = exports.HSL(name, { original: true, customColors });
+		name = customColors[name];
 		out.source = name;
 	}
 	const hash = crypto.createHash('md5').update(name, 'utf8').digest('hex');
@@ -85,163 +86,6 @@ exports.HSL = function HSL(name, original) {
 	L += HLmod;
 	out.hsl = [H, S, L];
 	return out;
-};
-
-exports.update = function update(...types) {
-	const links = {
-		abilities: {
-			url: 'https://play.pokemonshowdown.com/data/abilities.js',
-			path: path.join(__dirname, 'showdown', 'abilities.js'),
-			name: 'Abilities',
-			expo: 'BattleAbilities',
-		},
-		aliases: {
-			url: 'https://play.pokemonshowdown.com/data/aliases.js',
-			path: path.join(__dirname, 'showdown', 'aliases.js'),
-			name: 'Aliases',
-			expo: 'BattleAliases',
-		},
-		colors: {
-			path: path.join(__dirname, 'showdown', 'colors.json'),
-			name: 'Colors',
-		},
-		formatsdata: {
-			url: 'https://play.pokemonshowdown.com/data/formats-data.js',
-			path: path.join(__dirname, 'showdown', 'formats-data.js'),
-			name: 'Formats Data',
-			key: 'formatsData',
-			expo: 'BattleFormatsData',
-		},
-		formats: {
-			url: 'https://play.pokemonshowdown.com/data/formats.js',
-			path: path.join(__dirname, 'showdown', 'formats.js'),
-			name: 'Formats',
-			expo: 'BattleFormats',
-		},
-		items: {
-			url: 'https://play.pokemonshowdown.com/data/items.js',
-			path: path.join(__dirname, 'showdown', 'items.js'),
-			name: 'Items',
-			expo: 'BattleItems',
-		},
-		learnsets: {
-			url: 'https://play.pokemonshowdown.com/data/learnsets.js',
-			path: path.join(__dirname, 'showdown', 'learnsets.js'),
-			name: 'Learnsets',
-			expo: 'BattleLearnsets',
-		},
-		moves: {
-			url: 'https://play.pokemonshowdown.com/data/moves.json',
-			path: path.join(__dirname, 'showdown', 'moves.json'),
-			name: 'Moves',
-		},
-		pokedex: {
-			url: 'https://play.pokemonshowdown.com/data/pokedex.json',
-			path: path.join(__dirname, 'showdown', 'pokedex.json'),
-			name: 'Pokedex',
-			process: json => {
-				const data = JSON.parse(json);
-				Object.values(data).forEach(pokemon => {
-					pokemon.id = toID(pokemon.name);
-					if (pokemon.isCosmeticForme) {
-						const baseMon = data[toID(pokemon.baseSpecies)];
-						for (const key in baseMon) {
-							if (!(key in pokemon)) pokemon[key] = baseMon[key];
-						}
-					}
-					pokemon.bst = Object.values(pokemon.baseStats).reduce((a, b) => a + b, 0);
-
-					if (!pokemon.gen && pokemon.num >= 1) {
-						if (pokemon.num >= 906 || pokemon.forme?.includes('Paldea')) {
-							pokemon.gen = 9;
-						} else if (pokemon.num >= 810 || ['Gmax', 'Galar', 'Galar-Zen', 'Hisui'].includes(pokemon.forme)) {
-							pokemon.gen = 8;
-						} else if (pokemon.num >= 722 || pokemon.forme?.startsWith('Alola') || pokemon.forme === 'Starter') {
-							pokemon.gen = 7;
-						} else if (pokemon.forme === 'Primal') {
-							pokemon.gen = 6;
-							pokemon.isPrimal = true;
-							pokemon.battleOnly = pokemon.baseSpecies;
-						} else if (pokemon.num >= 650 || pokemon.isMega) {
-							pokemon.gen = 6;
-						} else if (pokemon.num >= 494) {
-							pokemon.gen = 5;
-						} else if (pokemon.num >= 387) {
-							pokemon.gen = 4;
-						} else if (pokemon.num >= 252) {
-							pokemon.gen = 3;
-						} else if (pokemon.num >= 152) {
-							pokemon.gen = 2;
-						} else {
-							pokemon.gen = 1;
-						}
-					}
-				});
-				return JSON.stringify(data);
-			},
-		},
-		typechart: {
-			url: 'https://play.pokemonshowdown.com/data/typechart.js',
-			path: path.join(__dirname, 'showdown', 'typechart.js'),
-			name: 'Typechart',
-			expo: 'BattleTypeChart',
-		},
-	};
-	types = types
-		.map(toID)
-		.map(type => links[type])
-		.filter(type => type);
-	if (!types.length) types = Object.values(links);
-	return new Promise((resolve, reject) => {
-		Promise.all(
-			types.map(
-				type =>
-					new Promise(res => {
-						if (type.name === 'Colors') {
-							return fetch('http://play.pokemonshowdown.com/config/colors.json')
-								.then(res => res.json())
-								.then(async response => {
-									const configStr = await fetch('https://play.pokemonshowdown.com/config/config.js').then(body => body.text());
-									const pairs = configStr.match(/(?<=')[a-z0-9]+': '[a-z0-9]*(?=')/g).map(match => match.split(`': '`));
-									const obj = Object.assign(Object.fromEntries(pairs), response);
-									fs.writeFile(type.path, JSON.stringify(obj, null, '\t'), err => {
-										if (err) return reject(err.message);
-										delete require.cache[require.resolve(type.path)];
-										COLORS = require(type.path);
-										return res(type.name);
-									});
-								});
-						}
-						fetch(type.url)
-							.then(res => res.text())
-							.then(response => {
-								const data = type.process ? type.process(response) : response;
-								const writeData = (typeof data === 'string' ? data : JSON.stringify(data)) + (type.append || '');
-								fs.writeFile(type.path, writeData, err => {
-									if (err) throw err;
-									try {
-										delete require.cache[require.resolve(type.path)];
-									} catch {
-									} finally {
-										res(type.name);
-									}
-								});
-							})
-							.catch(reject);
-					})
-			)
-		).then(res => {
-			if (require.cache[require.resolve('./client.js')]) {
-				const main = require('./client.js');
-				types.forEach(type => {
-					const key = type.key || toID(type.name);
-					if (type.expo) main.Data[key] = require(type.path)[type.expo];
-					else main.Data[key] = require(type.path);
-				});
-			}
-			resolve(res);
-		});
-	});
 };
 
 exports.uploadToPastie = async function uploadToPastie(text, callback) {

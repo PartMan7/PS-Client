@@ -388,3 +388,16 @@ export const typechart: Record<
 		HPdvs?: Partial<StatsTable>;
 	}
 >;
+
+export type Datacenters = {
+	abilities: typeof abilities;
+	aliases: typeof aliases;
+	colors: Record<string, string>;
+	formatsData: typeof formatsData;
+	formats: typeof formats;
+	items: typeof items;
+	learnsets: typeof learnsets;
+	moves: typeof moves;
+	pokedex: typeof pokedex;
+	typechart: typeof typechart;
+};

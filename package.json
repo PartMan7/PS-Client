@@ -1,7 +1,7 @@
 {
 	"name": "ps-client",
 	"homepage": "https://github.com/PartMan7/PS-Client#readme",
-	"version": "5.4.0",
+	"version": "6.0.0",
 	"description": "Package for connecting to Pokemon Showdown servers.",
 	"main": "client.js",
 	"scripts": {
@@ -23,6 +23,7 @@
 	},
 	"dependencies": {
 		"isomorphic-ws": "^5.0.0",
+		"json5": "^2.2.3",
 		"ws": "^8.18.0"
 	},
 	"devDependencies": {
