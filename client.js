@@ -136,6 +136,7 @@ class Client extends EventEmitter {
 	}
 	_resetStatus() {
 		const prevBackoff = this.status.backoff;
+		this.ready = false;
 		this.status = {
 			connected: false,
 			loggedIn: false,
@@ -294,7 +295,7 @@ class Client extends EventEmitter {
 			case 'updateuser': {
 				this.status.username = args[2].substring(1);
 				this.status.userid = Tools.toID(this.status.username);
-				if (!args[2].startsWith(' Guest')) {
+				if (args[3] === '1') {
 					this.debug(`Successfully logged in as '${args[2]}.'`);
 					this.status.loggedIn = true;
 					this.emit('login', args[2]);
