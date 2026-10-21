@@ -575,7 +575,10 @@ class Client extends EventEmitter {
 			this.users.set(userid, user);
 			if (!this.opts.sparse) this.getUserDetails(userid);
 		}
-		if (typeof input === 'object') Object.keys(input).forEach(key => (user[key] = input[key]));
+		if (typeof input === 'object') {
+			Object.keys(input).forEach(key => (user[key] = input[key]));
+			if (!input.status) user.status = input.status; // status needs to be cleared
+		}
 		return user;
 	}
 	getUser(str, deep = false) {

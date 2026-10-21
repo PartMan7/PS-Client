@@ -1,5 +1,9 @@
 ## What's New
 
+**v6.0.2**
+
+- Fixes `addUser` leaving a stale `status` when it should be cleared.
+
 **v6.0.1**
 
 - Fixes a reconnect bug where the bot would get stuck under a guest username.
