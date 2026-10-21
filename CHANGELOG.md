@@ -1,5 +1,9 @@
 ## What's New
 
+**v6.0.3**
+
+- Add the new battlebots policy thread to the README.
+
 **v6.0.2**
 
 - Fixes `addUser` leaving a stale `status` when it should be cleared.
