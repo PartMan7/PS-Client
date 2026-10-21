@@ -1,5 +1,9 @@
 ## What's New
 
+**v6.0.1**
+
+- Fixes a reconnect bug where the bot would get stuck under a guest username.
+
 **v6.0.0**
 
 - Datacenter files are no longer shipped in the package or tracked in git. Use `Tools.fetch` to load data from play.pokemonshowdown.com at runtime.
